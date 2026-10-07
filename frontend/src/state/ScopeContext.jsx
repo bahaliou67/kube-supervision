@@ -5,7 +5,7 @@
 // pas dans la liste des namespaces accessibles, le premier accessible.
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import { navigate, useRoute } from '../lib/router.js';
-import { useApi } from '../lib/useApi.js';
+import { useApi, useAutoRetry } from '../lib/useApi.js';
 
 const ScopeCtx = createContext(null);
 
@@ -17,6 +17,9 @@ export function ScopeProvider({ children }) {
   const ctxObj = contexts.data?.contexts.find((c) => c.name === ctxNom) ?? null;
 
   const namespaces = useApi('/namespaces', { ctx: ctxNom }, { enabled: Boolean(ctxObj) });
+  // L'outil ou le cluster ne répond pas encore : nouvelles tentatives automatiques.
+  useAutoRetry(contexts);
+  useAutoRetry(namespaces);
 
   let ns = route.query.ns || null;
   if (!ns && ctxObj) {

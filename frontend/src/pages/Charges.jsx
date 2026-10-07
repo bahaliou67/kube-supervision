@@ -131,9 +131,9 @@ function Actions({ ligne }) {
 // Tri des Pods dans un panneau : les plus problématiques d'abord.
 const triPods = (a, b) => RANG_CATEGORIE[a.category] - RANG_CATEGORIE[b.category] || a.name.localeCompare(b.name, 'fr', { numeric: true });
 
-export default function Charges({ onUpdate }) {
+export default function Charges() {
   const { ctx, ns, route } = useScope();
-  const { pods, workloads } = useNamespaceData({ onUpdate });
+  const { pods, workloads } = useNamespaceData();
   // ?q=… dans l'adresse (lien depuis la fiche d'un Pod) préremplit la recherche.
   const [q, setQ] = useState(route.query.q ?? '');
   const [statut, setStatut] = useState('tous');

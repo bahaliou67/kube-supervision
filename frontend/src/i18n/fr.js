@@ -497,6 +497,18 @@ const fr = {
     voirActuel: 'Voir le conteneur actuel',
   },
 
+  connexion: {
+    perdue: 'Connexion à {ctx} perdue',
+    outilMuet: "L'outil de supervision ne répond plus",
+    identifiants: 'Le cluster {ctx} refuse vos identifiants',
+    donnees: "Les données affichées datent d'{quand} et peuvent être périmées. Les actions sont désactivées.",
+    sansDonnees: "Aucune donnée n'a encore pu être lue. Les actions sont désactivées.",
+    tentative: (s) => ` Nouvelle tentative dans ${s} s.`,
+    tentativeEnCours: ' Nouvelle tentative en cours…',
+    outilAide: "Vérifiez que l'outil est toujours lancé dans votre terminal.",
+    reessayer: 'Réessayer',
+  },
+
   etats: {
     chargement: "Lecture de l'état de {ns} sur {ctx}…",
   },

@@ -10,6 +10,7 @@ import { SelectField, Segmented } from '../components/Toolbar.jsx';
 import { ErrorState, LoadingState, Skeleton } from '../components/States.jsx';
 import { Breadcrumb } from './PodDetail.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
+import { useLive } from '../state/LiveContext.jsx';
 import { useApi } from '../lib/useApi.js';
 import { cleTs, useLogFollow } from '../lib/useLogFollow.js';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
@@ -98,9 +99,11 @@ function FinDesLogs({ arret, limite }) {
   );
 }
 
-export default function Logs({ name, onUpdate }) {
+export default function Logs({ name }) {
   const { ctx, ns, route, link } = useScope();
-  const detail = useApi(`/pods/${encodeURIComponent(name)}`, { ctx, ns });
+  // La fiche du Pod (conteneurs, redémarrages) se relit à chaque changement reçu en direct.
+  const { revision } = useLive();
+  const detail = useApi(`/pods/${encodeURIComponent(name)}`, { ctx, ns }, { revision: revision(name) });
   const pod = detail.data?.pod;
   const conteneurs = pod ? tousConteneurs(pod) : [];
 
@@ -127,9 +130,6 @@ export default function Logs({ name, onUpdate }) {
     { ctx, ns, container: nomConteneur, previous: precedent ? 1 : '', tailLines: nbLignes },
     { enabled: Boolean(c) },
   );
-  useEffect(() => {
-    if (logs.updatedAt) onUpdate?.(logs.updatedAt);
-  }, [logs.updatedAt, onUpdate]);
 
   // Lignes affichées : celles lues + celles reçues en direct (limitées en mémoire).
   const [enDirect, setEnDirect] = useState([]);

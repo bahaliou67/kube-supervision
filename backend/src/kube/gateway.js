@@ -79,7 +79,11 @@ export class KubeGateway {
         apps: kc.makeApiClient(k8s.AppsV1Api),
         batch: kc.makeApiClient(k8s.BatchV1Api),
         authz: kc.makeApiClient(k8s.AuthorizationV1Api),
-        watch: new k8s.Watch(kc),
+        watch: Object.assign(new k8s.Watch(kc), {
+          // Le client coupe sinon chaque watch au bout de 30 s ; le serveur le
+          // ferme de lui-même après timeoutSeconds (voir namespaceWatcher.js).
+          requestTimeoutMs: 300000,
+        }),
         openLogStream: (options) => openLogStream(kc, options),
       };
       this.cache.set(name, c);

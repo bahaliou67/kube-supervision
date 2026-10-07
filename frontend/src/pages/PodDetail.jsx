@@ -8,6 +8,7 @@ import StatusBadge from '../components/StatusBadge.jsx';
 import { ErrorState, LoadingState } from '../components/States.jsx';
 import { LastStop } from '../components/PodDiagnosis.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
+import { useLive } from '../state/LiveContext.jsx';
 import { useApi } from '../lib/useApi.js';
 import { Mono, tpl } from '../lib/tpl.jsx';
 import { age, duree, depuis, ilYa } from '../lib/format.js';
@@ -352,16 +353,16 @@ function Evenements({ events, forbidden }) {
   );
 }
 
-export default function PodDetail({ name, onUpdate }) {
+export default function PodDetail({ name }) {
   const { ctx, ns, link } = useScope();
-  const detail = useApi(`/pods/${encodeURIComponent(name)}`, { ctx, ns });
-  useEffect(() => {
-    if (detail.updatedAt) onUpdate?.(detail.updatedAt);
-  }, [detail.updatedAt, onUpdate]);
+  // Le Pod ou ses événements changent : la fiche se relit sans repasser par le chargement.
+  const { revision } = useLive();
+  const detail = useApi(`/pods/${encodeURIComponent(name)}`, { ctx, ns }, { revision: revision(name) });
 
   const d = detail.data;
   let contenu;
-  if (detail.status === 'error' && !d) {
+  // Un Pod supprimé pendant qu'on regarde sa fiche : « Ce Pod n'existe plus ».
+  if (detail.status === 'error' && (!d || detail.error.code === 'INTROUVABLE')) {
     contenu =
       detail.error.code === 'INTROUVABLE' ? (
         <Card className="state-card">

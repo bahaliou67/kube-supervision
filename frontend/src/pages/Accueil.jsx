@@ -200,9 +200,9 @@ function ToutFonctionne({ pods, counts }) {
   );
 }
 
-export default function Accueil({ onUpdate }) {
+export default function Accueil() {
   const { ns } = useScope();
-  const { pods, workloads } = useNamespaceData({ onUpdate });
+  const { pods, workloads } = useNamespaceData();
   const items = pods.data?.items;
 
   const groupes = useMemo(() => {

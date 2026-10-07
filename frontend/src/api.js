@@ -20,6 +20,9 @@ function qs(params) {
   return s ? `?${s}` : '';
 }
 
+// Erreurs passagères : une nouvelle tentative a des chances de réussir.
+export const ERREURS_PASSAGERES = new Set(['SERVEUR_INJOIGNABLE', 'CLUSTER_INJOIGNABLE', 'DELAI_DEPASSE', 'ERREUR_CLUSTER']);
+
 export async function apiGet(path, params) {
   let res;
   try {
@@ -31,6 +34,11 @@ export async function apiGet(path, params) {
   const corps = await res.json().catch(() => null);
   if (!res.ok) {
     const e = corps?.error;
+    // Pas de réponse au format de l'API : c'est un intermédiaire (proxy de
+    // développement) qui répond à la place de l'outil arrêté.
+    if (!e && [502, 503, 504].includes(res.status)) {
+      throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+    }
     throw new ApiError(res.status, e?.code ?? 'ERREUR_INTERNE', e?.message ?? `Erreur HTTP ${res.status}`);
   }
   return corps;

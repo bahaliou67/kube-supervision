@@ -1,5 +1,4 @@
 // Racine de l'application : en-tête permanent et écran correspondant à l'adresse.
-import { useCallback, useState } from 'react';
 import Header from './components/Header.jsx';
 import Card from './components/Card.jsx';
 import Button from './components/Button.jsx';
@@ -10,10 +9,12 @@ import Galerie from './pages/Galerie.jsx';
 import PodDetail from './pages/PodDetail.jsx';
 import Logs from './pages/Logs.jsx';
 import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
+import { LiveProvider } from './state/LiveContext.jsx';
+import ConnectionBanner from './components/ConnectionBanner.jsx';
 import { navigate } from './lib/router.js';
 import fr from './i18n/fr.js';
 
-function Ecran({ onUpdate }) {
+function Ecran() {
   const { route, contexts, ctxObj, ready } = useScope();
 
   if (import.meta.env.DEV && route.path === '/composants') return <Galerie />;
@@ -31,7 +32,7 @@ function Ecran({ onUpdate }) {
     return (
       <main className="page">
         <Card padded style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
-          <h1 style={{ fontSize: 18 }}>{fr.demarrage.erreurTitre}</h1>
+          <h1 style={{ fontSize: 18 }}>{contexts.error.code === 'SERVEUR_INJOIGNABLE' ? fr.connexion.outilMuet : fr.demarrage.erreurTitre}</h1>
           <div>{contexts.error.message}</div>
           <Button onClick={contexts.reload}>{fr.commun.reessayer}</Button>
         </Card>
@@ -54,21 +55,20 @@ function Ecran({ onUpdate }) {
   const fiche = /^\/pods\/([^/]+)(\/logs)?$/.exec(route.path);
   if (fiche) {
     const nom = decodeURIComponent(fiche[1]);
-    return fiche[2] ? <Logs key={`${nom}|${route.query.ns}`} name={nom} onUpdate={onUpdate} /> : <PodDetail key={`${nom}|${route.query.ns}`} name={nom} onUpdate={onUpdate} />;
+    return fiche[2] ? <Logs key={`${nom}|${route.query.ns}`} name={nom} /> : <PodDetail key={`${nom}|${route.query.ns}`} name={nom} />;
   }
-  if (route.path.startsWith('/charges')) return <Charges onUpdate={onUpdate} />;
-  return <Accueil onUpdate={onUpdate} />;
+  if (route.path.startsWith('/charges')) return <Charges />;
+  return <Accueil />;
 }
 
 export default function App() {
-  // Date de la dernière donnée reçue, affichée dans l'en-tête.
-  // Le flux temps réel (étape 6) alimentera aussi l'état « en ligne ».
-  const [updatedAt, setUpdatedAt] = useState(null);
-  const onUpdate = useCallback((t) => setUpdatedAt(t), []);
   return (
     <ScopeProvider>
-      <Header live={{ online: Boolean(updatedAt), updatedAt }} />
-      <Ecran onUpdate={onUpdate} />
+      <LiveProvider>
+        <Header />
+        <ConnectionBanner />
+        <Ecran />
+      </LiveProvider>
     </ScopeProvider>
   );
 }

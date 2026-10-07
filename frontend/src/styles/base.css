@@ -1291,3 +1291,48 @@ a.btn-primary:hover {
 .log-end svg {
   flex: none;
 }
+
+/* ---------- Bandeau de connexion perdue (maquette 06) ---------- */
+.banner-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px 0;
+}
+.banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-radius: var(--radius-ctl);
+  padding: 14px;
+}
+.banner-warn {
+  background: var(--warnbg);
+  border: 2px solid var(--warn);
+}
+.banner-icon {
+  color: var(--warn);
+  display: inline-flex;
+  padding-top: 2px;
+}
+.banner-body {
+  flex: 1;
+  min-width: 0;
+}
+.banner-title {
+  font-weight: 600;
+}
+.banner-mono {
+  font-weight: 500;
+}
+.banner-text {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.banner-cause {
+  font-size: 12.5px;
+  margin-top: 4px;
+  color: var(--mut);
+}
+.banner + .banner {
+  margin-top: 8px;
+}

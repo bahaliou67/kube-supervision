@@ -84,6 +84,21 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
     });
     return { stream: flux, abort: () => flux.destroy() };
   };
+  // Watch simulé : chaque appel est mémorisé, le test émet les événements
+  // (w.cb('ADDED', objet)) et termine le watch (w.done(erreur ou null)).
+  const watches = [];
+  apis.watch = {
+    async watch(path, params, cb, done) {
+      leve('watch', { path, ...params });
+      const ctrl = new AbortController();
+      const w = { path, params, cb, done, ctrl, aborted: false };
+      ctrl.signal.addEventListener('abort', () => {
+        w.aborted = true;
+      });
+      watches.push(w);
+      return ctrl;
+    },
+  };
   apis.core.listNamespace = async () => {
     leve('listNamespace');
     const noms = namespaces ?? Object.keys(store.pods);
@@ -93,6 +108,7 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
   return {
     appels,
     store,
+    watches,
     listContexts: () => ({ contexts: ctxs, current: ctxs[0].name }),
     resolveContext(ctx) {
       const c = ctxs.find((x) => x.name === (ctx || ctxs[0].name));

@@ -4,10 +4,12 @@ import ScopeSelector from './ScopeSelector.jsx';
 import LiveIndicator from './LiveIndicator.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
+import { useLive } from '../state/LiveContext.jsx';
 import fr from '../i18n/fr.js';
 
-export default function Header({ live }) {
+export default function Header() {
   const { route, link } = useScope();
+  const live = useLive();
   const surCharges = route.path.startsWith('/charges') || route.path.startsWith('/pods');
   return (
     <header className="hdr">
@@ -22,7 +24,7 @@ export default function Header({ live }) {
         </a>
       </nav>
       <div className="hdr-end">
-        <LiveIndicator online={live?.online} updatedAt={live?.updatedAt} />
+        <LiveIndicator connection={live?.connection} />
         <ThemeToggle />
       </div>
     </header>

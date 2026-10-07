@@ -7,8 +7,10 @@ import { podsRouter } from './routes/pods.js';
 import { namespacesRouter } from './routes/namespaces.js';
 import { workloadsRouter } from './routes/workloads.js';
 import { logsRouter } from './routes/logs.js';
+import { streamRouter } from './routes/stream.js';
+import { WatchHub } from './kube/namespaceWatcher.js';
 
-export function createApp({ kube, staticDir = null } = {}) {
+export function createApp({ kube, hub = new WatchHub(kube), staticDir = null } = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.use(express.json({ limit: '10kb' }));
@@ -16,6 +18,7 @@ export function createApp({ kube, staticDir = null } = {}) {
   const api = express.Router();
   api.use(contextsRouter(kube));
   api.use(namespacesRouter(kube));
+  api.use(streamRouter(kube, hub));
   api.use(logsRouter(kube));
   api.use(podsRouter(kube));
   api.use(workloadsRouter(kube));

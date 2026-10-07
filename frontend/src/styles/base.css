@@ -1575,3 +1575,87 @@ a.btn-primary:hover {
   margin-top: 2px;
   flex: none;
 }
+
+/* ---------- Menu « Plus d'actions » et fenêtres de gestion ---------- */
+.action-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+  text-align: left;
+  white-space: normal;
+}
+.menu-end {
+  left: auto;
+  right: 0;
+  min-width: 260px;
+  max-width: 340px;
+}
+.menu-item.is-danger:not([aria-disabled='true']) {
+  color: var(--err);
+}
+.menu-item[aria-disabled='true'] {
+  color: var(--mut);
+  cursor: not-allowed;
+}
+.menu-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.menu-reason {
+  font-size: 12px;
+  color: var(--mut);
+}
+.revisions {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.revisions legend {
+  font-size: 12px;
+  color: var(--mut);
+  margin-bottom: 6px;
+}
+.revision {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  cursor: pointer;
+}
+.revision:has(input:checked) {
+  border-color: var(--ink);
+}
+.revision input {
+  grid-row: span 2;
+}
+.revision-meta {
+  font-size: 12.5px;
+  color: var(--mut);
+  overflow-wrap: anywhere;
+}
+.confirm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.confirm-field input {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  background: var(--sf);
+  color: var(--ink);
+}

@@ -29,6 +29,12 @@ export const messages = {
   HOTE_REFUSE: "Requête refusée : l'outil n'accepte que les connexions locales (127.0.0.1 ou localhost).",
   ACTION_IMPOSSIBLE: "Cette action n'est pas possible pour le type « {type} ».",
   REPLICAS_INVALIDE: 'Le nombre de réplicas doit être un entier entre 0 et {max}.',
+  ROLLBACK_EN_PAUSE:
+    'Ce Deployment est en pause : reprenez son déploiement avant de revenir à une version précédente.',
+  REVISION_INCONNUE:
+    "La révision {revision} n'existe plus : Kubernetes ne garde que les dernières versions (revisionHistoryLimit).",
+  REVISION_ACTUELLE: 'La révision {revision} est déjà la version en service.',
+  SANS_MODELE: "Ce CronJob n'a pas de modèle de Job : impossible de le lancer.",
   ERREUR_CLUSTER: 'Le cluster a renvoyé une erreur inattendue : {detail}',
   ERREUR_INTERNE: 'Erreur interne du serveur.',
 };

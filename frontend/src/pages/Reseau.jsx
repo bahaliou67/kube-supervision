@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import { SearchField } from '../components/Toolbar.jsx';
 import { ErrorState, LoadingState, PartialNotice } from '../components/States.jsx';
-import { EtatBadge, NomEtDiagnostic, SectionTableau, UtilisePar } from '../components/Ressources.jsx';
+import { BoutonSupprimer, EtatBadge, NomEtDiagnostic, SectionTableau, UtilisePar } from '../components/Ressources.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useNamespaceData } from '../state/useNamespaceData.js';
 import { RANG, diagIngress, diagService, etatIngress, etatService, selecteurTexte } from '../lib/ressources.js';
@@ -131,6 +131,7 @@ export default function Reseau() {
       { key: 'ports', label: N.colPorts, render: (s) => <Ports ports={s.ports} /> },
       { key: 'cible', label: N.colCible, render: (s) => <Cible s={s} /> },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (s) => s.age, render: (s) => <span className="mut">{age(s.createdAt)}</span> },
+      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );
@@ -160,6 +161,7 @@ export default function Reseau() {
         render: (i) => (i.addresses.length ? <span className="mono">{i.addresses.join(', ')}</span> : <span className="mut">{N.enAttenteAdresse}</span>),
       },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (i) => i.age, render: (i) => <span className="mut">{age(i.createdAt)}</span> },
+      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );

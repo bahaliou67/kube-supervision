@@ -2,6 +2,7 @@
 import { PassThrough } from 'node:stream';
 import { AppError } from '../src/errors.js';
 import { RESSOURCES } from '../src/kube/namespaceData.js';
+import { SUPPRESSIONS } from '../src/routes/gestion.js';
 
 // Construit un Pod minimal « Running et prêt ».
 export function pod(name, extra = {}) {
@@ -102,10 +103,25 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
       return { spec: params.body.spec };
     };
   }
+  apis.batch.patchNamespacedCronJob = async (params, options) => {
+    leve('patchNamespacedCronJob', params);
+    appels.at(-1).options = options;
+    return { spec: params.body.spec };
+  };
+  apis.batch.createNamespacedJob = async (params) => {
+    leve('createNamespacedJob', params);
+    return params.body;
+  };
   apis.core.deleteNamespacedPod = async (params) => {
     leve('deleteNamespacedPod', params);
     return {};
   };
+  for (const { api, methode } of Object.values(SUPPRESSIONS)) {
+    apis[api][methode] = async (params) => {
+      leve(methode, params);
+      return {};
+    };
+  }
   // Watch simulé : chaque appel est mémorisé, le test émet les événements
   // (w.cb('ADDED', objet)) et termine le watch (w.done(erreur ou null)).
   const watches = [];

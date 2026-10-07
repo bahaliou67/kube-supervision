@@ -5,6 +5,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import Button from '../components/Button.jsx';
 import Card from '../components/Card.jsx';
 import Icon from '../components/Icon.jsx';
+import ActionMenu from '../components/ActionMenu.jsx';
 import StatusBadge from '../components/StatusBadge.jsx';
 import { MiddleName } from '../components/Truncate.jsx';
 import { Pager, SortHeader, ariaSort } from '../components/DataTable.jsx';
@@ -93,6 +94,7 @@ function InfosType({ ligne }) {
     infos.push(<span className="subcard-alert">{tplText(C.jobEchecInfo, { raison: ligne.failureMessage ?? ligne.failureReason })}</span>);
   }
   if (ligne.stalled) infos.push(<span className="subcard-alert">{C.bloque}</span>);
+  if (ligne.paused) infos.push(<span className="tone-warn">{C.enPause}</span>);
   if (ligne.orphans) infos.push(C.sansProprietaireAide);
   return infos.map((i, n) => <span key={n}>{i}</span>);
 }
@@ -118,9 +120,38 @@ function PanneauPods({ ligne, pods }) {
   );
 }
 
+// Actions moins fréquentes, regroupées dans le menu « Plus d'actions ».
+function elementsMenu(ligne, hpa, demander, raisonBlocage) {
+  const A = fr.actions;
+  const item = (type, label, icon, cible = ligne, extra = {}) => ({
+    key: `${type}-${cible.kind}`,
+    label,
+    icon,
+    disabledReason: raisonBlocage(type, cible.kind),
+    onClick: () => demander(type, cible),
+    ...extra,
+  });
+  const items = [];
+  if (ligne.kind === 'Deployment') {
+    items.push(item('pause', ligne.paused ? A.pause.menuReprise : A.pause.menuPause, ligne.paused ? 'lecture' : 'pause'));
+    items.push(item('rollback', A.rollback.menu, 'retour'));
+  }
+  if (ligne.kind === 'CronJob') {
+    items.push(item('trigger', A.lancer.menu, 'lecture'));
+    items.push(item('suspend', ligne.suspended ? A.suspendre.menuReactiver : A.suspendre.menuSuspendre, ligne.suspended ? 'lecture' : 'pause'));
+  }
+  items.push('sep');
+  if (hpa) items.push(item('remove', tplText(A.supprimerHpa, { name: hpa.name }), 'corbeille', hpa, { danger: true }));
+  items.push(item('remove', tplText(A.supprimerLibelle, { name: ligne.name }), 'corbeille', ligne, { danger: true }));
+  // Pas de séparateur en tête de menu.
+  return items[0] === 'sep' ? items.slice(1) : items;
+}
+
 function Actions({ ligne }) {
   const { demander, raisonBlocage } = useActions();
+  const { resources } = useNamespaceData();
   if (ligne.orphans || ligne.synthetic) return null;
+  const hpa = hpaDe(resources.data?.horizontalpodautoscalers, ligne.kind, ligne.name);
   return (
     <>
       {REDEMARRABLE.has(ligne.kind) ? (
@@ -133,6 +164,7 @@ function Actions({ ligne }) {
           {C.changerReplicas}
         </Button>
       ) : null}
+      <ActionMenu label={tplText(fr.actions.plusActions, { name: ligne.name })} items={elementsMenu(ligne, hpa, demander, raisonBlocage)} />
     </>
   );
 }

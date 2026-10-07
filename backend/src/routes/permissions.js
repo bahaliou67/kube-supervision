@@ -19,6 +19,20 @@ export const DROITS = {
   'deployments.scale': { verb: 'patch', group: 'apps', resource: 'deployments', subresource: 'scale' },
   'statefulsets.scale': { verb: 'patch', group: 'apps', resource: 'statefulsets', subresource: 'scale' },
   'namespaces.list': { verb: 'list', resource: 'namespaces', clusterScoped: true },
+  // Gestion : suppression, pause, retour arrière, CronJobs.
+  'deployments.delete': { verb: 'delete', group: 'apps', resource: 'deployments' },
+  'statefulsets.delete': { verb: 'delete', group: 'apps', resource: 'statefulsets' },
+  'daemonsets.delete': { verb: 'delete', group: 'apps', resource: 'daemonsets' },
+  'jobs.delete': { verb: 'delete', group: 'batch', resource: 'jobs' },
+  'cronjobs.delete': { verb: 'delete', group: 'batch', resource: 'cronjobs' },
+  'services.delete': { verb: 'delete', resource: 'services' },
+  'ingresses.delete': { verb: 'delete', group: 'networking.k8s.io', resource: 'ingresses' },
+  'configmaps.delete': { verb: 'delete', resource: 'configmaps' },
+  'persistentvolumeclaims.delete': { verb: 'delete', resource: 'persistentvolumeclaims' },
+  'horizontalpodautoscalers.delete': { verb: 'delete', group: 'autoscaling', resource: 'horizontalpodautoscalers' },
+  'replicasets.list': { verb: 'list', group: 'apps', resource: 'replicasets' },
+  'cronjobs.patch': { verb: 'patch', group: 'batch', resource: 'cronjobs' },
+  'jobs.create': { verb: 'create', group: 'batch', resource: 'jobs' },
 };
 
 async function verifier(k, ns, { clusterScoped, ...attributs }) {

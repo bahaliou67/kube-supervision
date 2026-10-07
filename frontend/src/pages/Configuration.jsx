@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SearchField } from '../components/Toolbar.jsx';
 import { ErrorState, LoadingState, PartialNotice } from '../components/States.jsx';
-import { EtatBadge, NomEtDiagnostic, SectionTableau, UtilisePar } from '../components/Ressources.jsx';
+import { BoutonSupprimer, EtatBadge, NomEtDiagnostic, SectionTableau, UtilisePar } from '../components/Ressources.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useNamespaceData } from '../state/useNamespaceData.js';
 import { RANG, abregerAcces, diagConfiguration } from '../lib/ressources.js';
@@ -86,6 +86,7 @@ export default function Configuration() {
       { key: 'classe', label: C.colClasse, render: (v) => (v.storageClass ? <span className="mono">{v.storageClass}</span> : <span className="mut">{C.classeDefaut}</span>) },
       { key: 'usage', label: R.colUtilisePar, render: (v) => <UtilisePar cibles={v.usedBy} /> },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (v) => v.age, render: (v) => <span className="mut">{age(v.createdAt)}</span> },
+      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );
@@ -116,6 +117,7 @@ export default function Configuration() {
       { key: 'taille', label: C.colTaille, sortValue: (c) => c.size, render: (c) => (c.missing ? <span className="mut">{fr.commun.aucun}</span> : <span className="mut">{fr.commun.octets(c.size)}</span>) },
       { key: 'usage', label: R.colUtilisePar, render: (c) => <UtilisePar cibles={c.usedBy} vide={C.nonUtilisee} /> },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (c) => c.age, render: (c) => <span className="mut">{c.createdAt ? age(c.createdAt) : fr.commun.aucun}</span> },
+      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );

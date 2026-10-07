@@ -113,6 +113,21 @@ const TRACES = {
       <path d="M5 9.5l3 3 3-3" />
     </>
   ),
+  plus: (
+    <g fill="currentColor" stroke="none">
+      <circle cx="3.5" cy="8" r="1.2" />
+      <circle cx="8" cy="8" r="1.2" />
+      <circle cx="12.5" cy="8" r="1.2" />
+    </g>
+  ),
+  pause: <path d="M5.5 3.5v9M10.5 3.5v9" />,
+  lecture: <path d="M5 3.2l7.5 4.8L5 12.8z" />,
+  retour: (
+    <>
+      <path d="M5.5 3.5L2.5 6.5l3 3" />
+      <path d="M2.5 6.5h7a4 4 0 0 1 0 8H7" />
+    </>
+  ),
 };
 
 export default function Icon({ name, size = 14, strokeWidth = 1.6, className, title }) {

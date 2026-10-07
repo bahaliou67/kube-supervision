@@ -1,6 +1,8 @@
-// Les trois actions (redémarrer, changer les réplicas, supprimer un Pod) :
-// droits vérifiés, fenêtres de confirmation qui rappellent le cluster et le
-// namespace (maquette 05), exécution et notification du résultat.
+// Les actions : redémarrer, changer les réplicas, supprimer un Pod, et les
+// actions de gestion (supprimer une ressource, pause, retour à une version
+// précédente, suspendre ou lancer un CronJob). Droits vérifiés, fenêtres de
+// confirmation qui rappellent le cluster et le namespace (maquette 05),
+// exécution et notification du résultat.
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import Dialog, { ScopeBox } from '../components/Dialog.jsx';
 import Icon, { Spinner } from '../components/Icon.jsx';
@@ -8,6 +10,7 @@ import { apiSend } from '../api.js';
 import { useApi } from '../lib/useApi.js';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
 import { hpaDe } from '../lib/ressources.js';
+import { ilYa } from '../lib/format.js';
 import { useScope } from './ScopeContext.jsx';
 import { useLive } from './LiveContext.jsx';
 import fr from '../i18n/fr.js';
@@ -16,14 +19,31 @@ const A = fr.actions;
 const REPLICAS_MAX = 1000;
 const ActionsCtx = createContext(null);
 
-// Type Kubernetes → segment d'URL de l'API.
-const SEGMENT = { Deployment: 'deployments', StatefulSet: 'statefulsets', DaemonSet: 'daemonsets' };
-// Droit à vérifier pour chaque action.
+// Type Kubernetes → segment d'URL de l'API (et nom de la ressource dans les droits).
+const SEGMENT = {
+  Deployment: 'deployments',
+  StatefulSet: 'statefulsets',
+  DaemonSet: 'daemonsets',
+  Job: 'jobs',
+  CronJob: 'cronjobs',
+  Service: 'services',
+  Ingress: 'ingresses',
+  ConfigMap: 'configmaps',
+  PersistentVolumeClaim: 'persistentvolumeclaims',
+  HorizontalPodAutoscaler: 'horizontalpodautoscalers',
+};
+// Droit(s) à vérifier pour chaque action.
 const DROIT = {
   restart: (kind) => `${SEGMENT[kind]}.restart`,
   scale: (kind) => `${SEGMENT[kind]}.scale`,
   delete: () => 'pods.delete',
+  remove: (kind) => `${SEGMENT[kind]}.delete`,
+  pause: () => 'deployments.restart',
+  rollback: () => ['deployments.restart', 'replicasets.list'],
+  suspend: () => 'cronjobs.patch',
+  trigger: () => 'jobs.create',
 };
+const enc = encodeURIComponent;
 
 function Boutons({ onCancel, onConfirm, busy, label, danger, disabled, annulerRef }) {
   return (
@@ -190,7 +210,219 @@ function DialogueSupprimer({ cible, portee, executer, fermer, etat }) {
   );
 }
 
-const DIALOGUES = { restart: DialogueRedemarrer, scale: DialogueReplicas, delete: DialogueSupprimer };
+// Suppression d'une ressource : la conséquence est expliquée selon le type,
+// et le nom doit être saisi pour confirmer.
+function DialogueSupprimerRessource({ cible, portee, executer, fermer, etat }) {
+  const S = A.supprimerRessource;
+  const champ = useRef(null);
+  const [saisie, setSaisie] = useState('');
+  const C = S.consequences;
+  const utilise = Array.isArray(cible.usedBy) && cible.usedBy.length > 0;
+  let consequence = C[cible.kind]?.(cible.pods?.length ?? cible.desired ?? 0) ?? null;
+  if (cible.kind === 'ConfigMap') consequence = utilise ? C.ConfigMapUtilisee() : cible.usedBy ? C.ConfigMap() : null;
+  if (cible.kind === 'PersistentVolumeClaim') consequence = utilise ? C.PersistentVolumeClaimUtilise() : C.PersistentVolumeClaim();
+  const cibles = utilise ? cible.usedBy.map((u) => u.name).join(', ') : null;
+  const ok = saisie.trim() === cible.name;
+  return (
+    <Dialog
+      title={
+        <>
+          <span className="tone-err" style={{ display: 'inline-flex' }}>
+            <Icon name="corbeille" size={18} />
+          </span>
+          {tpl(S.titre, { name: <Mono>{cible.name}</Mono> })}
+        </>
+      }
+      onClose={fermer}
+      busy={etat.busy}
+      initialFocus={champ}
+    >
+      <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      {consequence ? <div>{consequence}</div> : null}
+      {cibles ? <div className="small-13 mut">{tplText(S.utilisePar, { cibles })}</div> : null}
+      <div className="small-13 tone-err">{S.definitif}</div>
+      <label className="confirm-field">
+        <span>{tpl(S.saisie, { name: <Mono>{cible.name}</Mono> })}</span>
+        <input
+          ref={champ}
+          value={saisie}
+          aria-label={S.saisieLabel}
+          autoComplete="off"
+          spellCheck={false}
+          disabled={etat.busy}
+          onChange={(e) => setSaisie(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && ok && !etat.busy) executer();
+          }}
+        />
+      </label>
+      <Erreur erreur={etat.erreur} />
+      <Boutons onCancel={fermer} onConfirm={() => executer()} busy={etat.busy} disabled={!ok} label={S.bouton} danger />
+    </Dialog>
+  );
+}
+
+function DialoguePause({ cible, portee, executer, fermer, etat }) {
+  const P = A.pause;
+  const annuler = useRef(null);
+  const reprise = Boolean(cible.paused);
+  const v = { name: <Mono>{cible.name}</Mono> };
+  return (
+    <Dialog title={tpl(reprise ? P.titreReprise : P.titrePause, v)} onClose={fermer} busy={etat.busy} initialFocus={annuler}>
+      <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      <div>{reprise ? P.texteReprise : P.textePause}</div>
+      <Erreur erreur={etat.erreur} />
+      <Boutons annulerRef={annuler} onCancel={fermer} onConfirm={() => executer()} busy={etat.busy} label={reprise ? P.boutonReprise : P.boutonPause} />
+    </Dialog>
+  );
+}
+
+// Retour à une version précédente : liste des révisions encore disponibles.
+function DialogueRollback({ cible, portee, executer, fermer, etat }) {
+  const R = A.rollback;
+  const { ctx, ns } = useScope();
+  const revisions = useApi(`/workloads/deployments/${enc(cible.name)}/revisions`, { ctx, ns });
+  const d = revisions.data;
+  const precedentes = d ? d.items.filter((r) => !r.current) : [];
+  const actuelle = d?.items.find((r) => r.current);
+  const [choix, setChoix] = useState(null);
+  const revision = choix ?? precedentes[0]?.revision ?? null;
+  const annuler = useRef(null);
+
+  let contenu;
+  if (revisions.status === 'error' && !d) contenu = <Erreur erreur={revisions.error} />;
+  else if (!d)
+    contenu = (
+      <div className="mut" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <Spinner size={14} /> {R.chargement}
+      </div>
+    );
+  else if (d.paused) contenu = <div className="res-notice">{R.enPause}</div>;
+  else if (precedentes.length === 0) contenu = <div className="mut">{R.aucune}</div>;
+  else {
+    contenu = (
+      <fieldset className="revisions" disabled={etat.busy}>
+        <legend>{R.legende}</legend>
+        {precedentes.map((r) => (
+          <label key={r.revision} className="revision">
+            <input type="radio" name="revision" value={r.revision} checked={revision === r.revision} onChange={() => setChoix(r.revision)} />
+            <span>
+              <strong>{tplText(R.revision, { n: r.revision })}</strong>
+              <span className="mut"> · {tplText(R.creee, { quand: ilYa(r.createdAt) })}</span>
+            </span>
+            <span className="revision-meta mono">
+              {r.images.join(', ')}
+              {r.changeCause ? <span className="mut"> · {r.changeCause}</span> : null}
+            </span>
+          </label>
+        ))}
+      </fieldset>
+    );
+  }
+
+  return (
+    <Dialog title={tpl(R.titre, { name: <Mono>{cible.name}</Mono> })} onClose={fermer} busy={etat.busy} initialFocus={annuler}>
+      <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      <div>{R.texte}</div>
+      {actuelle ? <div className="small-13 mut">{tplText(R.actuelle, { n: actuelle.revision, images: actuelle.images.join(', ') })}</div> : null}
+      {contenu}
+      <Erreur erreur={etat.erreur} />
+      <Boutons
+        annulerRef={annuler}
+        onCancel={fermer}
+        onConfirm={() => executer({ revision })}
+        busy={etat.busy}
+        disabled={!revision || d?.paused}
+        label={R.bouton(revision ?? '…')}
+      />
+    </Dialog>
+  );
+}
+
+function DialogueSuspendre({ cible, portee, executer, fermer, etat }) {
+  const S = A.suspendre;
+  const annuler = useRef(null);
+  const reactiver = Boolean(cible.suspended);
+  const v = { name: <Mono>{cible.name}</Mono>, schedule: <Mono>{cible.schedule}</Mono> };
+  return (
+    <Dialog title={tpl(reactiver ? S.titreReactiver : S.titreSuspendre, v)} onClose={fermer} busy={etat.busy} initialFocus={annuler}>
+      <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      <div>{tpl(reactiver ? S.texteReactiver : S.texteSuspendre, v)}</div>
+      <Erreur erreur={etat.erreur} />
+      <Boutons annulerRef={annuler} onCancel={fermer} onConfirm={() => executer()} busy={etat.busy} label={reactiver ? S.boutonReactiver : S.boutonSuspendre} />
+    </Dialog>
+  );
+}
+
+function DialogueLancer({ cible, portee, executer, fermer, etat }) {
+  const L = A.lancer;
+  const annuler = useRef(null);
+  const v = { name: <Mono>{cible.name}</Mono> };
+  return (
+    <Dialog title={tpl(L.titre, v)} onClose={fermer} busy={etat.busy} initialFocus={annuler}>
+      <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      <div>{tpl(L.texte, v)}</div>
+      {cible.suspended ? <div className="small-13 mut">{L.suspendu}</div> : null}
+      <Erreur erreur={etat.erreur} />
+      <Boutons annulerRef={annuler} onCancel={fermer} onConfirm={() => executer()} busy={etat.busy} label={L.bouton} />
+    </Dialog>
+  );
+}
+
+const DIALOGUES = {
+  restart: DialogueRedemarrer,
+  scale: DialogueReplicas,
+  delete: DialogueSupprimer,
+  remove: DialogueSupprimerRessource,
+  pause: DialoguePause,
+  rollback: DialogueRollback,
+  suspend: DialogueSuspendre,
+  trigger: DialogueLancer,
+};
+
+// Appel à l'API et message de réussite de chaque action.
+const ACTIONS = {
+  restart: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/${SEGMENT[c.kind]}/${enc(c.name)}/restart`, p),
+    succes: (c) => tplText(A.redemarrer.succes, { name: c.name }),
+  },
+  scale: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/${SEGMENT[c.kind]}/${enc(c.name)}/scale`, p, { replicas: x.replicas }),
+    succes: (c, x) => tplText(A.replicas.succes(x.replicas), { name: c.name }),
+  },
+  delete: {
+    appel: (c, x, p) => apiSend('DELETE', `/pods/${enc(c.name)}`, p),
+    succes: (c) => tplText(A.supprimer.succes, { name: c.name }),
+  },
+  remove: {
+    appel: (c, x, p) => apiSend('DELETE', `/resources/${SEGMENT[c.kind]}/${enc(c.name)}`, p),
+    succes: (c) => tplText(A.supprimerRessource.succes, { kind: c.kind, name: c.name }),
+  },
+  pause: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/deployments/${enc(c.name)}/pause`, p, { paused: !c.paused }),
+    succes: (c) => tplText(c.paused ? A.pause.succesReprise : A.pause.succesPause, { name: c.name }),
+  },
+  rollback: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/deployments/${enc(c.name)}/rollback`, p, { revision: x.revision }),
+    succes: (c, x) => tplText(A.rollback.succes, { name: c.name, n: x.revision }),
+  },
+  suspend: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/cronjobs/${enc(c.name)}/suspend`, p, { suspended: !c.suspended }),
+    succes: (c) => tplText(c.suspended ? A.suspendre.succesReactiver : A.suspendre.succesSuspendre, { name: c.name }),
+  },
+  trigger: {
+    appel: (c, x, p) => apiSend('POST', `/workloads/cronjobs/${enc(c.name)}/trigger`, p),
+    succes: (c, x, r) => tplText(A.lancer.succes, { job: r?.job ?? c.name }),
+  },
+};
+
+// Raison affichée quand un droit manque.
+function raisonInterdit(type, kind) {
+  const I = A.interdit;
+  if (type === 'delete') return I.delete;
+  if (type === 'remove') return I.remove(kind, SEGMENT[kind]);
+  return typeof I[type] === 'function' ? I[type](kind) : I[type];
+}
 
 export function ActionsProvider({ children }) {
   const { ctx, ns } = useScope();
@@ -210,10 +442,10 @@ export function ActionsProvider({ children }) {
   const raisonBlocage = useCallback(
     (type, kind) => {
       if (!online) return A.horsLigne;
-      const droit = permissions.data?.checks?.[DROIT[type](kind)];
       if (permissions.status === 'loading' && !permissions.data) return A.verification;
+      const cles = [DROIT[type](kind)].flat();
       // Droit inconnu (vérification impossible) : on laisse le cluster trancher.
-      if (droit?.allowed === false) return type === 'delete' ? A.interdit.delete : A.interdit[type](kind);
+      if (cles.some((c) => permissions.data?.checks?.[c]?.allowed === false)) return raisonInterdit(type, kind);
       return null;
     },
     [online, permissions],
@@ -232,16 +464,8 @@ export function ActionsProvider({ children }) {
       setEtat({ busy: true, erreur: null });
       const params = { ctx, ns };
       try {
-        if (type === 'restart') {
-          await apiSend('POST', `/workloads/${SEGMENT[cible.kind]}/${encodeURIComponent(cible.name)}/restart`, params);
-          notifier(tplText(A.redemarrer.succes, { name: cible.name }));
-        } else if (type === 'scale') {
-          await apiSend('POST', `/workloads/${SEGMENT[cible.kind]}/${encodeURIComponent(cible.name)}/scale`, params, { replicas: extra.replicas });
-          notifier(tplText(A.replicas.succes(extra.replicas), { name: cible.name }));
-        } else {
-          await apiSend('DELETE', `/pods/${encodeURIComponent(cible.name)}`, params);
-          notifier(tplText(A.supprimer.succes, { name: cible.name }));
-        }
+        const reponse = await ACTIONS[type].appel(cible, extra, params);
+        notifier(ACTIONS[type].succes(cible, extra, reponse));
         setDemande(null);
         setEtat({ busy: false, erreur: null });
         apres?.();

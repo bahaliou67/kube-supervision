@@ -19,7 +19,7 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 - Mise à l'échelle automatique (HPA) : limites et mesures affichées sur la charge de travail, mesures indisponibles signalées.
 - Accueil : en plus des Pods, les Services, Ingress, volumes, ConfigMaps et autoscalers à vérifier.
 - Mises à jour en temps réel, reconnexion automatique.
-- Trois actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod.
+- Actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod ; et dans le menu « … » : mettre en pause ou reprendre un déploiement, revenir à une version précédente, suspendre ou lancer tout de suite un CronJob, supprimer une ressource (Deployment, StatefulSet, DaemonSet, Job, CronJob, Service, Ingress, ConfigMap, volume, autoscaler).
 - Thèmes clair et sombre.
 
 ---
@@ -92,7 +92,8 @@ npm start
 - **Réseau** : un Service en rouge n'envoie le trafic vers aucun Pod prêt ; la phrase sous son nom dit pourquoi. Un Ingress signale les routes vers un Service absent ou en panne.
 - **Configuration** : volumes persistants et ConfigMaps, avec qui les utilise. Le contenu des ConfigMaps n'est jamais affiché.
 - **Logs** : « Conteneur précédent » montre ce qui s'est passé juste avant un plantage. Le suivi en direct n'existe que pour le conteneur actuel.
-- **Actions** : chaque action ouvre une fenêtre qui rappelle le cluster, le namespace et la cible. Rien n'est fait sans confirmation.
+- **Actions** : chaque action ouvre une fenêtre qui rappelle le cluster, le namespace et la cible, et explique la conséquence. Rien n'est fait sans confirmation. Pour supprimer une ressource, il faut en plus saisir son nom.
+- **Revenir à une version précédente** (menu « … » d'un Deployment) : la fenêtre liste les versions que Kubernetes a gardées, avec leurs images. Comme `kubectl rollout undo`, les Pods sont remplacés progressivement.
 - **Thème** : bouton à droite de l'en-tête (automatique, clair, sombre).
 - **L'adresse de la page** contient le cluster, le namespace et l'écran : un rechargement, un favori ou un lien partagé (sur la même machine) rouvre le même écran.
 
@@ -121,12 +122,17 @@ une panne.
 | Redémarrer | `patch` · `deployments`, `statefulsets`, `daemonsets` | Bouton grisé avec explication. |
 | Changer les réplicas | `patch` · `deployments/scale`, `statefulsets/scale` | Bouton grisé avec explication. |
 | Supprimer un Pod | `delete` · `pods` | Bouton grisé avec explication. |
+| Mettre en pause, reprendre | `patch` · `deployments` | Élément du menu grisé avec explication. |
+| Revenir à une version précédente | `patch` · `deployments`, `list` · `replicasets` | Élément du menu grisé avec explication. |
+| Suspendre, réactiver un CronJob | `patch` · `cronjobs` | Élément du menu grisé avec explication. |
+| Lancer un CronJob maintenant | `create` · `jobs` (et `get` · `cronjobs`) | Élément du menu grisé avec explication. |
+| Supprimer une ressource | `delete` sur le type concerné : `deployments`, `statefulsets`, `daemonsets` (groupe `apps`), `jobs`, `cronjobs` (groupe `batch`), `services`, `configmaps`, `persistentvolumeclaims`, `ingresses` (groupe `networking.k8s.io`), `horizontalpodautoscalers` (groupe `autoscaling`) | Bouton ou élément du menu grisé avec explication. |
 | Vérifier ses propres droits | `create` · `selfsubjectaccessreviews` (accordé à tout utilisateur authentifié par défaut) | Les actions restent possibles ; le cluster tranche au moment de l'action. |
 
 L'outil **ne lit jamais les Secrets**. Des ConfigMaps, il n'affiche que le nom et la taille des clés, jamais leur contenu (le serveur les lit pour les compter, mais ne transmet pas les valeurs au navigateur).
 
 Exemple de rôle pour un développeur, à adapter (lecture et diagnostic, plus
-les trois actions) dans un namespace :
+les actions courantes, sans suppression de ressources) dans un namespace :
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -166,6 +172,16 @@ rules:
   - apiGroups: [""]
     resources: [pods]
     verbs: [delete]
+  - apiGroups: [batch]
+    resources: [cronjobs]
+    verbs: [patch]
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [create]
+  # Suppression de ressources : à n'accorder qu'aux personnes concernées, par exemple
+  # - apiGroups: [apps]
+  #   resources: [deployments, statefulsets, daemonsets]
+  #   verbs: [delete]
 ```
 
 ---
@@ -186,7 +202,9 @@ rules:
 - **Logs** : seules les dernières lignes sont lues (500 par défaut, 5000 au plus, 4 Mo au plus). Le suivi en direct ne concerne que le conteneur actuel. Les logs d'un conteneur plus ancien que le précédent ne sont plus disponibles (Kubernetes ne les garde pas).
 - **Événements** : Kubernetes ne les conserve qu'environ une heure ; au-delà, la fiche n'en montre plus.
 - **« Prochain redémarrage »** d'un conteneur qui plante en boucle : c'est une estimation (Kubernetes ne publie pas cette valeur).
-- **Actions** : seulement redémarrer (Deployments, StatefulSets, DaemonSets), changer les réplicas (Deployments, StatefulSets, de 0 à 1000) et supprimer un Pod. Pas d'action sur les Jobs et CronJobs.
+- **Actions** : redémarrer (Deployments, StatefulSets, DaemonSets), changer les réplicas (Deployments, StatefulSets, de 0 à 1000), supprimer un Pod ; pause et retour à une version précédente pour les Deployments seulement ; suspendre et lancer pour les CronJobs. Pas de modification de l'image, des variables d'environnement ni des ressources CPU/mémoire.
+- **Suppression** : les objets dépendants sont supprimés avec la ressource (Pods d'un Job, ReplicaSets d'un Deployment…). Pour un volume persistant, ce que deviennent les données dépend de la classe de stockage. Les Secrets, namespaces et ressources du cluster entier ne peuvent pas être supprimés.
+- **Retour à une version précédente** : seules les versions encore gardées par Kubernetes sont proposées (`revisionHistoryLimit`, 10 par défaut). Impossible pendant une pause.
 - **Réseau, configuration, stockage** : lecture seule. Les volumes persistants (PersistentVolumes), classes de stockage, NetworkPolicies et ressources Gateway API ne sont pas affichés. Un volume en attente n'est pas relié à sa classe de stockage (qui est une ressource du cluster entier).
 - **Hors périmètre** : édition de YAML, terminal dans un conteneur, graphiques de consommation CPU/mémoire, lecture des Secrets, gestion d'utilisateurs.
 - **Liste des namespaces** : elle n'est pas mise à jour en direct ; un namespace créé apparaît au rechargement de la page.
@@ -253,6 +271,12 @@ API locale (toutes les routes acceptent `ctx` et `ns`) :
 | `POST /api/workloads/:type/:nom/restart` | Redémarrer |
 | `POST /api/workloads/:type/:nom/scale` | Changer les réplicas (`{ "replicas": n }`) |
 | `DELETE /api/pods/:nom` | Supprimer un Pod |
+| `DELETE /api/resources/:type/:nom` | Supprimer une ressource (`deployments`, `services`, `configmaps`…) |
+| `POST /api/workloads/deployments/:nom/pause` | Pause ou reprise (`{ "paused": true }`) |
+| `GET /api/workloads/deployments/:nom/revisions` | Versions disponibles d'un Deployment |
+| `POST /api/workloads/deployments/:nom/rollback` | Revenir à une version (`{ "revision": n }`) |
+| `POST /api/workloads/cronjobs/:nom/suspend` | Suspendre ou réactiver (`{ "suspended": true }`) |
+| `POST /api/workloads/cronjobs/:nom/trigger` | Lancer un Job maintenant |
 
 Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "message": "…" } }`.
 

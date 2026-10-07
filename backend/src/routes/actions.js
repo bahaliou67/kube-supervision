@@ -1,6 +1,7 @@
-// Les trois actions de l'outil. Elles n'acceptent que des requêtes venant de
-// la page de l'outil (voir security.js) et sont journalisées sans détail
-// sensible.
+// Actions de base : redémarrer, changer les réplicas, supprimer un Pod (les
+// actions de gestion sont dans gestion.js). Elles n'acceptent que des requêtes
+// venant de la page de l'outil (voir security.js) et sont journalisées sans
+// détail sensible.
 //
 // POST   /api/workloads/:type/:nom/restart   Deployments, StatefulSets, DaemonSets
 // POST   /api/workloads/:type/:nom/scale     Deployments, StatefulSets ; corps : { replicas }
@@ -30,7 +31,7 @@ function typeDe(brut, autorises) {
   return kind;
 }
 
-const fusion = () => k8s.setHeaderOptions('Content-Type', k8s.PatchStrategy.MergePatch);
+export const fusion = () => k8s.setHeaderOptions('Content-Type', k8s.PatchStrategy.MergePatch);
 
 // Redémarrage progressif, comme « kubectl rollout restart » : on modifie une
 // annotation du modèle de Pod, ce qui provoque le remplacement des Pods.
@@ -44,7 +45,7 @@ const AJUSTER = {
   StatefulSet: (k, args, o) => k.apps.patchNamespacedStatefulSetScale(args, o),
 };
 
-function journal(ctx, ns, texte) {
+export function journal(ctx, ns, texte) {
   console.log(`[action] ${texte} — ${ns} sur ${ctx}`);
 }
 

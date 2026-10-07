@@ -15,12 +15,19 @@ export function SearchField({ value, onChange, label, placeholder, count, classN
 }
 
 // Groupe de boutons exclusifs (aria-pressed), comme « Conteneur actuel / précédent ».
-// options : [{ value, label, count?, icon?, tone? }]
+// options : [{ value, label, count?, icon?, tone?, disabled? }]
 export function Segmented({ value, onChange, options, label }) {
   return (
     <div role="group" aria-label={label} className="segmented">
       {options.map((o) => (
-        <button key={o.value} type="button" aria-pressed={value === o.value} onClick={() => onChange(o.value)} className={o.tone ? `seg-${o.tone}` : undefined}>
+        <button
+          key={o.value}
+          type="button"
+          aria-pressed={value === o.value}
+          disabled={o.disabled}
+          onClick={() => onChange(o.value)}
+          className={o.tone ? `seg-${o.tone}` : undefined}
+        >
           {o.icon ? <Icon name={o.icon} size={14} /> : null}
           {o.label}
           {o.count !== undefined ? <span className="seg-count">{o.count}</span> : null}

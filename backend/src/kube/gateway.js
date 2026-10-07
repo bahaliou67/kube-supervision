@@ -9,6 +9,7 @@
 // Aucune donnée d'authentification (jeton, certificat) ne sort de ce module.
 import * as k8s from '@kubernetes/client-node';
 import { AppError } from '../errors.js';
+import { openLogStream } from './logStream.js';
 
 export class KubeGateway {
   constructor() {
@@ -79,7 +80,7 @@ export class KubeGateway {
         batch: kc.makeApiClient(k8s.BatchV1Api),
         authz: kc.makeApiClient(k8s.AuthorizationV1Api),
         watch: new k8s.Watch(kc),
-        log: new k8s.Log(kc),
+        openLogStream: (options) => openLogStream(kc, options),
       };
       this.cache.set(name, c);
     }

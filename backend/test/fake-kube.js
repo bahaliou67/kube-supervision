@@ -1,4 +1,5 @@
 // Client Kubernetes simulé pour les tests : même interface que KubeGateway.
+import { PassThrough } from 'node:stream';
 import { AppError } from '../src/errors.js';
 import { RESSOURCES } from '../src/kube/namespaceData.js';
 
@@ -33,8 +34,10 @@ export function networkError(code = 'ECONNREFUSED') {
 //   resources   { type: { ns: [objet] } }         (types de RESSOURCES : deployments, jobs…)
 //   namespaces  [noms]                             (par défaut : namespaces présents dans pods)
 //   defaultNs, contexts
+//   logs        { 'pod/conteneur': 'texte' } ; logs précédents : clé 'pod/conteneur/precedent'
+//   follow      { 'pod/conteneur': ['ligne', …] } : lignes émises par le suivi, puis fin du flux
 //   fail(methode, params) → erreur à lever (ou rien)
-export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs = 'default', contexts, fail } = {}) {
+export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs = 'default', contexts, fail, logs = {}, follow = {} } = {}) {
   const ctxs = contexts ?? [{ name: 'test', cluster: 'test', namespace: defaultNs }];
   const store = { ...resources, pods: { ...(resources.pods ?? {}), ...pods } };
   const appels = [];
@@ -63,6 +66,24 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
       return obj;
     };
   }
+  apis.core.readNamespacedPodLog = async (params) => {
+    leve('readNamespacedPodLog', params);
+    const cleLog = `${params.name}/${params.container ?? ''}${params.previous ? '/precedent' : ''}`;
+    if (!(cleLog in logs)) throw apiException(400, 'container is not valid for pod');
+    // Comme le vrai serveur : seules les tailLines dernières lignes sont renvoyées.
+    const lignes = logs[cleLog].split('\n').filter(Boolean);
+    return `${lignes.slice(-(params.tailLines ?? lignes.length)).join('\n')}\n`;
+  };
+  apis.openLogStream = async (options) => {
+    leve('openLogStream', options);
+    const flux = new PassThrough();
+    const lignes = follow[`${options.pod}/${options.container}`] ?? [];
+    setImmediate(() => {
+      for (const l of lignes) flux.write(`${l}\n`);
+      flux.end();
+    });
+    return { stream: flux, abort: () => flux.destroy() };
+  };
   apis.core.listNamespace = async () => {
     leve('listNamespace');
     const noms = namespaces ?? Object.keys(store.pods);

@@ -1,6 +1,12 @@
 // Lancement du serveur en ligne de commande (node src/main.js --port 7420).
 import { portDepuis, start } from './index.js';
 
+// Filet de sécurité : une erreur imprévue (flux interrompu, bibliothèque)
+// est journalisée sans arrêter l'outil. Le message ne contient jamais de
+// données d'authentification.
+process.on('uncaughtException', (err) => console.error(`[erreur non gérée] ${err?.name ?? ''} ${err?.message ?? err}`));
+process.on('unhandledRejection', (err) => console.error(`[promesse rejetée] ${err?.name ?? ''} ${err?.message ?? err}`));
+
 let port;
 try {
   port = portDepuis(process.argv.slice(2), process.env);

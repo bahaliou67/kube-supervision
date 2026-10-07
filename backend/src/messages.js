@@ -19,6 +19,12 @@ export const messages = {
     "Le cluster ne reconnaît pas cette ressource : sa version de Kubernetes est peut-être trop ancienne ou trop récente.",
   AUTH_EXTERNE_ECHEC:
     "La commande d'authentification du kubeconfig a échoué : {detail}",
+  LOGS_PRECEDENT_ABSENT:
+    "Il n'y a pas de conteneur précédent : ce conteneur n'a pas encore redémarré, ou ses anciens logs ont été effacés par le nœud.",
+  CONTENEUR_EN_ATTENTE: "Le conteneur n'a pas encore démarré : il n'a donc pas encore de logs.",
+  CONTENEUR_INCONNU: "Ce conteneur n'existe pas dans le Pod.",
+  LOGS_INTERDITS: 'Accès refusé : vos droits ne permettent pas de lire les logs de ce Pod (pods/log).',
+  SUIVI_INTERROMPU: 'Le suivi en direct des logs a été interrompu.',
   ORIGINE_REFUSEE: 'Requête refusée : elle ne provient pas de cette application.',
   ERREUR_CLUSTER: 'Le cluster a renvoyé une erreur inattendue : {detail}',
   ERREUR_INTERNE: 'Erreur interne du serveur.',

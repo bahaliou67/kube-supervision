@@ -167,11 +167,25 @@ function dernierArret(conteneurs) {
   return meilleur;
 }
 
+// Statut et catégorie d'un conteneur, sur le même modèle que ceux du Pod.
+export function containerStatus(st, ready, init) {
+  if (!st) return { status: 'Pending', category: 'attente' };
+  if (st.state === 'running') return { status: 'Running', category: ready || init ? 'ok' : 'attente' };
+  if (st.state === 'waiting') {
+    const r = st.reason ?? 'Waiting';
+    return { status: r, category: RAISONS_ERREUR.has(r) ? 'erreur' : 'attente' };
+  }
+  const r = st.reason ?? (st.signal ? `Signal:${st.signal}` : `ExitCode:${st.exitCode}`);
+  return { status: r, category: st.exitCode === 0 ? 'termine' : 'erreur' };
+}
+
 // Mappe la liste des statuts de conteneurs avec leur spécification.
 function conteneurs(specs, statuses, init) {
   return (specs ?? []).map((spec) => {
     const cs = (statuses ?? []).find((s) => s.name === spec.name) ?? {};
+    const state = etat(cs.state);
     return {
+      ...containerStatus(state, Boolean(cs.ready), init),
       name: spec.name,
       init,
       sidecar: init && spec.restartPolicy === 'Always',
@@ -179,9 +193,10 @@ function conteneurs(specs, statuses, init) {
       ready: Boolean(cs.ready),
       started: cs.started ?? null,
       restarts: cs.restartCount ?? 0,
-      state: etat(cs.state),
+      state,
       lastState: etat(cs.lastState),
       limits: { memory: spec.resources?.limits?.memory ?? null, cpu: spec.resources?.limits?.cpu ?? null },
+      requests: { memory: spec.resources?.requests?.memory ?? null, cpu: spec.resources?.requests?.cpu ?? null },
     };
   });
 }

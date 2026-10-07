@@ -7,6 +7,8 @@ import { Spinner } from './components/Icon.jsx';
 import Accueil from './pages/Accueil.jsx';
 import Charges from './pages/Charges.jsx';
 import Galerie from './pages/Galerie.jsx';
+import PodDetail from './pages/PodDetail.jsx';
+import LogsProvisoire from './pages/LogsProvisoire.jsx';
 import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
 import { navigate } from './lib/router.js';
 import fr from './i18n/fr.js';
@@ -48,6 +50,12 @@ function Ecran({ onUpdate }) {
   }
   if (!ready) return null;
 
+  // /pods/<nom> et /pods/<nom>/logs
+  const fiche = /^\/pods\/([^/]+)(\/logs)?$/.exec(route.path);
+  if (fiche) {
+    const nom = decodeURIComponent(fiche[1]);
+    return fiche[2] ? <LogsProvisoire key={nom} name={nom} /> : <PodDetail key={`${nom}|${route.query.ns}`} name={nom} onUpdate={onUpdate} />;
+  }
   if (route.path.startsWith('/charges')) return <Charges onUpdate={onUpdate} />;
   return <Accueil onUpdate={onUpdate} />;
 }

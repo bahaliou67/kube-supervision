@@ -48,7 +48,19 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
   for (const [type, { api, list }] of Object.entries(RESSOURCES)) {
     apis[api][list] = async (params) => {
       leve(list, params);
-      return { metadata: { resourceVersion: '1' }, items: store[type]?.[params.namespace] ?? [] };
+      let items = store[type]?.[params.namespace] ?? [];
+      // fieldSelector simplifié : involvedObject.name=… (événements d'un objet).
+      const nom = /involvedObject.name=([^,]+)/.exec(params.fieldSelector ?? '')?.[1];
+      if (nom) items = items.filter((e) => e.involvedObject?.name === nom);
+      return { metadata: { resourceVersion: '1' }, items };
+    };
+    // Lecture d'un objet par son nom : readNamespacedPod, readNamespacedDeployment…
+    const read = list.replace('list', 'read');
+    apis[api][read] = async (params) => {
+      leve(read, params);
+      const obj = (store[type]?.[params.namespace] ?? []).find((o) => o.metadata?.name === params.name);
+      if (!obj) throw apiException(404, 'not found');
+      return obj;
     };
   }
   apis.core.listNamespace = async () => {

@@ -132,20 +132,22 @@ function Actions({ ligne }) {
 const triPods = (a, b) => RANG_CATEGORIE[a.category] - RANG_CATEGORIE[b.category] || a.name.localeCompare(b.name, 'fr', { numeric: true });
 
 export default function Charges({ onUpdate }) {
-  const { ctx, ns } = useScope();
+  const { ctx, ns, route } = useScope();
   const { pods, workloads } = useNamespaceData({ onUpdate });
-  const [q, setQ] = useState('');
+  // ?q=… dans l'adresse (lien depuis la fiche d'un Pod) préremplit la recherche.
+  const [q, setQ] = useState(route.query.q ?? '');
   const [statut, setStatut] = useState('tous');
   const [type, setType] = useState('tous');
   const [ouverts, setOuverts] = useState(null); // Set des clés dépliées (null = pas encore initialisé)
 
   // Nouveau namespace : filtres et dépliage remis à zéro.
   useEffect(() => {
-    setQ('');
+    setQ(route.query.q ?? '');
     setStatut('tous');
     setType('tous');
     setOuverts(null);
-  }, [ctx, ns]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx, ns, route.query.q]);
 
   const pret = pods.data && workloads.data;
   const lignes = useMemo(() => {

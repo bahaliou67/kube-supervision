@@ -3,6 +3,7 @@ import Header from './components/Header.jsx';
 import Card from './components/Card.jsx';
 import Button from './components/Button.jsx';
 import { Spinner } from './components/Icon.jsx';
+import { ErrorState } from './components/States.jsx';
 import Accueil from './pages/Accueil.jsx';
 import Charges from './pages/Charges.jsx';
 import Galerie from './pages/Galerie.jsx';
@@ -12,10 +13,30 @@ import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
 import { LiveProvider } from './state/LiveContext.jsx';
 import { ActionsProvider } from './state/ActionsContext.jsx';
 import ConnectionBanner from './components/ConnectionBanner.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { navigate } from './lib/router.js';
 import fr from './i18n/fr.js';
 
+// Nom présent dans l'adresse ; un encodage invalide (lien abîmé) est lu tel quel.
+function decoderNom(brut) {
+  try {
+    return decodeURIComponent(brut);
+  } catch {
+    return brut;
+  }
+}
+
 function Ecran() {
+  const { route } = useScope();
+  // Le filet de sécurité est remis à zéro à chaque changement d'écran.
+  return (
+    <ErrorBoundary key={route.path}>
+      <EcranCourant />
+    </ErrorBoundary>
+  );
+}
+
+function EcranCourant() {
   const { route, contexts, ctxObj, ready } = useScope();
 
   if (import.meta.env.DEV && route.path === '/composants') return <Galerie />;
@@ -32,11 +53,7 @@ function Ecran() {
   if (contexts.status === 'error') {
     return (
       <main className="page">
-        <Card padded style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
-          <h1 style={{ fontSize: 18 }}>{contexts.error.code === 'SERVEUR_INJOIGNABLE' ? fr.connexion.outilMuet : fr.demarrage.erreurTitre}</h1>
-          <div>{contexts.error.message}</div>
-          <Button onClick={contexts.reload}>{fr.commun.reessayer}</Button>
-        </Card>
+        <ErrorState error={contexts.error} onRetry={contexts.reload} />
       </main>
     );
   }
@@ -55,7 +72,7 @@ function Ecran() {
   // /pods/<nom> et /pods/<nom>/logs
   const fiche = /^\/pods\/([^/]+)(\/logs)?$/.exec(route.path);
   if (fiche) {
-    const nom = decodeURIComponent(fiche[1]);
+    const nom = decoderNom(fiche[1]);
     return fiche[2] ? <Logs key={`${nom}|${route.query.ns}`} name={nom} /> : <PodDetail key={`${nom}|${route.query.ns}`} name={nom} />;
   }
   if (route.path.startsWith('/charges')) return <Charges />;

@@ -108,8 +108,14 @@ export function toAppError(err) {
   return new AppError(500, 'ERREUR_INTERNE');
 }
 
+// Délai maximal d'attente d'une réponse du cluster (réglable pour les tests).
+let delaiParDefaut = 15000;
+export function setDefaultTimeout(ms) {
+  delaiParDefaut = ms;
+}
+
 // Rejette la promesse si le cluster ne répond pas dans le délai imparti.
-export function withTimeout(promise, ms = 15000) {
+export function withTimeout(promise, ms = delaiParDefaut) {
   let minuteur;
   const delai = new Promise((_, reject) => {
     minuteur = setTimeout(() => reject(new AppError(504, 'DELAI_DEPASSE')), ms);

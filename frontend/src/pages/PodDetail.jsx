@@ -372,9 +372,11 @@ export default function PodDetail({ name }) {
   const d = detail.data;
   let contenu;
   // Un Pod supprimé pendant qu'on regarde sa fiche : « Ce Pod n'existe plus ».
-  if (detail.status === 'error' && (!d || detail.error.code === 'INTROUVABLE')) {
+  // Nom invalide (lien abîmé) : traité comme un Pod introuvable.
+  const introuvable = detail.status === 'error' && ['INTROUVABLE', 'PARAMETRE_INVALIDE'].includes(detail.error.code);
+  if (detail.status === 'error' && (!d || introuvable)) {
     contenu =
-      detail.error.code === 'INTROUVABLE' ? (
+      introuvable ? (
         <Card className="state-card">
           <h1 className="state-title">{F.introuvable.titre}</h1>
           <div className="mut">{tpl(F.introuvable.texte, { name: <Mono>{name}</Mono>, ns: <Mono>{ns}</Mono> })}</div>

@@ -563,12 +563,15 @@ const fr = {
   },
 
   etats: {
+    nsInexistant: {
+      titre: "Le namespace {ns} n'existe pas",
+      texte: "Le cluster {ctx} ne contient aucun namespace de ce nom. Vérifiez l'orthographe, ou choisissez un namespace dans la liste.",
+    },
     chargement: "Lecture de l'état de {ns} sur {ctx}…",
   },
 
   demarrage: {
     chargement: 'Lecture du kubeconfig…',
-    erreurTitre: 'Impossible de lire la configuration Kubernetes',
     contexteInconnu: (ctx) => `Le contexte « ${ctx} » n'existe pas dans le kubeconfig.`,
     revenirContexteCourant: 'Revenir au contexte courant',
   },
@@ -576,6 +579,38 @@ const fr = {
   erreurs: {
     // Messages de secours si le backend ne répond pas du tout.
     SERVEUR_INJOIGNABLE: "L'outil de supervision ne répond pas. Vérifiez qu'il est toujours lancé.",
+    // Écrans d'erreur, par famille de cause ({ctx}, {ns} : cluster et namespace).
+    titres: {
+      acces: 'Accès refusé à {ns}',
+      injoignable: 'Connexion à {ctx} impossible',
+      delai: '{ctx} met trop de temps à répondre',
+      identifiants: 'Le cluster {ctx} refuse vos identifiants',
+      outil: "L'outil de supervision ne répond plus",
+      api: 'Version de Kubernetes non prise en charge',
+      kubeconfig: 'Configuration Kubernetes introuvable',
+      kubeconfigInvalide: 'Configuration Kubernetes illisible',
+      inconnu: 'Une erreur est survenue',
+    },
+    aides: {
+      acces:
+        "Votre compte n'a pas le droit de consulter ce namespace sur {ctx}. Choisissez un autre namespace, ou demandez à l'administrateur du cluster le droit « list » sur les pods de {ns}.",
+      injoignable: 'Vérifiez votre connexion réseau, le VPN, ou que le cluster est démarré.',
+      identifiants:
+        "Votre session a peut-être expiré. Reconnectez-vous au cluster avec l'outil habituel de votre fournisseur (par exemple sa commande de connexion), puis réessayez.",
+      kubeconfig:
+        "Définissez la variable d'environnement KUBECONFIG, ou placez votre fichier de configuration dans ~/.kube/config, puis relancez l'outil.",
+    },
+    autoRetry: 'Nouvelles tentatives automatiques toutes les 5 secondes.',
+    changerNamespace: 'Changer de namespace',
+    codeTechnique: 'Code : {code}',
+    // Filet de sécurité : erreur inattendue dans l'affichage.
+    affichage: {
+      titre: "L'affichage de cet écran a rencontré une erreur inattendue",
+      texte: "Les données du cluster ne sont pas en cause. Revenez à l'accueil ou rechargez la page.",
+      accueil: "Revenir à l'accueil",
+      recharger: 'Recharger la page',
+      details: 'Détail technique',
+    },
   },
 };
 

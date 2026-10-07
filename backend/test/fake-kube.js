@@ -55,7 +55,11 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
       // fieldSelector simplifié : involvedObject.name=… (événements d'un objet).
       const nom = /involvedObject.name=([^,]+)/.exec(params.fieldSelector ?? '')?.[1];
       if (nom) items = items.filter((e) => e.involvedObject?.name === nom);
-      return { metadata: { resourceVersion: '1' }, items };
+      // Pagination comme le vrai serveur : limit + jeton _continue.
+      const debut = Number(params._continue ?? 0);
+      const fin = params.limit ? debut + params.limit : items.length;
+      const suite = fin < items.length ? String(fin) : undefined;
+      return { metadata: { resourceVersion: '1', _continue: suite }, items: items.slice(debut, fin) };
     };
     // Lecture d'un objet par son nom : readNamespacedPod, readNamespacedDeployment…
     const read = list.replace('list', 'read');

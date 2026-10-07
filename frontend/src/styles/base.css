@@ -1512,3 +1512,18 @@ a.btn-primary:hover {
 .card-visible {
   overflow: visible;
 }
+
+/* ---------- Écrans d'erreur (variantes conçues) ---------- */
+.error-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.error-head > span {
+  display: inline-flex;
+}
+.error-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

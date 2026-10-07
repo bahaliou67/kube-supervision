@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom';
 
 const FOCUSABLES = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea, [tabindex]:not([tabindex="-1"])';
 
-export default function Dialog({ title, children, onClose, busy = false, initialFocus }) {
+// wide : fenêtre plus large, pour les formulaires en plusieurs colonnes.
+export default function Dialog({ title, children, onClose, busy = false, initialFocus, wide = false }) {
   const boite = useRef(null);
   const titreId = useId();
 
@@ -45,7 +46,7 @@ export default function Dialog({ title, children, onClose, busy = false, initial
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div ref={boite} className="dialog" role="dialog" aria-modal="true" aria-labelledby={titreId} onKeyDown={touche}>
+      <div ref={boite} className={`dialog${wide ? ' dialog-wide' : ''}`} role="dialog" aria-modal="true" aria-labelledby={titreId} onKeyDown={touche}>
         <h2 id={titreId} className="dialog-title">
           {title}
         </h2>

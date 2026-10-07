@@ -34,6 +34,8 @@ export const messages = {
   REVISION_INCONNUE:
     "La révision {revision} n'existe plus : Kubernetes ne garde que les dernières versions (revisionHistoryLimit).",
   REVISION_ACTUELLE: 'La révision {revision} est déjà la version en service.',
+  CONTENEUR_ABSENT: "Le conteneur « {container} » n'existe pas dans le modèle de {kind} {name}.",
+  LIMITES_HPA_INVALIDES: 'Les limites doivent être des entiers, avec 1 ≤ minimum ≤ maximum ≤ {max}.',
   SANS_MODELE: "Ce CronJob n'a pas de modèle de Job : impossible de le lancer.",
   ERREUR_CLUSTER: 'Le cluster a renvoyé une erreur inattendue : {detail}',
   ERREUR_INTERNE: 'Erreur interne du serveur.',

@@ -6,6 +6,7 @@ import { hostGuard } from './security.js';
 import { permissionsRouter } from './routes/permissions.js';
 import { actionsRouter } from './routes/actions.js';
 import { gestionRouter } from './routes/gestion.js';
+import { conteneursRouter } from './routes/conteneurs.js';
 import { contextsRouter } from './routes/contexts.js';
 import { podsRouter } from './routes/pods.js';
 import { namespacesRouter } from './routes/namespaces.js';
@@ -43,6 +44,7 @@ export function createApp({ kube, hub = new WatchHub(kube), staticDir = null } =
   api.use(permissionsRouter(kube));
   api.use(actionsRouter(kube));
   api.use(gestionRouter(kube));
+  api.use(conteneursRouter(kube));
   api.use(streamRouter(kube, hub));
   api.use(logsRouter(kube));
   api.use(podsRouter(kube));

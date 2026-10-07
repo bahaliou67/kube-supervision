@@ -8,6 +8,7 @@ import { badgeReplicas, decouperImage, lignesCharges, resumeTypes } from '../src
 import { phraseEvenement } from '../src/lib/events.js';
 import { delaiBackoff, prochainRedemarrage } from '../src/lib/restart.js';
 import { duree } from '../src/lib/format.js';
+import { diffEnv, valeurQuantite, verifierRessources } from '../src/lib/conteneurs.js';
 import { diagHpa, diagIngress, diagService, etatService, hpaDe, pointsAVerifier, resumeHpa } from '../src/lib/ressources.js';
 
 const p = (extra) => ({ name: 'web-1', uid: 'u1', status: 'Running', category: 'ok', containers: [], initContainers: [], restarts: 0, ...extra });
@@ -148,4 +149,43 @@ test('points à vérifier : erreurs d’abord, rien pour les ressources saines',
     horizontalpodautoscalers: [{ kind: 'HorizontalPodAutoscaler', name: 'h', target: { kind: 'Deployment', name: 'web' }, category: 'attente', problem: 'AU_MAXIMUM' }],
   });
   assert.deepEqual(points.map((p) => [p.name, p.path, p.q]), [['a', '/configuration', 'a'], ['b', '/reseau', 'b'], ['h', '/charges', 'web']]);
+});
+
+// ---------- Modification d'un conteneur ----------
+
+test('quantités Kubernetes : cœurs et octets', () => {
+  assert.equal(valeurQuantite('250m'), 0.25);
+  assert.equal(valeurQuantite('2'), 2);
+  assert.equal(valeurQuantite('256Mi'), 256 * 2 ** 20);
+  assert.equal(valeurQuantite('1G'), 1e9);
+  assert.equal(valeurQuantite('1e3'), 1000);
+  assert.equal(valeurQuantite('512 Mo'), null);
+  assert.equal(valeurQuantite('1,5Gi'), null);
+});
+
+test('ressources : seules les valeurs modifiées sont envoyées, demande ≤ limite', () => {
+  const origine = { requests: { cpu: '100m', memory: null }, limits: { cpu: null, memory: '192Mi' } };
+  const r = verifierRessources({ requests: { cpu: '100m', memory: '' }, limits: { cpu: '', memory: '512Mi' } }, origine);
+  assert.deepEqual(r, { erreurs: {}, body: { limits: { memory: '512Mi' } } });
+  assert.deepEqual(verifierRessources({ requests: { cpu: '' }, limits: { memory: '192Mi' } }, origine).body, { requests: { cpu: null } });
+  assert.equal(verifierRessources({ requests: { memory: '1Gi' }, limits: { memory: '512Mi' } }, origine).erreurs['requests.memory'], 'superieure');
+  assert.equal(verifierRessources({ limits: { memory: '512 Mo' } }, origine).erreurs['limits.memory'], 'format');
+  assert.equal(verifierRessources({ requests: { cpu: '100m' }, limits: { memory: '192Mi' } }, origine).body, null);
+});
+
+test('variables : ajout, modification, renommage, suppression, références intactes', () => {
+  const origine = [
+    { name: 'MODE', value: 'prod', source: null },
+    { name: 'URL', value: null, source: { kind: 'ConfigMap', name: 'c', key: 'url' } },
+    { name: 'VIEILLE', value: 'x', source: null },
+  ];
+  const lignes = [
+    { name: 'MODE', value: 'test', source: null },
+    { name: 'URL', value: null, source: origine[1].source },
+    { name: 'NOUVELLE', value: '1', source: null },
+  ];
+  assert.deepEqual(diffEnv(origine, lignes), { erreurs: {}, env: { set: { MODE: 'test', NOUVELLE: '1' }, remove: ['VIEILLE'] }, nombre: 3 });
+  assert.equal(diffEnv(origine, origine).env, null);
+  const erreurs = diffEnv(origine, [{ name: 'A', value: '' }, { name: 'A', value: '' }, { name: '1X', value: '' }, { name: ' ', value: 'x' }, { name: '', value: '' }]).erreurs;
+  assert.deepEqual(erreurs, { 1: 'double', 2: 'format', 3: 'vide' });
 });

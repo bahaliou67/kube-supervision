@@ -108,6 +108,11 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
     appels.at(-1).options = options;
     return { spec: params.body.spec };
   };
+  apis.autoscaling.patchNamespacedHorizontalPodAutoscaler = async (params, options) => {
+    leve('patchNamespacedHorizontalPodAutoscaler', params);
+    appels.at(-1).options = options;
+    return { spec: params.body.spec };
+  };
   apis.batch.createNamespacedJob = async (params) => {
     leve('createNamespacedJob', params);
     return params.body;

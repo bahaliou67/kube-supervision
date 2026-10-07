@@ -1,10 +1,13 @@
 // Les actions : redémarrer, changer les réplicas, supprimer un Pod, et les
 // actions de gestion (supprimer une ressource, pause, retour à une version
-// précédente, suspendre ou lancer un CronJob). Droits vérifiés, fenêtres de
+// précédente, suspendre ou lancer un CronJob, modifier l'image, les variables
+// d'environnement, le CPU et la mémoire d'un conteneur, les limites d'un
+// autoscaler). Droits vérifiés, fenêtres de
 // confirmation qui rappellent le cluster et le namespace (maquette 05),
 // exécution et notification du résultat.
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import Dialog, { ScopeBox } from '../components/Dialog.jsx';
+import { Boutons, Erreur } from '../components/DialogActions.jsx';
 import Icon, { Spinner } from '../components/Icon.jsx';
 import { apiSend } from '../api.js';
 import { useApi } from '../lib/useApi.js';
@@ -13,6 +16,7 @@ import { hpaDe } from '../lib/ressources.js';
 import { ilYa } from '../lib/format.js';
 import { useScope } from './ScopeContext.jsx';
 import { useLive } from './LiveContext.jsx';
+import { DialogueEnv, DialogueHpa, DialogueImage, DialogueRessources } from './DialoguesConteneur.jsx';
 import fr from '../i18n/fr.js';
 
 const A = fr.actions;
@@ -42,40 +46,13 @@ const DROIT = {
   rollback: () => ['deployments.restart', 'replicasets.list'],
   suspend: () => 'cronjobs.patch',
   trigger: () => 'jobs.create',
+  // Modification du modèle de Pod : droit « patch » sur le type.
+  image: (kind) => (kind === 'CronJob' ? 'cronjobs.patch' : `${SEGMENT[kind]}.restart`),
+  env: (kind) => DROIT.image(kind),
+  resources: (kind) => DROIT.image(kind),
+  hpa: () => 'horizontalpodautoscalers.patch',
 };
 const enc = encodeURIComponent;
-
-function Boutons({ onCancel, onConfirm, busy, label, danger, disabled, annulerRef }) {
-  return (
-    <div className="dialog-actions">
-      <button ref={annulerRef} type="button" className="btn btn-lg btn-quiet" onClick={onCancel} disabled={busy}>
-        {A.annuler}
-      </button>
-      <button type="button" className={`btn btn-lg ${danger ? 'btn-danger' : 'btn-primary'}`} onClick={onConfirm} disabled={busy || disabled} aria-busy={busy}>
-        {busy ? (
-          <>
-            <Spinner size={14} /> {A.enCours}
-          </>
-        ) : (
-          label
-        )}
-      </button>
-    </div>
-  );
-}
-
-function Erreur({ erreur }) {
-  if (!erreur) return null;
-  return (
-    <div className="field-error dialog-error" role="alert">
-      <Icon name="alerte" size={14} />
-      <span>
-        {A.echec}
-        {erreur.message}
-      </span>
-    </div>
-  );
-}
 
 function DialogueRedemarrer({ cible, portee, executer, fermer, etat }) {
   const R = A.redemarrer;
@@ -99,7 +76,7 @@ function DialogueRedemarrer({ cible, portee, executer, fermer, etat }) {
   );
 }
 
-function DialogueReplicas({ cible, portee, executer, fermer, etat }) {
+function DialogueReplicas({ cible, portee, executer, fermer, etat, demander }) {
   const R = A.replicas;
   // Un HPA pilote déjà ce nombre : la modification sera vite annulée.
   const hpa = hpaDe(useLive()?.resources?.data?.horizontalpodautoscalers, cible.kind, cible.name);
@@ -119,7 +96,12 @@ function DialogueReplicas({ cible, portee, executer, fermer, etat }) {
       {hpa ? (
         <div className="res-notice" role="note">
           <Icon name="alerte" size={14} />
-          <span>{tpl(fr.hpa.alerteReplicas, { name: <Mono>{hpa.name}</Mono>, min: hpa.min, max: hpa.max ?? '?' })}</span>
+          <span>
+            {tpl(fr.hpa.alerteReplicas, { name: <Mono>{hpa.name}</Mono>, min: hpa.min, max: hpa.max ?? '?' })}{' '}
+            <button type="button" className="btn-link" disabled={etat.busy} onClick={() => demander('hpa', hpa)}>
+              {A.hpa.modifierLimites}
+            </button>
+          </span>
         </div>
       ) : null}
       <div className="scale-row">
@@ -160,7 +142,7 @@ function DialogueReplicas({ cible, portee, executer, fermer, etat }) {
         {valide ? (
           <>
             {consequence}
-            <span className={n === 0 ? 'tone-err' : undefined}>{R.zero}</span>
+            {n === 0 ? <span className="tone-err">{R.zero}</span> : null}
           </>
         ) : (
           <span className="field-error">
@@ -378,6 +360,10 @@ const DIALOGUES = {
   rollback: DialogueRollback,
   suspend: DialogueSuspendre,
   trigger: DialogueLancer,
+  image: DialogueImage,
+  env: DialogueEnv,
+  resources: DialogueRessources,
+  hpa: DialogueHpa,
 };
 
 // Appel à l'API et message de réussite de chaque action.
@@ -414,13 +400,34 @@ const ACTIONS = {
     appel: (c, x, p) => apiSend('POST', `/workloads/cronjobs/${enc(c.name)}/trigger`, p),
     succes: (c, x, r) => tplText(A.lancer.succes, { job: r?.job ?? c.name }),
   },
+  image: {
+    appel: (c, x, p) => modifierConteneur(c, x, p),
+    succes: (c, x) => tplText(A.image.succes, { name: c.name, image: x.body.image }),
+  },
+  env: {
+    appel: (c, x, p) => modifierConteneur(c, x, p),
+    succes: (c) => tplText(A.env.succes, { name: c.name }),
+  },
+  resources: {
+    appel: (c, x, p) => modifierConteneur(c, x, p),
+    succes: (c) => tplText(A.ressources.succes, { name: c.name }),
+  },
+  hpa: {
+    appel: (c, x, p) => apiSend('POST', `/resources/horizontalpodautoscalers/${enc(c.name)}/limits`, p, { min: x.min, max: x.max }),
+    succes: (c, x) => tplText(A.hpa.succes, { name: c.name, min: x.min, max: x.max }),
+  },
 };
+
+function modifierConteneur(c, x, p) {
+  return apiSend('POST', `/workloads/${SEGMENT[c.kind]}/${enc(c.name)}/containers/${enc(x.container)}`, p, x.body);
+}
 
 // Raison affichée quand un droit manque.
 function raisonInterdit(type, kind) {
   const I = A.interdit;
   if (type === 'delete') return I.delete;
   if (type === 'remove') return I.remove(kind, SEGMENT[kind]);
+  if (type === 'image' || type === 'env' || type === 'resources') return I.modifier(kind, SEGMENT[kind]);
   return typeof I[type] === 'function' ? I[type](kind) : I[type];
 }
 
@@ -489,7 +496,7 @@ export function ActionsProvider({ children }) {
   return (
     <ActionsCtx.Provider value={value}>
       {children}
-      {Dialogue ? <Dialogue cible={demande.cible} portee={portee} executer={executer} fermer={fermer} etat={etat} /> : null}
+      {Dialogue ? <Dialogue key={`${demande.type}|${demande.cible.kind}|${demande.cible.name}`} cible={demande.cible} portee={portee} executer={executer} fermer={fermer} etat={etat} demander={demander} /> : null}
       <div className="toasts" role="status" aria-live="polite">
         {notes.map((n) => (
           <div key={n.id} className={`toast toast-${n.ton}`}>

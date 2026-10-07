@@ -1659,3 +1659,61 @@ a.btn-primary:hover {
   background: var(--sf);
   color: var(--ink);
 }
+
+/* ---------- Formulaires de modification d'un conteneur ---------- */
+.dialog-wide {
+  width: 620px;
+}
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 13px;
+}
+.input {
+  font-size: 13.5px;
+  padding: 7px 9px;
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  background: var(--sf);
+  color: var(--ink);
+  min-width: 0;
+  width: 100%;
+}
+.input.mono {
+  font-family: var(--font-mono);
+}
+.input.is-invalid {
+  border-color: var(--err);
+}
+.env-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto;
+  gap: 6px 8px;
+  align-items: start;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.env-ref-name,
+.env-ref {
+  padding: 8px 0;
+  overflow-wrap: anywhere;
+}
+.res-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+}
+.hpa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

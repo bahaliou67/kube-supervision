@@ -17,6 +17,7 @@ import { age, duree, depuis, ilYa } from '../lib/format.js';
 import { conteneur, dernierArret, estIncident, quantite, tousConteneurs } from '../lib/diagnostic.js';
 import { phraseEvenement } from '../lib/events.js';
 import { prochainRedemarrage } from '../lib/restart.js';
+import { SEGMENT_MODIFIABLE } from '../lib/conteneurs.js';
 import fr from '../i18n/fr.js';
 
 const F = fr.fiche;
@@ -124,6 +125,32 @@ function EnTete({ pod }) {
 
 // Panneau principal du diagnostic : raison du dernier arrêt (rouge), raison
 // du blocage ou de l'attente, ou dernier arrêt déjà résolu (neutre).
+// Raccourcis de correction depuis le diagnostic : limite mémoire après un
+// OOMKilled, image après un échec de téléchargement. Seulement si la charge de
+// travail qui gère le Pod a un modèle modifiable (pas un Job, pas un Pod seul).
+const IMAGE_EN_CAUSE = new Set(['ImagePullBackOff', 'ErrImagePull', 'InvalidImageName']);
+function Corriger({ pod, base, conteneur, limite }) {
+  const { demander, raisonBlocage } = useActions();
+  const w = pod.workload;
+  if (!w || !SEGMENT_MODIFIABLE[w.kind]) return null;
+  const cible = { kind: w.kind, name: w.name, container: conteneur };
+  let bouton = null;
+  if (base === 'OOMKilled') {
+    bouton = (
+      <Button size="sm" icon="memoire" disabledReason={raisonBlocage('resources', w.kind)} onClick={() => demander('resources', { ...cible, oomLimite: limite })}>
+        {fr.actions.depuisDiagnostic.memoire}
+      </Button>
+    );
+  } else if (IMAGE_EN_CAUSE.has(base)) {
+    bouton = (
+      <Button size="sm" icon="crayon" disabledReason={raisonBlocage('image', w.kind)} onClick={() => demander('image', cible)}>
+        {fr.actions.depuisDiagnostic.image}
+      </Button>
+    );
+  }
+  return bouton ? <div className="panel-actions">{bouton}</div> : null;
+}
+
 function Panneau({ pod, workload }) {
   const P = F.panneau;
   const t = dernierArret(pod);
@@ -241,6 +268,7 @@ function Panneau({ pod, workload }) {
         ) : null}
         {incident?.message && mode === 'arret' ? <div className="kube-msg">{incident.message}</div> : null}
         {piste ? <div className="panel-hint">{piste.replace('{kind}', kind)}</div> : null}
+        <Corriger pod={pod} base={base} conteneur={cNom} limite={incident?.limite} />
         {workload && typeof workload.desired === 'number' && workload.desired > 0 && workload.ready < workload.desired ? (
           <div className="panel-hint">
             {tpl(fr.diagnostic.consequence(workload.ready, workload.desired), { kind: workload.kind, name: <Mono>{workload.name}</Mono> })}

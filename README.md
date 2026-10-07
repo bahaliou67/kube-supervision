@@ -19,7 +19,7 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 - Mise à l'échelle automatique (HPA) : limites et mesures affichées sur la charge de travail, mesures indisponibles signalées.
 - Accueil : en plus des Pods, les Services, Ingress, volumes, ConfigMaps et autoscalers à vérifier.
 - Mises à jour en temps réel, reconnexion automatique.
-- Actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod ; et dans le menu « … » : mettre en pause ou reprendre un déploiement, revenir à une version précédente, suspendre ou lancer tout de suite un CronJob, supprimer une ressource (Deployment, StatefulSet, DaemonSet, Job, CronJob, Service, Ingress, ConfigMap, volume, autoscaler).
+- Actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod ; et dans le menu « … » : changer l'image, les variables d'environnement, le CPU et la mémoire d'un conteneur, modifier les limites de l'autoscaler, mettre en pause ou reprendre un déploiement, revenir à une version précédente, suspendre ou lancer tout de suite un CronJob, supprimer une ressource (Deployment, StatefulSet, DaemonSet, Job, CronJob, Service, Ingress, ConfigMap, volume, autoscaler).
 - Thèmes clair et sombre.
 
 ---
@@ -93,6 +93,8 @@ npm start
 - **Configuration** : volumes persistants et ConfigMaps, avec qui les utilise. Le contenu des ConfigMaps n'est jamais affiché.
 - **Logs** : « Conteneur précédent » montre ce qui s'est passé juste avant un plantage. Le suivi en direct n'existe que pour le conteneur actuel.
 - **Actions** : chaque action ouvre une fenêtre qui rappelle le cluster, le namespace et la cible, et explique la conséquence. Rien n'est fait sans confirmation. Pour supprimer une ressource, il faut en plus saisir son nom.
+- **Corriger depuis le diagnostic** : sur la fiche d'un Pod arrêté pour mémoire dépassée (`OOMKilled`), le bouton « Modifier la limite mémoire » ouvre directement le bon formulaire ; sur un Pod dont l'image ne se télécharge pas, « Changer l'image ».
+- **Image, variables, CPU et mémoire** (menu « … » d'un Deployment, StatefulSet, DaemonSet ou CronJob) : seule la valeur modifiée est envoyée, le reste du modèle n'est pas touché. Les variables lues dans une ConfigMap ou un Secret sont affichées avec leur origine (jamais la valeur d'un Secret) ; elles peuvent être retirées, pas modifiées.
 - **Revenir à une version précédente** (menu « … » d'un Deployment) : la fenêtre liste les versions que Kubernetes a gardées, avec leurs images. Comme `kubectl rollout undo`, les Pods sont remplacés progressivement.
 - **Thème** : bouton à droite de l'en-tête (automatique, clair, sombre).
 - **L'adresse de la page** contient le cluster, le namespace et l'écran : un rechargement, un favori ou un lien partagé (sur la même machine) rouvre le même écran.
@@ -126,6 +128,8 @@ une panne.
 | Revenir à une version précédente | `patch` · `deployments`, `list` · `replicasets` | Élément du menu grisé avec explication. |
 | Suspendre, réactiver un CronJob | `patch` · `cronjobs` | Élément du menu grisé avec explication. |
 | Lancer un CronJob maintenant | `create` · `jobs` (et `get` · `cronjobs`) | Élément du menu grisé avec explication. |
+| Changer l'image, les variables, le CPU et la mémoire | `get` et `patch` · `deployments`, `statefulsets`, `daemonsets` (groupe `apps`), `cronjobs` (groupe `batch`) | Élément du menu grisé avec explication. |
+| Modifier les limites d'un autoscaler | `patch` · `horizontalpodautoscalers` (groupe `autoscaling`) | Élément du menu grisé avec explication. |
 | Supprimer une ressource | `delete` sur le type concerné : `deployments`, `statefulsets`, `daemonsets` (groupe `apps`), `jobs`, `cronjobs` (groupe `batch`), `services`, `configmaps`, `persistentvolumeclaims`, `ingresses` (groupe `networking.k8s.io`), `horizontalpodautoscalers` (groupe `autoscaling`) | Bouton ou élément du menu grisé avec explication. |
 | Vérifier ses propres droits | `create` · `selfsubjectaccessreviews` (accordé à tout utilisateur authentifié par défaut) | Les actions restent possibles ; le cluster tranche au moment de l'action. |
 
@@ -178,6 +182,9 @@ rules:
   - apiGroups: [batch]
     resources: [jobs]
     verbs: [create]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [patch]
   # Suppression de ressources : à n'accorder qu'aux personnes concernées, par exemple
   # - apiGroups: [apps]
   #   resources: [deployments, statefulsets, daemonsets]
@@ -202,7 +209,7 @@ rules:
 - **Logs** : seules les dernières lignes sont lues (500 par défaut, 5000 au plus, 4 Mo au plus). Le suivi en direct ne concerne que le conteneur actuel. Les logs d'un conteneur plus ancien que le précédent ne sont plus disponibles (Kubernetes ne les garde pas).
 - **Événements** : Kubernetes ne les conserve qu'environ une heure ; au-delà, la fiche n'en montre plus.
 - **« Prochain redémarrage »** d'un conteneur qui plante en boucle : c'est une estimation (Kubernetes ne publie pas cette valeur).
-- **Actions** : redémarrer (Deployments, StatefulSets, DaemonSets), changer les réplicas (Deployments, StatefulSets, de 0 à 1000), supprimer un Pod ; pause et retour à une version précédente pour les Deployments seulement ; suspendre et lancer pour les CronJobs. Pas de modification de l'image, des variables d'environnement ni des ressources CPU/mémoire.
+- **Actions** : redémarrer (Deployments, StatefulSets, DaemonSets), changer les réplicas (Deployments, StatefulSets, de 0 à 1000), supprimer un Pod ; pause et retour à une version précédente pour les Deployments seulement ; suspendre et lancer pour les CronJobs. Image, variables d'environnement, CPU et mémoire modifiables pour les Deployments, StatefulSets, DaemonSets et CronJobs (pas pour un Job, dont le modèle ne peut plus changer). Les variables importées en bloc (`envFrom`) ne se modifient pas ici.
 - **Suppression** : les objets dépendants sont supprimés avec la ressource (Pods d'un Job, ReplicaSets d'un Deployment…). Pour un volume persistant, ce que deviennent les données dépend de la classe de stockage. Les Secrets, namespaces et ressources du cluster entier ne peuvent pas être supprimés.
 - **Retour à une version précédente** : seules les versions encore gardées par Kubernetes sont proposées (`revisionHistoryLimit`, 10 par défaut). Impossible pendant une pause.
 - **Réseau, configuration, stockage** : lecture seule. Les volumes persistants (PersistentVolumes), classes de stockage, NetworkPolicies et ressources Gateway API ne sont pas affichés. Un volume en attente n'est pas relié à sa classe de stockage (qui est une ressource du cluster entier).
@@ -277,6 +284,9 @@ API locale (toutes les routes acceptent `ctx` et `ns`) :
 | `POST /api/workloads/deployments/:nom/rollback` | Revenir à une version (`{ "revision": n }`) |
 | `POST /api/workloads/cronjobs/:nom/suspend` | Suspendre ou réactiver (`{ "suspended": true }`) |
 | `POST /api/workloads/cronjobs/:nom/trigger` | Lancer un Job maintenant |
+| `GET /api/workloads/:type/:nom/containers` | Conteneurs du modèle de Pod : image, variables, CPU et mémoire |
+| `POST /api/workloads/:type/:nom/containers/:conteneur` | Modifier `image`, `env` (`{ set, remove }`) ou `resources` |
+| `POST /api/resources/horizontalpodautoscalers/:nom/limits` | Limites d'un autoscaler (`{ "min": 1, "max": 5 }`) |
 
 Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "message": "…" } }`.
 

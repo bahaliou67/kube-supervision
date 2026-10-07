@@ -19,6 +19,7 @@ import { useTable } from '../lib/useTable.js';
 import { RANG_CATEGORIE, badgeReplicas, decouperImage, lignesCharges, resumeTypes } from '../lib/workloads.js';
 import { age, ilYa } from '../lib/format.js';
 import { diagHpa, hpaDe, resumeHpa } from '../lib/ressources.js';
+import { SEGMENT_MODIFIABLE } from '../lib/conteneurs.js';
 import { tplText } from '../lib/tpl.jsx';
 import fr from '../i18n/fr.js';
 
@@ -132,6 +133,13 @@ function elementsMenu(ligne, hpa, demander, raisonBlocage) {
     ...extra,
   });
   const items = [];
+  if (SEGMENT_MODIFIABLE[ligne.kind]) {
+    items.push(item('image', A.image.menu, 'crayon'));
+    items.push(item('env', A.env.menu, 'crayon'));
+    items.push(item('resources', A.ressources.menu, 'memoire'));
+    items.push('sep');
+  }
+  if (hpa) items.push(item('hpa', A.hpa.menu, 'crayon', hpa), 'sep');
   if (ligne.kind === 'Deployment') {
     items.push(item('pause', ligne.paused ? A.pause.menuReprise : A.pause.menuPause, ligne.paused ? 'lecture' : 'pause'));
     items.push(item('rollback', A.rollback.menu, 'retour'));
@@ -143,8 +151,8 @@ function elementsMenu(ligne, hpa, demander, raisonBlocage) {
   items.push('sep');
   if (hpa) items.push(item('remove', tplText(A.supprimerHpa, { name: hpa.name }), 'corbeille', hpa, { danger: true }));
   items.push(item('remove', tplText(A.supprimerLibelle, { name: ligne.name }), 'corbeille', ligne, { danger: true }));
-  // Pas de séparateur en tête de menu.
-  return items[0] === 'sep' ? items.slice(1) : items;
+  // Pas de séparateurs en tête ni en double.
+  return items.filter((x, i) => x !== 'sep' || (i > 0 && items[i - 1] !== 'sep'));
 }
 
 function Actions({ ligne }) {

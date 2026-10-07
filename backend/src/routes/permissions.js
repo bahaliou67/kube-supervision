@@ -33,6 +33,7 @@ export const DROITS = {
   'replicasets.list': { verb: 'list', group: 'apps', resource: 'replicasets' },
   'cronjobs.patch': { verb: 'patch', group: 'batch', resource: 'cronjobs' },
   'jobs.create': { verb: 'create', group: 'batch', resource: 'jobs' },
+  'horizontalpodautoscalers.patch': { verb: 'patch', group: 'autoscaling', resource: 'horizontalpodautoscalers' },
 };
 
 async function verifier(k, ns, { clusterScoped, ...attributs }) {

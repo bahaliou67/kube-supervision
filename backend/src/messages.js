@@ -1,0 +1,31 @@
+// Messages d'erreur renvoyés au front, regroupés ici pour faciliter une
+// traduction ultérieure. Chaque clé est un identifiant d'erreur stable :
+// le front s'appuie sur la clé, jamais sur le texte.
+export const messages = {
+  KUBECONFIG_ABSENT:
+    "Aucun kubeconfig trouvé. Définissez la variable KUBECONFIG ou créez le fichier ~/.kube/config.",
+  KUBECONFIG_INVALIDE: 'Le kubeconfig ne peut pas être lu : {detail}',
+  CONTEXTE_INCONNU: "Le contexte « {ctx} » n'existe pas dans le kubeconfig.",
+  PARAMETRE_INVALIDE: 'Paramètre invalide : {detail}',
+  ACCES_REFUSE: "Accès refusé : vos droits Kubernetes ne permettent pas cette opération.",
+  NON_AUTHENTIFIE:
+    "Le cluster a refusé vos identifiants : le jeton a peut-être expiré. Reconnectez-vous au cluster (par exemple avec l'outil de connexion de votre fournisseur), puis réessayez.",
+  INTROUVABLE: "La ressource demandée n'existe pas (ou plus) sur le cluster.",
+  CONFLIT: 'La ressource a été modifiée entre-temps. Réessayez.',
+  CLUSTER_INJOIGNABLE:
+    'Le cluster ne répond pas. Vérifiez votre connexion réseau, le VPN, ou que le cluster est démarré.',
+  DELAI_DEPASSE: "Le cluster met trop de temps à répondre. Réessayez dans un instant.",
+  API_INCOMPATIBLE:
+    "Le cluster ne reconnaît pas cette ressource : sa version de Kubernetes est peut-être trop ancienne ou trop récente.",
+  AUTH_EXTERNE_ECHEC:
+    "La commande d'authentification du kubeconfig a échoué : {detail}",
+  ORIGINE_REFUSEE: 'Requête refusée : elle ne provient pas de cette application.',
+  ERREUR_CLUSTER: 'Le cluster a renvoyé une erreur inattendue : {detail}',
+  ERREUR_INTERNE: 'Erreur interne du serveur.',
+};
+
+// Remplace les {variables} d'un message.
+export function format(code, vars = {}) {
+  const modele = messages[code] ?? messages.ERREUR_INTERNE;
+  return modele.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? '').toString());
+}

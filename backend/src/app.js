@@ -1,0 +1,26 @@
+// Construction de l'application Express. La passerelle Kubernetes est
+// injectée : les tests lui substituent un client simulé.
+import express from 'express';
+import { errorHandler, AppError } from './errors.js';
+import { contextsRouter } from './routes/contexts.js';
+import { podsRouter } from './routes/pods.js';
+
+export function createApp({ kube, staticDir = null } = {}) {
+  const app = express();
+  app.disable('x-powered-by');
+  app.use(express.json({ limit: '10kb' }));
+
+  const api = express.Router();
+  api.use(contextsRouter(kube));
+  api.use(podsRouter(kube));
+  // Route d'API inconnue : erreur au format unique plutôt qu'une page HTML.
+  api.use((req, _res, next) => next(new AppError(404, 'INTROUVABLE')));
+  app.use('/api', api);
+
+  if (staticDir) {
+    app.use(express.static(staticDir));
+  }
+
+  app.use(errorHandler);
+  return app;
+}

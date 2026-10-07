@@ -23,13 +23,18 @@ export function apiException(code, message = '') {
 }
 
 // options : pods { ns: [Pod] }, defaultNs, contexts, fail(nomMethode) → erreur à lever
-export function fakeGateway({ pods = {}, defaultNs = 'default', contexts, fail } = {}) {
+export function fakeGateway({ pods = {}, namespaces, defaultNs = 'default', contexts, fail } = {}) {
   const ctxs = contexts ?? [{ name: 'test', cluster: 'test', namespace: defaultNs }];
   const leve = (methode) => {
     const e = fail?.(methode);
     if (e) throw e;
   };
   const core = {
+    async listNamespace() {
+      leve('listNamespace');
+      const noms = namespaces ?? Object.keys(pods);
+      return { items: noms.map((name) => ({ metadata: { name }, status: { phase: 'Active' } })) };
+    },
     async listNamespacedPod({ namespace }) {
       leve('listNamespacedPod');
       return { items: pods[namespace] ?? [] };

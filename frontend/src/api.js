@@ -1,3 +1,5 @@
+import fr from './i18n/fr.js';
+
 // Client de l'API du backend. Toute erreur est convertie en ApiError
 // portant le code stable renvoyé par le serveur (ACCES_REFUSE, INTROUVABLE…).
 export class ApiError extends Error {
@@ -24,7 +26,7 @@ export async function apiGet(path, params) {
     res = await fetch(`/api${path}${qs(params)}`, { headers: { Accept: 'application/json' } });
   } catch {
     // Le backend lui-même ne répond pas (outil arrêté).
-    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', "L'outil de supervision ne répond pas. Vérifiez qu'il est toujours lancé.");
+    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
   }
   const corps = await res.json().catch(() => null);
   if (!res.ok) {

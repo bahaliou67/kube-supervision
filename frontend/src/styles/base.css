@@ -1,0 +1,560 @@
+/* Styles de base et des composants. Les valeurs (tailles, espacements,
+   rayons) reprennent celles des maquettes du dossier design/. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+}
+body {
+  min-width: 1024px; /* largeur minimale d'usage (README) */
+  min-height: 100vh;
+}
+a {
+  color: inherit;
+}
+a:hover {
+  color: inherit;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Utilitaires */
+.mono {
+  font-family: var(--font-mono);
+}
+.mut {
+  color: var(--mut);
+}
+.small {
+  font-size: 12.5px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+/* Nom long tronqué, nom complet au survol (attribut title). */
+.trunc {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* ---------- En-tête ---------- */
+.hdr {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 10px 24px;
+  background: var(--sf);
+  border-bottom: 1px solid var(--bd);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.hdr-brand {
+  font-weight: 600;
+  font-size: 15px;
+}
+.hdr-nav {
+  display: flex;
+  gap: 4px;
+}
+.hdr-nav a {
+  padding: 12px;
+  text-decoration: none;
+  color: var(--mut);
+}
+.hdr-nav a[aria-current='page'] {
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--ink);
+}
+.hdr-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Sélecteur cluster / namespace (bloc inversé) */
+.scope {
+  display: flex;
+  background: var(--inv);
+  color: var(--invink);
+  border-radius: var(--radius-ctl);
+  position: relative;
+  max-width: 100%;
+}
+.scope-part {
+  position: relative;
+  min-width: 0;
+}
+.scope-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-ctl);
+  max-width: 100%;
+}
+.scope-btn:focus-visible {
+  outline-color: var(--invink);
+  outline-offset: -3px;
+}
+.scope-label {
+  font-size: 12px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.scope-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  max-width: 260px;
+}
+.scope-sep {
+  width: 1px;
+  background: var(--invink);
+  opacity: 0.3;
+}
+
+/* Menu déroulant (conçu : absent des maquettes) */
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 300px;
+  max-width: 440px;
+  background: var(--sf);
+  color: var(--ink);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  box-shadow: var(--shadow);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.menu-title {
+  padding: 6px 10px 4px;
+  font-size: 12px;
+  color: var(--mut);
+}
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.menu-item:hover,
+.menu-item.is-active {
+  background: var(--sub);
+}
+.menu-item[aria-selected='true'] {
+  font-weight: 600;
+}
+.menu-item .menu-check {
+  width: 14px;
+  flex: none;
+}
+.menu-item .menu-name {
+  font-family: var(--font-mono);
+  flex: 1;
+  min-width: 0;
+}
+.menu-item .menu-meta {
+  font-size: 12px;
+  color: var(--mut);
+  white-space: nowrap;
+}
+.menu-sep {
+  height: 1px;
+  background: var(--sub);
+  margin: 2px 0;
+}
+.menu-note {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--mut);
+}
+.menu-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 10px 8px;
+}
+.menu-form-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------- Champs ---------- */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  background: var(--sf);
+  min-width: 0;
+}
+.field:focus-within {
+  border-color: var(--ink);
+}
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+}
+.field.is-invalid {
+  border-color: var(--err);
+}
+.field-sm {
+  height: 36px;
+}
+.field-mono input {
+  font-family: var(--font-mono);
+}
+.field-error {
+  font-size: 12.5px;
+  color: var(--err);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- Boutons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--radius-ctl);
+  border: 1px solid var(--bd);
+  background: var(--sf);
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-primary {
+  border: 0;
+  background: var(--ink);
+  color: var(--on-ink);
+}
+a.btn-primary:hover {
+  color: var(--on-ink);
+}
+.btn-danger {
+  border: 0;
+  background: var(--err);
+  color: var(--on-ink); /* blanc en clair (maquette 05), sombre en thème sombre pour le contraste */
+}
+.btn-danger-outline {
+  border-color: var(--err);
+  color: var(--err);
+}
+.btn-warn-outline {
+  border-color: var(--warn);
+  color: var(--ink);
+  font-weight: 400;
+}
+.btn-sm {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 400;
+}
+.btn-lg {
+  height: 44px;
+  padding: 0 16px;
+}
+.btn-quiet {
+  font-weight: 400;
+}
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-weight: 400;
+}
+/* Action interdite : grisée, avec explication (conçu). */
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  background: var(--sub);
+  border-color: var(--bd);
+  color: var(--mut);
+  cursor: not-allowed;
+}
+.btn-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Badge de statut ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-badge);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.badge svg {
+  flex: none;
+}
+.badge-md {
+  padding: 4px 9px;
+  font-size: 13px;
+}
+.badge-ok {
+  background: var(--okbg);
+  color: var(--ok);
+}
+.badge-warn {
+  background: var(--warnbg);
+  color: var(--warn);
+}
+.badge-err {
+  background: var(--errbg);
+  color: var(--err);
+}
+.badge-neutral {
+  background: var(--sub);
+  color: var(--mut);
+}
+/* Variante sans fond, utilisée dans les tableaux (maquettes 01 et 02). */
+.badge-plain {
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ---------- Carte ---------- */
+.card {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-card);
+}
+.card-pad {
+  padding: 18px;
+}
+.card-alert {
+  border: 2px solid var(--err);
+}
+.card-scroll {
+  overflow-x: auto;
+}
+
+/* ---------- Tableau ---------- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mut);
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--bd);
+  white-space: nowrap;
+}
+.table td {
+  padding: 10px 8px;
+  vertical-align: middle;
+}
+.table tbody tr + tr {
+  border-top: 1px solid var(--sub);
+}
+.table th:first-child,
+.table td:first-child {
+  padding-left: 18px;
+}
+.table th:last-child,
+.table td:last-child {
+  padding-right: 18px;
+}
+.table .num {
+  text-align: right;
+}
+.table .cell-name {
+  font-family: var(--font-mono);
+  max-width: 0; /* permet la troncature dans une cellule auto */
+}
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+.th-sort[aria-pressed='true'] {
+  color: var(--ink);
+}
+.table-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 8px 18px;
+  border-top: 1px solid var(--sub);
+  font-size: 12.5px;
+  color: var(--mut);
+}
+
+/* ---------- Page ---------- */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.page-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Indicateur « En direct » */
+.live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--mut);
+  white-space: nowrap;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  flex: none;
+}
+.live-dot.is-off {
+  background: none;
+  border: 1.5px solid var(--mut);
+}
+
+/* Lignes fantômes du chargement */
+.skeleton-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.skeleton-row {
+  display: flex;
+  gap: 16px;
+}
+.skeleton {
+  height: 14px;
+  border-radius: 4px;
+  background: var(--sub);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+.spinner {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .spinner {
+    animation: none;
+  }
+}

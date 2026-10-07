@@ -1,0 +1,73 @@
+/* Tokens du design (design/README.md). Le thème suit la préférence du
+   système ; l'attribut data-theme sur <html> force clair ou sombre. */
+:root {
+  --bg: #f4f5f7;
+  --sf: #ffffff;
+  --ink: #15181c;
+  --mut: #56606b;
+  --bd: #d9dde3;
+  --sub: #eceef1;
+  --ok: #17694a;
+  --okbg: #e3f3eb;
+  --warn: #7a4f00;
+  --warnbg: #fbefd2;
+  --err: #a8221b;
+  --errbg: #fce7e4;
+  --inv: #15181c;
+  --invink: #ffffff;
+  /* Texte sur un fond --ink (bouton principal) : --sf en clair, --bg en sombre (maquette 03 sombre). */
+  --on-ink: #ffffff;
+  --overlay: rgba(21, 24, 28, 0.55);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-card: 10px;
+  --radius-ctl: 8px;
+  --radius-badge: 6px;
+  color-scheme: light;
+}
+
+/* Valeurs du thème sombre, partagées par les deux sélecteurs ci-dessous. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1215;
+    --sf: #171b20;
+    --ink: #e7eaee;
+    --mut: #9ba5b1;
+    --bd: #2a3038;
+    --sub: #1f242b;
+    --ok: #62cc9c;
+    --okbg: #12301f;
+    --warn: #e6b552;
+    --warnbg: #33290f;
+    --err: #ff9087;
+    --errbg: #351614;
+    --inv: #e7eaee;
+    --invink: #0f1215;
+    --on-ink: #0f1215;
+    --overlay: rgba(0, 0, 0, 0.65);
+    --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #0f1215;
+  --sf: #171b20;
+  --ink: #e7eaee;
+  --mut: #9ba5b1;
+  --bd: #2a3038;
+  --sub: #1f242b;
+  --ok: #62cc9c;
+  --okbg: #12301f;
+  --warn: #e6b552;
+  --warnbg: #33290f;
+  --err: #ff9087;
+  --errbg: #351614;
+  --inv: #e7eaee;
+  --invink: #0f1215;
+  --on-ink: #0f1215;
+  --overlay: rgba(0, 0, 0, 0.65);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

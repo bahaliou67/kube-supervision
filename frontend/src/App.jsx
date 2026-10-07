@@ -1,58 +1,72 @@
-// Étape 1 : affichage brut des Pods du namespace par défaut du contexte courant.
-import { useEffect, useState } from 'react';
-import { apiGet } from './api.js';
+// Racine de l'application : en-tête permanent et écran correspondant à l'adresse.
+import { useCallback, useState } from 'react';
+import Header from './components/Header.jsx';
+import Card from './components/Card.jsx';
+import Button from './components/Button.jsx';
+import { Spinner } from './components/Icon.jsx';
+import PodsProvisoire from './pages/PodsProvisoire.jsx';
+import Galerie from './pages/Galerie.jsx';
+import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
+import { navigate } from './lib/router.js';
+import fr from './i18n/fr.js';
+
+function Ecran({ onUpdate }) {
+  const { route, contexts, ctxObj, ready } = useScope();
+
+  if (import.meta.env.DEV && route.path === '/composants') return <Galerie />;
+
+  if (contexts.status === 'loading') {
+    return (
+      <main className="page">
+        <div className="mut" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <Spinner /> {fr.demarrage.chargement}
+        </div>
+      </main>
+    );
+  }
+  if (contexts.status === 'error') {
+    return (
+      <main className="page">
+        <Card padded style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
+          <h1 style={{ fontSize: 18 }}>{fr.demarrage.erreurTitre}</h1>
+          <div>{contexts.error.message}</div>
+          <Button onClick={contexts.reload}>{fr.commun.reessayer}</Button>
+        </Card>
+      </main>
+    );
+  }
+  if (!ctxObj) {
+    return (
+      <main className="page">
+        <Card padded style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
+          <div>{fr.demarrage.contexteInconnu(route.query.ctx)}</div>
+          <Button onClick={() => navigate('/', {})}>{fr.demarrage.revenirContexteCourant}</Button>
+        </Card>
+      </main>
+    );
+  }
+  if (!ready) return null;
+
+  if (route.path.startsWith('/charges')) {
+    return (
+      <main className="page">
+        <h1>{fr.entete.charges}</h1>
+        <p className="mut">{fr.provisoire.charges}</p>
+      </main>
+    );
+  }
+  return <PodsProvisoire onUpdate={onUpdate} />;
+}
 
 export default function App() {
-  const [donnees, setDonnees] = useState(null);
-  const [erreur, setErreur] = useState(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const { current, contexts } = await apiGet('/contexts');
-        const ctx = contexts.find((c) => c.name === current);
-        // ?ns=… dans l'URL permet de choisir un autre namespace (le sélecteur arrive à l'étape 2).
-        const ns = new URLSearchParams(window.location.search).get('ns') || ctx.defaultNamespace;
-        setDonnees(await apiGet('/pods', { ctx: current, ns }));
-      } catch (e) {
-        setErreur(e);
-      }
-    })();
-  }, []);
-
-  if (erreur) return <p>Erreur {erreur.code} : {erreur.message}</p>;
-  if (!donnees) return <p>Chargement…</p>;
+  // Date de la dernière donnée reçue, affichée dans l'en-tête.
+  // Le flux temps réel (étape 6) alimentera aussi l'état « en ligne ».
+  const [updatedAt, setUpdatedAt] = useState(null);
+  const onUpdate = useCallback((t) => setUpdatedAt(t), []);
   return (
-    <main>
-      <h1>
-        Pods de {donnees.ns} sur {donnees.ctx} ({donnees.items.length})
-      </h1>
-      <table border="1" cellPadding="4">
-        <thead>
-          <tr>
-            <th>Nom</th>
-            <th>Statut</th>
-            <th>Prêts</th>
-            <th>Redémarrages</th>
-            <th>Dernier arrêt</th>
-            <th>Propriétaire</th>
-            <th>Âge (s)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {donnees.items.map((p) => (
-            <tr key={p.uid}>
-              <td>{p.name}</td>
-              <td>{p.status}</td>
-              <td>{p.ready}</td>
-              <td>{p.restarts}</td>
-              <td>{p.lastTermination?.reason ?? ''}</td>
-              <td>{p.owner ? `${p.owner.kind} ${p.owner.name}` : '—'}</td>
-              <td>{p.age}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </main>
+    <ScopeProvider>
+      <Header live={{ online: Boolean(updatedAt), updatedAt }} />
+      <Ecran onUpdate={onUpdate} />
+    </ScopeProvider>
   );
 }

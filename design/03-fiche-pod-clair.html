@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<title>Fiche d'un Pod</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Polices IBM Plex (sous-ensemble latin), fichiers locaux */
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexMono-400.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexMono-500.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('fonts/IBMPlexSans-variable.woff2') format('woff2')}
+</style>
+</head>
+<body>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+</style>
+<div style="--bg:#F4F5F7; --sf:#FFFFFF; --ink:#15181C; --mut:#56606B; --bd:#D9DDE3; --sub:#ECEEF1; --ok:#17694A; --okbg:#E3F3EB; --warn:#7A4F00; --warnbg:#FBEFD2; --err:#A8221B; --errbg:#FCE7E4; --inv:#15181C; --invink:#FFFFFF; min-height: 900px; background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.45">
+
+<header style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px 24px; background: var(--sf); border-bottom: 1px solid var(--bd)">
+<div style="font-weight: 600; font-size: 15px">Supervision</div>
+<div style="display: flex; background: var(--inv); color: var(--invink); border-radius: 8px; overflow: hidden">
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Cluster</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">docker-desktop</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+<div style="width: 1px; background: var(--invink); opacity: 0.3"></div>
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Namespace</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">personnes</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+</div>
+<nav style="display: flex; gap: 4px">
+<a href="#" style="padding: 12px 12px; text-decoration: none; color: var(--mut)">Accueil</a>
+<a href="#" aria-current="page" style="padding: 12px 12px; text-decoration: none; font-weight: 600; box-shadow: inset 0 -2px 0 var(--ink)">Charges de travail</a>
+</nav>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mut)"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>En direct · mis à jour il y a 2 s</div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 20px">
+<div style="font-size: 12.5px; color: var(--mut)"><a href="#">Charges de travail</a> / <a href="#">api</a> / api-7d9f8b6c5-m8ztw</div>
+
+<section style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start">
+<div style="flex: 1 1 480px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<h1 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500">api-7d9f8b6c5-m8ztw</h1>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 6px; background: var(--errbg); color: var(--err); font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8a5 5 0 1 1-1.5-3.5"></path><path d="M13 2.5v3h-3"></path></svg>CrashLoopBackOff</span>
+<span style="color: var(--mut)">plante et redémarre en boucle</span>
+</div>
+<dl style="margin: 0; display: flex; gap: 32px; flex-wrap: wrap">
+<div><dt style="font-size: 12px; color: var(--mut)">Redémarrages</dt><dd style="margin: 2px 0 0; font-weight: 600; color: var(--err)">6</dd></div>
+<div><dt style="font-size: 12px; color: var(--mut)">Nœud</dt><dd style="margin: 2px 0 0; font-family: 'IBM Plex Mono', monospace">docker-desktop</dd></div>
+<div><dt style="font-size: 12px; color: var(--mut)">Âge</dt><dd style="margin: 2px 0 0">3 h</dd></div>
+<div><dt style="font-size: 12px; color: var(--mut)">Géré par</dt><dd style="margin: 2px 0 0">Deployment <a href="#" style="font-family: 'IBM Plex Mono', monospace">api</a></dd></div>
+<div><dt style="font-size: 12px; color: var(--mut)">Image</dt><dd style="margin: 2px 0 0; font-family: 'IBM Plex Mono', monospace">personnes-api:1.2</dd></div>
+</dl>
+</div>
+<div style="display: flex; gap: 8px">
+<a href="#" style="display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 8px; background: var(--ink); color: var(--sf); text-decoration: none; font-weight: 500">Voir les logs</a>
+<button style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--err); background: var(--sf); color: var(--err); font: inherit; font-weight: 500; cursor: pointer"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11"></path><path d="M6 4.5V2.8h4v1.7"></path><path d="M4 4.5l.6 8.7h6.8l.6-8.7"></path></svg>Supprimer le Pod</button>
+</div>
+</section>
+
+<section style="background: var(--errbg); border: 2px solid var(--err); border-radius: 10px; padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start">
+<div style="color: var(--err); padding-top: 2px"><svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="1"></rect><path d="M6.5 1.5V4M9.5 1.5V4M6.5 12v2.5M9.5 12v2.5M1.5 6.5H4M1.5 9.5H4M12 6.5h2.5M12 9.5h2.5"></path></svg></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 600; color: var(--err); text-transform: uppercase; letter-spacing: 0.06em">Raison du dernier arrêt</div>
+<div style="font-size: 20px; font-weight: 600">Mémoire dépassée <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 500">(OOMKilled)</span></div>
+<div>Le conteneur <span style="font-family: 'IBM Plex Mono', monospace">api</span> a consommé plus de mémoire que sa limite. Kubernetes l'a arrêté de force, puis le relance — et il replante.</div>
+<div style="display: flex; gap: 28px; flex-wrap: wrap; margin-top: 6px; font-size: 13px">
+<div><span style="color: var(--mut)">Limite mémoire</span> <strong style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">192 Mi</strong></div>
+<div><span style="color: var(--mut)">Code de sortie</span> <strong style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">137</strong></div>
+<div><span style="color: var(--mut)">Arrêté</span> <strong style="font-weight: 500">il y a 40 s</strong></div>
+<div><span style="color: var(--mut)">Prochain redémarrage</span> <strong style="font-weight: 500">dans 4 min environ</strong></div>
+</div>
+<div style="margin-top: 6px; font-size: 13px; color: var(--mut)">Pistes : augmenter la limite mémoire du Deployment, ou chercher une fuite mémoire dans l'appli — les logs du conteneur précédent montrent ce qui s'est passé juste avant l'arrêt.</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 10px"><h2 style="margin: 0; font-size: 15px; font-weight: 600">Événements</h2><span style="font-size: 12.5px; color: var(--mut)">du plus récent au plus ancien</span></div>
+<ol style="list-style: none; margin: 0; padding: 0; background: var(--sf); border: 1px solid var(--bd); border-radius: 10px">
+<li style="display: flex; gap: 16px; padding: 12px 18px; border-bottom: 1px solid var(--sub); align-items: flex-start">
+<div style="width: 96px; flex: none; color: var(--mut); font-size: 12.5px; padding-top: 2px">il y a 25 s</div>
+<div style="width: 110px; flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--err); font-size: 12.5px; font-weight: 600; padding-top: 2px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11H1.7z"></path><path d="M8 6.5v3.2"></path><path d="M8 11.6v.2"></path></svg>Alerte</div>
+<div style="flex: 1"><div style="font-weight: 500">Kubernetes attend avant de relancer le conteneur, car il plante à répétition.</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--mut); margin-top: 2px">BackOff · Back-off restarting failed container api</div></div>
+<div style="flex: none; font-size: 12.5px; color: var(--mut); padding-top: 2px">× 14</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 12px 18px; border-bottom: 1px solid var(--sub); align-items: flex-start">
+<div style="width: 96px; flex: none; color: var(--mut); font-size: 12.5px; padding-top: 2px">il y a 6 min</div>
+<div style="width: 110px; flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--err); font-size: 12.5px; font-weight: 600; padding-top: 2px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11H1.7z"></path><path d="M8 6.5v3.2"></path><path d="M8 11.6v.2"></path></svg>Alerte</div>
+<div style="flex: 1"><div style="font-weight: 500">Le conteneur ne répondait plus au test de vie ; il va être redémarré.</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--mut); margin-top: 2px">Unhealthy · Container api failed liveness probe, will be restarted</div></div>
+<div style="flex: none; font-size: 12.5px; color: var(--mut); padding-top: 2px">× 3</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 12px 18px; border-bottom: 1px solid var(--sub); align-items: flex-start">
+<div style="width: 96px; flex: none; color: var(--mut); font-size: 12.5px; padding-top: 2px">il y a 7 min</div>
+<div style="width: 110px; flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--err); font-size: 12.5px; font-weight: 600; padding-top: 2px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11H1.7z"></path><path d="M8 6.5v3.2"></path><path d="M8 11.6v.2"></path></svg>Alerte</div>
+<div style="flex: 1"><div style="font-weight: 500">L'appli n'était pas prête à recevoir du trafic (réponse HTTP 503).</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--mut); margin-top: 2px">Unhealthy · Readiness probe failed: HTTP probe failed with statuscode: 503</div></div>
+<div style="flex: none; font-size: 12.5px; color: var(--mut); padding-top: 2px">× 9</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 12px 18px; border-bottom: 1px solid var(--sub); align-items: flex-start">
+<div style="width: 96px; flex: none; color: var(--mut); font-size: 12.5px; padding-top: 2px">il y a 8 min</div>
+<div style="width: 110px; flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--mut); font-size: 12.5px; font-weight: 600; padding-top: 2px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M8 7.4v3.4"></path><path d="M8 5.1v.2"></path></svg>Info</div>
+<div style="flex: 1"><div style="font-weight: 500">Le conteneur a démarré.</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--mut); margin-top: 2px">Started · Started container api</div></div>
+<div style="flex: none; font-size: 12.5px; color: var(--mut); padding-top: 2px">× 7</div>
+</li>
+<li style="display: flex; gap: 16px; padding: 12px 18px; align-items: flex-start">
+<div style="width: 96px; flex: none; color: var(--mut); font-size: 12.5px; padding-top: 2px">il y a 3 h</div>
+<div style="width: 110px; flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--mut); font-size: 12.5px; font-weight: 600; padding-top: 2px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M8 7.4v3.4"></path><path d="M8 5.1v.2"></path></svg>Info</div>
+<div style="flex: 1"><div style="font-weight: 500">Le Pod a été placé sur le nœud docker-desktop.</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--mut); margin-top: 2px">Scheduled · Successfully assigned personnes/api-7d9f8b6c5-m8ztw to docker-desktop</div></div>
+<div style="flex: none; font-size: 12.5px; color: var(--mut); padding-top: 2px">× 1</div>
+</li>
+</ol>
+</section>
+</main>
+</div>
+
+
+</body></html>

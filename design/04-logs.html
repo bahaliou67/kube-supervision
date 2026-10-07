@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<title>Logs d'un Pod</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Polices IBM Plex (sous-ensemble latin), fichiers locaux */
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexMono-400.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexMono-500.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('fonts/IBMPlexSans-variable.woff2') format('woff2')}
+</style>
+</head>
+<body>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+</style>
+<div style="--bg:#F4F5F7; --sf:#FFFFFF; --ink:#15181C; --mut:#56606B; --bd:#D9DDE3; --sub:#ECEEF1; --ok:#17694A; --okbg:#E3F3EB; --warn:#7A4F00; --warnbg:#FBEFD2; --err:#A8221B; --errbg:#FCE7E4; --inv:#15181C; --invink:#FFFFFF; min-height: 900px; background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.45">
+
+<header style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px 24px; background: var(--sf); border-bottom: 1px solid var(--bd)">
+<div style="font-weight: 600; font-size: 15px">Supervision</div>
+<div style="display: flex; background: var(--inv); color: var(--invink); border-radius: 8px; overflow: hidden">
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Cluster</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">docker-desktop</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+<div style="width: 1px; background: var(--invink); opacity: 0.3"></div>
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Namespace</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">personnes</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+</div>
+<nav style="display: flex; gap: 4px">
+<a href="#" style="padding: 12px 12px; text-decoration: none; color: var(--mut)">Accueil</a>
+<a href="#" aria-current="page" style="padding: 12px 12px; text-decoration: none; font-weight: 600; box-shadow: inset 0 -2px 0 var(--ink)">Charges de travail</a>
+</nav>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mut)"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>En direct · mis à jour il y a 2 s</div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 20px 24px 32px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 12.5px; color: var(--mut)"><a href="#">Charges de travail</a> / <a href="#">api</a> / <a href="#">api-7d9f8b6c5-m8ztw</a> / Logs</div>
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600">Logs de <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">api-7d9f8b6c5-m8ztw</span></h1>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 6px; background: var(--errbg); color: var(--err); font-size: 13px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8a5 5 0 1 1-1.5-3.5"></path><path d="M13 2.5v3h-3"></path></svg>CrashLoopBackOff</span>
+</div>
+
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<div role="group" aria-label="Conteneur" style="display: flex; border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; background: var(--sf)">
+<button aria-pressed="false" style="height: 40px; padding: 0 14px; border: 0; background: none; color: var(--mut); font: inherit; cursor: pointer">Conteneur actuel</button>
+<button aria-pressed="true" style="height: 40px; padding: 0 14px; border: 0; background: var(--ink); color: var(--sf); font: inherit; font-weight: 500; cursor: pointer">Conteneur précédent</button>
+</div>
+<div style="flex: 1 1 280px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border: 1px solid var(--ink); border-radius: 8px; background: var(--sf)">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5l3.5 3.5"></path></svg>
+<label for="recherche-logs" style="position: absolute; left: -9999px">Rechercher dans les logs</label>
+<input id="recherche-logs" type="search" value="mémoire" placeholder="Rechercher dans les logs" style="flex: 1; min-width: 0; border: 0; outline: 0; background: none; color: inherit; font: inherit">
+<span style="font-size: 12.5px; color: var(--mut); white-space: nowrap">3 résultats</span>
+<button aria-label="Résultat précédent" style="width: 28px; height: 28px; border: 0; background: none; color: inherit; cursor: pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4-4 4 4"></path></svg></button>
+<button aria-label="Résultat suivant" style="width: 28px; height: 28px; border: 0; background: none; color: inherit; cursor: pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+</div>
+<button role="switch" aria-checked="false" disabled="" style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border: 1px solid var(--bd); border-radius: 8px; background: var(--sf); color: var(--mut); font: inherit"><span style="width: 32px; height: 18px; border-radius: 9px; border: 1.5px solid var(--mut); box-sizing: border-box; display: flex; align-items: center; padding: 0 2px"><span style="width: 10px; height: 10px; border-radius: 50%; background: var(--mut)"></span></span>Suivi en direct</button>
+</div>
+<div style="font-size: 12.5px; color: var(--mut)">Vous lisez les logs du conteneur <strong style="font-weight: 600; color: var(--ink)">précédent</strong>, celui qui a été arrêté il y a 40 s. Il ne produit plus de logs : le suivi en direct n'est disponible que pour le conteneur actuel.</div>
+
+<div style="background: var(--sf); border: 1px solid var(--bd); border-radius: 10px; overflow: hidden">
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 8px 14px; font-size: 12.5px; color: var(--mut); border-bottom: 1px solid var(--sub)"><span>Conteneur <span style="font-family: 'IBM Plex Mono', monospace">api</span> · exécution n° 6 · 14 lignes</span><span>Heure locale</span></div>
+<pre style="margin: 0; padding: 12px 14px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.7; color: var(--ink)"><span style="color: var(--mut)">14:31:02.118</span>  info   Démarrage de personnes-api v1.2 (node v22.9.0)
+<span style="color: var(--mut)">14:31:02.342</span>  info   Connexion à PostgreSQL db:5432 établie
+<span style="color: var(--mut)">14:31:02.371</span>  info   Serveur à l'écoute sur le port 3000
+<span style="color: var(--mut)">14:31:09.804</span>  info   GET /health 200 3 ms
+<span style="color: var(--mut)">14:31:14.220</span>  info   GET /personnes?limit=50000 — chargement de 50000 lignes
+<span style="color: var(--mut)">14:31:16.911</span>  warn   <mark style="background: var(--warnbg); color: var(--warn); font-weight: 500; padding: 1px 2px">mémoire</mark> utilisée : 131 Mi sur 192 Mi
+<span style="color: var(--mut)">14:31:19.804</span>  info   GET /health 200 41 ms
+<span style="color: var(--mut)">14:31:21.377</span>  info   GET /personnes/export — construction du fichier en mémoire vive
+<span style="color: var(--mut)">14:31:24.560</span>  warn   <mark style="background: var(--ink); color: var(--sf); font-weight: 500; padding: 1px 2px">mémoire</mark> utilisée : 168 Mi sur 192 Mi
+<span style="color: var(--mut)">14:31:27.932</span>  warn   ramasse-miettes : pause de 812 ms
+<span style="color: var(--mut)">14:31:29.806</span>  warn   GET /health 503 2004 ms
+<span style="color: var(--mut)">14:31:31.145</span>  warn   <mark style="background: var(--warnbg); color: var(--warn); font-weight: 500; padding: 1px 2px">mémoire</mark> utilisée : 189 Mi sur 192 Mi
+<span style="color: var(--mut)">14:31:32.480</span>  info   GET /personnes/export — 71 % traité</pre>
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--errbg); color: var(--err); border-top: 2px solid var(--err); font-weight: 500"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8" rx="1"></rect><path d="M6.5 1.5V4M9.5 1.5V4M6.5 12v2.5M9.5 12v2.5M1.5 6.5H4M1.5 9.5H4M12 6.5h2.5M12 9.5h2.5"></path></svg><span>Fin des logs — conteneur arrêté à 14:31:33 : mémoire dépassée <span style="font-family: 'IBM Plex Mono', monospace">(OOMKilled)</span>, limite 192 Mi, code 137. Le conteneur n'a pas eu le temps d'écrire un message d'erreur.</span></div>
+</div>
+</main>
+</div>
+
+
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<title>Charges de travail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Polices IBM Plex (sous-ensemble latin), fichiers locaux */
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexMono-400.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexMono-500.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400 600;font-display:swap;src:url('fonts/IBMPlexSans-variable.woff2') format('woff2')}
+</style>
+</head>
+<body>
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+</style>
+<div style="--bg:#F4F5F7; --sf:#FFFFFF; --ink:#15181C; --mut:#56606B; --bd:#D9DDE3; --sub:#ECEEF1; --ok:#17694A; --okbg:#E3F3EB; --warn:#7A4F00; --warnbg:#FBEFD2; --err:#A8221B; --errbg:#FCE7E4; --inv:#15181C; --invink:#FFFFFF; min-height: 900px; background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.45">
+
+<header style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 10px 24px; background: var(--sf); border-bottom: 1px solid var(--bd)">
+<div style="font-weight: 600; font-size: 15px">Supervision</div>
+<div style="display: flex; background: var(--inv); color: var(--invink); border-radius: 8px; overflow: hidden">
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Cluster</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">docker-desktop</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+<div style="width: 1px; background: var(--invink); opacity: 0.3"></div>
+<button style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer"><span style="font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em">Namespace</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">personnes</span><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+</div>
+<nav style="display: flex; gap: 4px">
+<a href="#" style="padding: 12px 12px; text-decoration: none; color: var(--mut)">Accueil</a>
+<a href="#" aria-current="page" style="padding: 12px 12px; text-decoration: none; font-weight: 600; box-shadow: inset 0 -2px 0 var(--ink)">Charges de travail</a>
+</nav>
+<div style="margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mut)"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>En direct · mis à jour il y a 2 s</div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+<h1 style="margin: 0; font-size: 22px; font-weight: 600">Charges de travail</h1>
+<span style="color: var(--mut)">2 Deployments · 1 StatefulSet</span>
+</div>
+
+<div style="background: var(--sf); border: 1px solid var(--bd); border-radius: 10px; overflow-x: auto">
+<table style="width: 100%; min-width: 900px; border-collapse: collapse">
+<thead>
+<tr style="text-align: left; font-size: 12px; color: var(--mut); border-bottom: 1px solid var(--bd)">
+<th style="padding: 10px 18px; font-weight: 500">Nom</th><th style="padding: 10px 8px; font-weight: 500">Type</th><th style="padding: 10px 8px; font-weight: 500">Réplicas prêts</th><th style="padding: 10px 8px; font-weight: 500">Image et version</th><th style="padding: 10px 8px; font-weight: 500">Âge</th><th style="padding: 10px 18px; font-weight: 500; text-align: right">Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background: var(--sub)">
+<td style="padding: 12px 18px"><button aria-expanded="true" style="display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: inherit; font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: inherit; cursor: pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg>api</button></td>
+<td style="padding: 12px 8px; color: var(--mut)">Deployment</td>
+<td style="padding: 12px 8px"><span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 6px; background: var(--errbg); color: var(--err); font-weight: 600; font-size: 13px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.3 11H1.7z"></path><path d="M8 6.5v3.2"></path><path d="M8 11.6v.2"></path></svg>1/2 · 1 en erreur</span></td>
+<td style="padding: 12px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">personnes-api:<strong style="font-weight: 500">1.2</strong></td>
+<td style="padding: 12px 8px; color: var(--mut)">3 h</td>
+<td style="padding: 12px 18px; text-align: right; white-space: nowrap"><button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Redémarrer</button> <button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Changer les réplicas</button></td>
+</tr>
+<tr style="background: var(--sub)">
+<td colspan="6" style="padding: 0 18px 16px 38px">
+<div style="background: var(--sf); border: 1px solid var(--bd); border-radius: 8px">
+<div style="padding: 8px 14px; font-size: 12px; color: var(--mut); border-bottom: 1px solid var(--sub)">Pods de api · 2</div>
+<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--sub)">
+<span style="width: 170px; display: inline-flex; align-items: center; gap: 6px; color: var(--err); font-weight: 600; font-size: 12.5px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8a5 5 0 1 1-1.5-3.5"></path><path d="M13 2.5v3h-3"></path></svg>CrashLoopBackOff</span>
+<a href="#" style="width: 210px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">api-7d9f8b6c5-m8ztw</a>
+<span style="flex: 1 1 260px">Dernier arrêt : mémoire dépassée <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px">(OOMKilled)</span>, limite 192 Mi</span>
+<span style="color: var(--err); font-weight: 600; font-size: 13px">6 redémarrages</span>
+<a href="#" style="font-size: 13px">Fiche</a><a href="#" style="font-size: 13px">Logs</a>
+</div>
+<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 10px 14px">
+<span style="width: 170px; display: inline-flex; align-items: center; gap: 6px; color: var(--ok); font-weight: 600; font-size: 12.5px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M5.2 8.2l1.9 1.9 3.7-4"></path></svg>Running</span>
+<a href="#" style="width: 210px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">api-7d9f8b6c5-x2kqp</a>
+<span style="flex: 1 1 260px; color: var(--mut)">Prêt, reçoit du trafic</span>
+<span style="color: var(--mut); font-size: 13px">0 redémarrage</span>
+<a href="#" style="font-size: 13px">Fiche</a><a href="#" style="font-size: 13px">Logs</a>
+</div>
+</div>
+</td>
+</tr>
+<tr style="border-top: 1px solid var(--bd)">
+<td style="padding: 12px 18px"><button aria-expanded="false" style="display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: inherit; font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: inherit; cursor: pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg>front</button></td>
+<td style="padding: 12px 8px; color: var(--mut)">Deployment</td>
+<td style="padding: 12px 8px"><span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; color: var(--ok); font-weight: 600; font-size: 13px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M5.2 8.2l1.9 1.9 3.7-4"></path></svg>2/2</span></td>
+<td style="padding: 12px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">personnes-front:<strong style="font-weight: 500">1.2</strong></td>
+<td style="padding: 12px 8px; color: var(--mut)">3 h</td>
+<td style="padding: 12px 18px; text-align: right; white-space: nowrap"><button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Redémarrer</button> <button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Changer les réplicas</button></td>
+</tr>
+<tr style="border-top: 1px solid var(--bd)">
+<td style="padding: 12px 18px"><button aria-expanded="false" style="display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: inherit; font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500; color: inherit; cursor: pointer"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg>db</button></td>
+<td style="padding: 12px 8px; color: var(--mut)">StatefulSet</td>
+<td style="padding: 12px 8px"><span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; color: var(--ok); font-weight: 600; font-size: 13px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M5.2 8.2l1.9 1.9 3.7-4"></path></svg>1/1</span></td>
+<td style="padding: 12px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">postgres:<strong style="font-weight: 500">17</strong></td>
+<td style="padding: 12px 8px; color: var(--mut)">5 h</td>
+<td style="padding: 12px 18px; text-align: right; white-space: nowrap"><button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Redémarrer</button> <button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--bd); background: var(--sf); color: inherit; font: inherit; font-size: 13px; cursor: pointer">Changer les réplicas</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="font-size: 12.5px; color: var(--mut)">Cliquez sur une ligne pour afficher ses Pods.</div>
+</main>
+</div>
+
+
+</body></html>

@@ -10,6 +10,7 @@ import PodDetail from './pages/PodDetail.jsx';
 import Logs from './pages/Logs.jsx';
 import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
 import { LiveProvider } from './state/LiveContext.jsx';
+import { ActionsProvider } from './state/ActionsContext.jsx';
 import ConnectionBanner from './components/ConnectionBanner.jsx';
 import { navigate } from './lib/router.js';
 import fr from './i18n/fr.js';
@@ -65,9 +66,11 @@ export default function App() {
   return (
     <ScopeProvider>
       <LiveProvider>
-        <Header />
-        <ConnectionBanner />
-        <Ecran />
+        <ActionsProvider>
+          <Header />
+          <ConnectionBanner />
+          <Ecran />
+        </ActionsProvider>
       </LiveProvider>
     </ScopeProvider>
   );

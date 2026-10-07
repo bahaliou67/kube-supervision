@@ -43,3 +43,25 @@ export async function apiGet(path, params) {
   }
   return corps;
 }
+
+// Envoi d'une action (POST, DELETE). Le navigateur ajoute l'en-tête Origin,
+// que le backend vérifie : seule la page de l'outil peut déclencher une action.
+export async function apiSend(method, path, params, body) {
+  let res;
+  try {
+    res = await fetch(`/api${path}${qs(params)}`, {
+      method,
+      headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+  }
+  const corps = await res.json().catch(() => null);
+  if (!res.ok) {
+    const e = corps?.error;
+    if (!e && [502, 503, 504].includes(res.status)) throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+    throw new ApiError(res.status, e?.code ?? 'ERREUR_INTERNE', e?.message ?? `Erreur HTTP ${res.status}`);
+  }
+  return corps;
+}

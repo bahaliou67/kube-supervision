@@ -13,6 +13,7 @@ import { EmptyState, ErrorState, LoadingState, PartialNotice } from '../componen
 import { ShortReason } from '../components/PodDiagnosis.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useNamespaceData } from '../state/useNamespaceData.js';
+import { useActions } from '../state/ActionsContext.jsx';
 import { useTable } from '../lib/useTable.js';
 import { RANG_CATEGORIE, badgeReplicas, decouperImage, lignesCharges, resumeTypes } from '../lib/workloads.js';
 import { age, ilYa } from '../lib/format.js';
@@ -23,7 +24,7 @@ const C = fr.charges;
 const MAX_PODS_DEPLIES = 20;
 const COLONNES = 6;
 
-// Types pour lesquels les actions existent (branchées à l'étape 7).
+// Types pour lesquels les actions existent.
 const REDEMARRABLE = new Set(['Deployment', 'StatefulSet', 'DaemonSet']);
 const AJUSTABLE = new Set(['Deployment', 'StatefulSet']);
 
@@ -111,16 +112,17 @@ function PanneauPods({ ligne, pods }) {
 }
 
 function Actions({ ligne }) {
+  const { demander, raisonBlocage } = useActions();
   if (ligne.orphans || ligne.synthetic) return null;
   return (
     <>
       {REDEMARRABLE.has(ligne.kind) ? (
-        <Button size="sm" disabledReason={C.actionsBientot}>
+        <Button size="sm" disabledReason={raisonBlocage('restart', ligne.kind)} onClick={() => demander('restart', ligne)}>
           {C.redemarrer}
         </Button>
       ) : null}
       {AJUSTABLE.has(ligne.kind) ? (
-        <Button size="sm" disabledReason={C.actionsBientot}>
+        <Button size="sm" disabledReason={raisonBlocage('scale', ligne.kind)} onClick={() => demander('scale', ligne)}>
           {C.changerReplicas}
         </Button>
       ) : null}
@@ -236,7 +238,8 @@ export default function Charges() {
           ) : null}
         </div>
         <PartialNotice forbidden={[...(workloads.data.forbidden ?? []), ...(pods.data.forbidden ?? [])]} unavailable={workloads.data.unavailable} />
-        <Card scroll>
+        {/* Sans défilement : la bulle d’explication des actions grisées ne doit pas être coupée (le tableau tient dès 1024 px). */}
+        <Card className="card-visible">
           {filtrees.length === 0 ? (
             <div className="card-pad" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <span className="mut">{C.aucunResultat}</span>

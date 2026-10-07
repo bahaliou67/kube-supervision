@@ -257,7 +257,6 @@ const fr = {
     colActions: 'Actions',
     redemarrer: 'Redémarrer',
     changerReplicas: 'Changer les réplicas',
-    actionsBientot: 'Les actions seront disponibles à une prochaine étape.',
     afficherPods: 'Afficher les Pods de {name}',
     masquerPods: 'Masquer les Pods de {name}',
     podsDe: (n) => `Pods de {name} · ${n}`,
@@ -312,7 +311,6 @@ const fr = {
     images: 'Images',
     aucunNoeud: 'pas encore placé',
     supprimer: 'Supprimer le Pod',
-    actionBientot: 'Cette action sera disponible à une prochaine étape.',
     // Résumé court à côté du badge (« plante et redémarre en boucle »).
     courts: {
       Running: 'fonctionne normalement',
@@ -495,6 +493,61 @@ const fr = {
     nouvelles: (n) => (n === 1 ? '1 nouvelle ligne' : `${n} nouvelles lignes`),
     allerEnBas: 'Aller en bas',
     voirActuel: 'Voir le conteneur actuel',
+  },
+
+  actions: {
+    cluster: 'Cluster',
+    namespace: 'Namespace',
+    cible: 'Cible',
+    annuler: 'Annuler',
+    enCours: 'En cours…',
+    // Raisons d'une action grisée
+    horsLigne: 'Connexion au cluster perdue : les actions sont désactivées.',
+    verification: 'Vérification de vos droits…',
+    interdit: {
+      restart: (kind) => `Vos droits ne permettent pas de redémarrer ce ${kind} (droit « patch » sur ${kind.toLowerCase()}s refusé).`,
+      scale: (kind) =>
+        `Vos droits ne permettent pas de changer les réplicas de ce ${kind} (droit « patch » sur ${kind.toLowerCase()}s/scale refusé).`,
+      delete: 'Vos droits ne permettent pas de supprimer des Pods dans ce namespace (droit « delete » sur pods refusé).',
+    },
+    redemarrer: {
+      titre: 'Redémarrer {name} ?',
+      texte: (n) =>
+        n > 1
+          ? "Les {n} Pods de {name} seront remplacés un par un par de nouveaux Pods. L'appli reste disponible pendant l'opération si au moins un Pod est prêt."
+          : "Le Pod de {name} sera remplacé par un nouveau Pod. L'appli peut être indisponible quelques instants.",
+      texteDaemonSet: 'Les Pods de {name} seront remplacés nœud par nœud par de nouveaux Pods.',
+      actuellement: (pret, total) => `Actuellement : ${pret} ${pret <= 1 ? 'Pod prêt' : 'Pods prêts'} sur ${total}.`,
+      memoire: ' Un redémarrage ne corrige pas une limite mémoire trop basse.',
+      bouton: 'Redémarrer {name}',
+      succes: 'Redémarrage de {name} demandé. Les Pods vont être remplacés.',
+    },
+    replicas: {
+      titre: 'Changer les réplicas de {name}',
+      actuellement: 'Actuellement',
+      nouveau: 'Nouveau nombre de réplicas',
+      diminuer: 'Diminuer',
+      augmenter: 'Augmenter',
+      plus: (n) => (n === 1 ? '1 Pod supplémentaire sera créé.' : `${n} Pods supplémentaires seront créés.`),
+      moins: (n) => (n === 1 ? '1 Pod sera arrêté.' : `${n} Pods seront arrêtés.`),
+      identique: 'Aucun changement.',
+      zero: " À 0, l'appli est arrêtée.",
+      invalide: 'Saisissez un nombre entier entre 0 et {max}.',
+      bouton: (n) => `Passer à ${n} ${n <= 1 ? 'réplica' : 'réplicas'}`,
+      succes: (n) => `{name} passe à ${n} ${n <= 1 ? 'réplica' : 'réplicas'}.`,
+    },
+    supprimer: {
+      titre: 'Supprimer ce Pod ?',
+      recree: 'Le Pod sera arrêté et supprimé. Le {kind} {name} en recréera un nouveau automatiquement, avec un nouveau nom.',
+      memeNom: 'Le Pod sera arrêté et supprimé. Le StatefulSet {name} le recréera automatiquement, avec le même nom ({pod}).',
+      orphelin: 'Le Pod sera arrêté et supprimé définitivement : aucune charge de travail ne le recréera.',
+      job: 'Le Pod sera arrêté et supprimé. Selon sa configuration, le {kind} {name} pourra en relancer un autre.',
+      note: 'Les logs et les événements de ce Pod ne seront plus consultables.',
+      bouton: 'Supprimer le Pod',
+      succes: 'Le Pod {name} a été supprimé.',
+    },
+    echec: "L'action a échoué : ",
+    fermer: 'Fermer la notification',
   },
 
   connexion: {

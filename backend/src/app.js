@@ -2,6 +2,9 @@
 // injectée : les tests lui substituent un client simulé.
 import express from 'express';
 import { errorHandler, AppError } from './errors.js';
+import { hostGuard } from './security.js';
+import { permissionsRouter } from './routes/permissions.js';
+import { actionsRouter } from './routes/actions.js';
 import { contextsRouter } from './routes/contexts.js';
 import { podsRouter } from './routes/pods.js';
 import { namespacesRouter } from './routes/namespaces.js';
@@ -13,11 +16,15 @@ import { WatchHub } from './kube/namespaceWatcher.js';
 export function createApp({ kube, hub = new WatchHub(kube), staticDir = null } = {}) {
   const app = express();
   app.disable('x-powered-by');
+  // Uniquement des connexions locales, sous l'adresse locale (anti DNS rebinding).
+  app.use(hostGuard);
   app.use(express.json({ limit: '10kb' }));
 
   const api = express.Router();
   api.use(contextsRouter(kube));
   api.use(namespacesRouter(kube));
+  api.use(permissionsRouter(kube));
+  api.use(actionsRouter(kube));
   api.use(streamRouter(kube, hub));
   api.use(logsRouter(kube));
   api.use(podsRouter(kube));

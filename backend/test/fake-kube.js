@@ -37,7 +37,7 @@ export function networkError(code = 'ECONNREFUSED') {
 //   logs        { 'pod/conteneur': 'texte' } ; logs précédents : clé 'pod/conteneur/precedent'
 //   follow      { 'pod/conteneur': ['ligne', …] } : lignes émises par le suivi, puis fin du flux
 //   fail(methode, params) → erreur à lever (ou rien)
-export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs = 'default', contexts, fail, logs = {}, follow = {} } = {}) {
+export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs = 'default', contexts, fail, logs = {}, follow = {}, rbac } = {}) {
   const ctxs = contexts ?? [{ name: 'test', cluster: 'test', namespace: defaultNs }];
   const store = { ...resources, pods: { ...(resources.pods ?? {}), ...pods } };
   const appels = [];
@@ -83,6 +83,24 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
       flux.end();
     });
     return { stream: flux, abort: () => flux.destroy() };
+  };
+  // Droits : rbac(attributs) → true/false (tout est permis par défaut).
+  apis.authz.createSelfSubjectAccessReview = async (params) => {
+    leve('createSelfSubjectAccessReview', params);
+    const attrs = params.body.spec.resourceAttributes;
+    return { status: { allowed: rbac ? Boolean(rbac(attrs)) : true } };
+  };
+  // Actions : patch et suppression, mémorisés dans appels (avec leur corps).
+  for (const m of ['patchNamespacedDeployment', 'patchNamespacedStatefulSet', 'patchNamespacedDaemonSet', 'patchNamespacedDeploymentScale', 'patchNamespacedStatefulSetScale']) {
+    apis.apps[m] = async (params, options) => {
+      leve(m, params);
+      appels.at(-1).options = options;
+      return { spec: params.body.spec };
+    };
+  }
+  apis.core.deleteNamespacedPod = async (params) => {
+    leve('deleteNamespacedPod', params);
+    return {};
   };
   // Watch simulé : chaque appel est mémorisé, le test émet les événements
   // (w.cb('ADDED', objet)) et termine le watch (w.done(erreur ou null)).

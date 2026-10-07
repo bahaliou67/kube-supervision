@@ -3,6 +3,7 @@
 //
 // disabledReason : action interdite. Le bouton reste focalisable
 // (aria-disabled) pour que l'explication soit lisible au survol et au clavier.
+import { useId } from 'react';
 import Icon from './Icon.jsx';
 
 export default function Button({
@@ -18,6 +19,7 @@ export default function Button({
   children,
   ...rest
 }) {
+  const idBulle = useId();
   const classes = ['btn'];
   if (variant !== 'secondary') classes.push(`btn-${variant}`);
   if (size !== 'md') classes.push(`btn-${size}`);
@@ -36,17 +38,28 @@ export default function Button({
     );
   }
   const bloque = Boolean(disabledReason);
-  return (
+  const bouton = (
     <button
       type="button"
       className={classes.join(' ')}
       disabled={disabled}
       aria-disabled={bloque || undefined}
-      title={disabledReason || title}
+      aria-describedby={bloque ? idBulle : undefined}
+      title={bloque ? undefined : title}
       onClick={bloque ? (e) => e.preventDefault() : onClick}
       {...rest}
     >
       {contenu}
     </button>
+  );
+  if (!bloque) return bouton;
+  // Explication visible au survol et au focus clavier (bulle conçue, absente des maquettes).
+  return (
+    <span className="tip-wrap">
+      {bouton}
+      <span role="tooltip" id={idBulle} className="tip">
+        {disabledReason}
+      </span>
+    </span>
   );
 }

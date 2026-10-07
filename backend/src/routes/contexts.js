@@ -9,7 +9,8 @@ export function contextsRouter(kube) {
     const { contexts, current } = kube.listContexts();
     res.json({
       current,
-      contexts: contexts.map((c) => ({ ...c, defaultNamespace: c.namespace || 'default' })),
+      // Liste explicite des champs : rien d'autre du kubeconfig ne sort (jetons, certificats, utilisateurs).
+      contexts: contexts.map((c) => ({ name: c.name, cluster: c.cluster, namespace: c.namespace ?? null, defaultNamespace: c.namespace || 'default' })),
     });
   });
   return r;

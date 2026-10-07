@@ -26,6 +26,9 @@ export const messages = {
   LOGS_INTERDITS: 'Accès refusé : vos droits ne permettent pas de lire les logs de ce Pod (pods/log).',
   SUIVI_INTERROMPU: 'Le suivi en direct des logs a été interrompu.',
   ORIGINE_REFUSEE: 'Requête refusée : elle ne provient pas de cette application.',
+  HOTE_REFUSE: "Requête refusée : l'outil n'accepte que les connexions locales (127.0.0.1 ou localhost).",
+  ACTION_IMPOSSIBLE: "Cette action n'est pas possible pour le type « {type} ».",
+  REPLICAS_INVALIDE: 'Le nombre de réplicas doit être un entier entre 0 et {max}.',
   ERREUR_CLUSTER: 'Le cluster a renvoyé une erreur inattendue : {detail}',
   ERREUR_INTERNE: 'Erreur interne du serveur.',
 };

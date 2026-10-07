@@ -9,6 +9,8 @@ import { ErrorState, LoadingState } from '../components/States.jsx';
 import { LastStop } from '../components/PodDiagnosis.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useLive } from '../state/LiveContext.jsx';
+import { useActions } from '../state/ActionsContext.jsx';
+import { navigate } from '../lib/router.js';
 import { useApi } from '../lib/useApi.js';
 import { Mono, tpl } from '../lib/tpl.jsx';
 import { age, duree, depuis, ilYa } from '../lib/format.js';
@@ -64,7 +66,10 @@ function Fait({ label, children, className }) {
 }
 
 function EnTete({ pod }) {
-  const { link } = useScope();
+  const { link, ctx, ns } = useScope();
+  const { demander, raisonBlocage } = useActions();
+  // Après la suppression, retour à la charge de travail du Pod (son remplaçant y apparaîtra).
+  const apresSuppression = () => navigate('/charges', { ctx, ns, q: pod.workload?.name ?? '' });
   const images = [...new Set(pod.containers.map((c) => c.image).filter(Boolean))];
   const court = resumeCourt(pod);
   return (
@@ -104,7 +109,12 @@ function EnTete({ pod }) {
         <Button variant="primary" href={link(`/pods/${pod.name}/logs`)}>
           {fr.pods.voirLogs}
         </Button>
-        <Button variant="danger-outline" icon="corbeille" disabledReason={F.actionBientot}>
+        <Button
+          variant="danger-outline"
+          icon="corbeille"
+          disabledReason={raisonBlocage('delete')}
+          onClick={() => demander('delete', pod, apresSuppression)}
+        >
           {F.supprimer}
         </Button>
       </div>

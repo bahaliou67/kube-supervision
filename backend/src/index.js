@@ -18,11 +18,30 @@ export function portDepuis(argv, env) {
   return port;
 }
 
+// Démarre le serveur. Refuse de démarrer si le port est déjà pris
+// (EADDRINUSE) plutôt que de cohabiter avec une autre instance.
 export function start({ port, staticDir = null } = {}) {
   const kube = new KubeGateway();
   const app = createApp({ kube, staticDir });
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, HOTE, () => resolve({ server, url: `http://${HOTE}:${port}` }));
+    // Express 5 appelle ce rappel aussi en cas d'échec (port occupé…), avec l'erreur en argument.
+    const server = app.listen(port, HOTE, (erreur) => {
+      if (erreur) {
+        reject(erreur);
+        return;
+      }
+      resolve({
+        server,
+        url: `http://${HOTE}:${port}`,
+        // Arrêt propre : surveillances coupées, connexions fermées.
+        stop: () =>
+          new Promise((fin) => {
+            app.locals.hub.stopAll();
+            server.closeAllConnections?.();
+            server.close(() => fin());
+          }),
+      });
+    });
     server.on('error', reject);
   });
 }

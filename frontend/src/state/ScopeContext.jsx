@@ -11,7 +11,8 @@ const ScopeCtx = createContext(null);
 
 export function ScopeProvider({ children }) {
   const route = useRoute();
-  const contexts = useApi('/contexts');
+  // reload=1 : le backend relit le kubeconfig (un contexte ajouté apparaît au rechargement de la page).
+  const contexts = useApi('/contexts', { reload: 1 });
 
   const ctxNom = route.query.ctx || contexts.data?.current || null;
   const ctxObj = contexts.data?.contexts.find((c) => c.name === ctxNom) ?? null;

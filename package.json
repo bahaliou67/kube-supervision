@@ -1,21 +1,47 @@
 {
   "name": "kube-supervision",
   "version": "0.1.0",
-  "description": "Supervision et diagnostic d'un cluster Kubernetes depuis le navigateur",
-  "private": true,
+  "description": "Supervision et diagnostic d'un cluster Kubernetes depuis le navigateur, sans terminal",
+  "keywords": [
+    "kubernetes",
+    "k8s",
+    "supervision",
+    "diagnostic",
+    "logs",
+    "pods",
+    "dashboard"
+  ],
+  "license": "MIT",
   "type": "module",
+  "bin": {
+    "kube-supervision": "bin/kube-supervision.js"
+  },
+  "files": [
+    "bin/",
+    "backend/src/",
+    "frontend/dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "workspaces": [
     "backend",
     "frontend"
   ],
   "scripts": {
+    "start": "node bin/kube-supervision.js",
     "dev": "npm run dev --workspace backend & npm run dev --workspace frontend",
     "dev:backend": "npm run dev --workspace backend",
     "dev:frontend": "npm run dev --workspace frontend",
     "build": "npm run build --workspace frontend",
-    "test": "npm test --workspace backend && npm test --workspace frontend"
+    "test": "npm test --workspace backend && npm test --workspace frontend",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@kubernetes/client-node": "^2.0.0",
+    "express": "^5.2.1",
+    "undici": "^8.11.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19.0"
   }
 }

@@ -3,14 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <title>Supervision Kubernetes</title>
-    <script>
-      // Applique le thème mémorisé avant le premier affichage (évite un flash).
-      try {
-        var t = localStorage.getItem('ks-theme');
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
-      } catch (e) {}
-    </script>
+    <script src="/theme.js"></script>
   </head>
   <body>
     <div id="root"></div>

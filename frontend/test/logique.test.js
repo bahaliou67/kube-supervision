@@ -8,6 +8,7 @@ import { badgeReplicas, decouperImage, lignesCharges, resumeTypes } from '../src
 import { phraseEvenement } from '../src/lib/events.js';
 import { delaiBackoff, prochainRedemarrage } from '../src/lib/restart.js';
 import { duree } from '../src/lib/format.js';
+import { diagHpa, diagIngress, diagService, etatService, hpaDe, pointsAVerifier, resumeHpa } from '../src/lib/ressources.js';
 
 const p = (extra) => ({ name: 'web-1', uid: 'u1', status: 'Running', category: 'ok', containers: [], initContainers: [], restarts: 0, ...extra });
 
@@ -101,4 +102,50 @@ test('durées', () => {
   assert.equal(duree(40), '40 s');
   assert.equal(duree(360), '6 min');
   assert.equal(duree(3 * 3600), '3 h');
+});
+
+// ---------- Services, Ingress, configuration, HPA ----------
+
+test('Service : badge et diagnostic en clair, sélecteur cité', () => {
+  const s = { kind: 'Service', name: 'web', type: 'ClusterIP', selector: { app: 'web' }, endpoints: { ready: 0, total: 0 }, category: 'erreur', problem: 'AUCUN_POD' };
+  assert.deepEqual(etatService(s), { label: 'Aucun Pod', category: 'erreur' });
+  assert.match(diagService(s), /app=web/);
+  assert.deepEqual(etatService({ ...s, problem: null, category: 'ok', endpoints: { ready: 2, total: 2 } }), { label: '2/2 prêts', category: 'ok' });
+  assert.equal(diagService({ ...s, problem: null }), null);
+});
+
+test('Ingress : le Service absent est nommé', () => {
+  const i = { kind: 'Ingress', name: 'site', category: 'erreur', problem: 'SERVICE_ABSENT', rules: [{ service: 'api', missing: true }] };
+  assert.match(diagIngress(i), /api/);
+});
+
+test('HPA : résumé, message de Kubernetes et rattachement à sa cible', () => {
+  const h = {
+    name: 'web',
+    target: { kind: 'Deployment', name: 'web' },
+    min: 1,
+    max: 5,
+    metrics: [{ name: 'cpu', current: { value: 12, unit: '%' }, target: { value: 80, unit: '%' } }],
+    category: 'erreur',
+    problem: 'METRIQUES_INDISPONIBLES',
+    message: 'missing request for cpu',
+  };
+  assert.match(resumeHpa(h), /1 à 5 réplicas · cpu 12 % \(cible 80 %\)/);
+  assert.match(diagHpa(h), /missing request for cpu/);
+  assert.equal(hpaDe([h], 'Deployment', 'web'), h);
+  assert.equal(hpaDe([h], 'StatefulSet', 'web'), null);
+});
+
+test('points à vérifier : erreurs d’abord, rien pour les ressources saines', () => {
+  const points = pointsAVerifier({
+    services: [
+      { kind: 'Service', name: 'b', category: 'attente', problem: 'PARTIEL' },
+      { kind: 'Service', name: 'ok', category: 'ok', problem: null },
+    ],
+    ingresses: null,
+    persistentvolumeclaims: [{ kind: 'PersistentVolumeClaim', name: 'a', category: 'erreur', problem: 'PERDU' }],
+    configmaps: [],
+    horizontalpodautoscalers: [{ kind: 'HorizontalPodAutoscaler', name: 'h', target: { kind: 'Deployment', name: 'web' }, category: 'attente', problem: 'AU_MAXIMUM' }],
+  });
+  assert.deepEqual(points.map((p) => [p.name, p.path, p.q]), [['a', '/configuration', 'a'], ['b', '/reseau', 'b'], ['h', '/charges', 'web']]);
 });

@@ -19,6 +19,8 @@ const fr = {
     navPrincipale: 'Navigation principale',
     accueil: 'Accueil',
     charges: 'Charges de travail',
+    reseau: 'Réseau',
+    configuration: 'Configuration',
     themeAuto: 'Thème : automatique (suit le système)',
     themeClair: 'Thème : clair',
     themeSombre: 'Thème : sombre',
@@ -119,6 +121,7 @@ const fr = {
     fermer: 'Fermer',
     erreur: 'Erreur',
     aucun: '—',
+    octets: (n) => (n < 1024 ? `${n} o` : n < 1024 * 1024 ? `${(n / 1024).toLocaleString('fr', { maximumFractionDigits: 1 })} Ko` : `${(n / 1024 / 1024).toLocaleString('fr', { maximumFractionDigits: 1 })} Mo`),
   },
 
   pods: {
@@ -150,6 +153,12 @@ const fr = {
     cronjobs: ['CronJob', 'CronJobs'],
     replicasets: ['ReplicaSet', 'ReplicaSets'],
     events: ['Événement', 'Événements'],
+    services: ['Service', 'Services'],
+    endpointslices: ['EndpointSlice', 'EndpointSlices'],
+    ingresses: ['Ingress', 'Ingress'],
+    configmaps: ['ConfigMap', 'ConfigMaps'],
+    persistentvolumeclaims: ['PersistentVolumeClaim', 'PersistentVolumeClaims'],
+    horizontalpodautoscalers: ['HorizontalPodAutoscaler', 'HorizontalPodAutoscalers'],
   },
 
   accueil: {
@@ -299,6 +308,122 @@ const fr = {
     changerNamespace: 'Changer de namespace',
     interdits: 'Vos droits ne permettent pas de voir : {types}. Ces éléments n\'apparaissent pas ci-dessous.',
     indisponibles: 'Ce cluster ne propose pas : {types} (version de Kubernetes différente).',
+  },
+
+  // Textes communs aux écrans Réseau et Configuration et stockage.
+  ressources: {
+    colEtat: 'État',
+    colNom: 'Nom',
+    colAge: 'Âge',
+    colUtilisePar: 'Utilisé par',
+    nonUtilise: 'Aucun Pod',
+    inconnu: 'Inconnu',
+    inconnuAide: 'Vos droits ne permettent pas de lister les Pods : impossible de savoir qui utilise cette ressource.',
+    recherche: 'Rechercher par nom',
+    aucunResultat: 'Aucun élément ne correspond à « {q} ».',
+    vide: (quoi) => `Aucun ${quoi} dans ce namespace.`,
+    afficherTout: (n) => `+${n}`,
+  },
+
+  reseau: {
+    titre: 'Réseau',
+    resume: (s, i) => `${pluriel(s, 'Service')} · ${i} Ingress`,
+    services: (n) => `Services · ${n}`,
+    ingresses: (n) => `Ingress · ${n}`,
+    colType: 'Type et adresse',
+    colPorts: 'Ports',
+    colCible: 'Cible',
+    colHotes: 'Hôtes',
+    colRoutes: 'Routes',
+    colAdresse: 'Adresse',
+    headless: 'Headless (sans adresse)',
+    sansSelecteur: 'Sans sélecteur',
+    tls: 'HTTPS (certificat TLS déclaré)',
+    toutesRoutes: 'tous les hôtes',
+    routeParDefaut: 'par défaut',
+    serviceAbsent: 'absent',
+    enAttenteAdresse: 'en attente',
+    classe: 'classe {classe}',
+    etats: {
+      prets: (r, t) => `${r}/${t} prêt${r > 1 ? 's' : ''}`,
+      aucunPod: 'Aucun Pod',
+      sansEndpoint: 'Aucun endpoint',
+      externe: 'Nom externe',
+      ok: 'Opérationnel',
+      inconnu: 'Non vérifié',
+      serviceAbsent: 'Service absent',
+      serviceEnErreur: 'Service en erreur',
+      sansAdresse: 'Sans adresse',
+    },
+    problemes: {
+      AUCUN_POD:
+        "Aucun Pod ne porte les labels {selecteur} : ce Service n'envoie le trafic nulle part. Vérifiez les labels, ou que l'application est démarrée.",
+      AUCUN_POD_PRET: "Aucun des Pods ciblés n'est prêt : les requêtes vers ce Service échouent.",
+      PARTIEL: "Une partie des Pods ciblés n'est pas prête : le trafic n'est envoyé qu'aux Pods prêts.",
+      SANS_SELECTEUR: 'Service sans sélecteur et sans endpoint : il attend des adresses déclarées à la main.',
+      ADRESSE_EN_ATTENTE_SERVICE:
+        "Adresse externe en attente : le fournisseur n'a pas encore créé le load balancer (un cluster local n'en propose pas toujours).",
+      SERVICE_ABSENT: "Le Service {service} n'existe pas : les requêtes de cette route reçoivent une erreur.",
+      SERVICE_EN_ERREUR: "Le Service {service} n'envoie le trafic vers aucun Pod prêt : les requêtes de cette route échouent.",
+      ADRESSE_EN_ATTENTE_INGRESS:
+        "Pas d'adresse publiée : le contrôleur Ingress ne l'a pas prise en charge, ou il attend lui-même son adresse externe (load balancer en attente, fréquent sur un cluster local). Vérifiez la classe d'Ingress et le Service du contrôleur.",
+    },
+  },
+
+  configuration: {
+    titre: 'Configuration et stockage',
+    resume: (v, c) => `${pluriel(v, 'volume')} · ${pluriel(c, 'ConfigMap')}`,
+    volumes: (n) => `Volumes persistants (PVC) · ${n}`,
+    configmaps: (n) => `ConfigMaps · ${n}`,
+    colCapacite: 'Capacité',
+    colAcces: 'Accès',
+    colClasse: 'Classe de stockage',
+    colCles: 'Clés',
+    colTaille: 'Taille',
+    demande: 'demandé : {taille}',
+    classeDefaut: 'par défaut',
+    absente: 'Absente',
+    nonUtilisee: 'Non utilisée',
+    utilisee: 'Utilisée',
+    immuable: 'immuable',
+    aucuneCle: 'Aucune clé',
+    nbCles: (n) => pluriel(n, 'clé'),
+    valeursMasquees: "Seuls les noms des clés sont affichés, jamais leur contenu.",
+    acces: {
+      ReadWriteOnce: 'Lecture et écriture, un seul nœud',
+      ReadOnlyMany: 'Lecture seule, plusieurs nœuds',
+      ReadWriteMany: 'Lecture et écriture, plusieurs nœuds',
+      ReadWriteOncePod: 'Lecture et écriture, un seul Pod',
+    },
+    problemes: {
+      CONFIGMAP_ABSENTE: "Référencée par des Pods mais absente : ces Pods ne peuvent pas démarrer (CreateContainerConfigError).",
+      EN_ATTENTE: "Aucun volume attribué : les Pods qui l'utilisent restent en attente. Vérifiez que la classe de stockage {classe} existe et peut créer ce volume.",
+      EN_ATTENTE_SANS_POD:
+        "En attente, et aucun Pod ne l'utilise : certaines classes de stockage ne créent le volume qu'au démarrage d'un tel Pod. Sinon, vérifiez que la classe de stockage {classe} existe.",
+      PERDU: 'Le volume associé a disparu : les données ne sont plus accessibles.',
+      SUPPRESSION_BLOQUEE: "Suppression demandée : Kubernetes la retient tant qu'un Pod utilise ce volume.",
+      REDIMENSIONNEMENT: 'Agrandissement du volume en cours.',
+    },
+  },
+
+  hpa: {
+    resume: 'Mise à l’échelle automatique : {min} à {max} réplicas',
+    mesure: '{nom} {actuel} (cible {cible})',
+    inconnue: 'inconnu',
+    alerteReplicas:
+      'Un HorizontalPodAutoscaler ({name}) gère ce nombre de réplicas : il le remettra entre {min} et {max} selon la charge. Modifiez plutôt ses limites.',
+    problemes: {
+      ECHELLE_IMPOSSIBLE: "L'autoscaler ne peut pas modifier sa cible.",
+      METRIQUES_INDISPONIBLES:
+        "Mesures indisponibles : l'autoscaler ne peut pas décider. Causes fréquentes : metrics-server absent, ou conteneurs sans « requests » CPU ou mémoire.",
+      AU_MAXIMUM: 'Au maximum de réplicas : la charge en demanderait davantage.',
+    },
+  },
+
+  autresPoints: {
+    titre: (n) => `Autres points à vérifier · ${n}`,
+    voir: 'Voir',
+    cible: 'cible : {cible}',
   },
 
   fiche: {

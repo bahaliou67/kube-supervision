@@ -16,6 +16,12 @@ export const RESSOURCES = {
   jobs: { api: 'batch', list: 'listNamespacedJob' },
   cronjobs: { api: 'batch', list: 'listNamespacedCronJob' },
   events: { api: 'core', list: 'listNamespacedEvent' },
+  services: { api: 'core', list: 'listNamespacedService' },
+  endpointslices: { api: 'discovery', list: 'listNamespacedEndpointSlice' },
+  ingresses: { api: 'networking', list: 'listNamespacedIngress' },
+  configmaps: { api: 'core', list: 'listNamespacedConfigMap' },
+  persistentvolumeclaims: { api: 'core', list: 'listNamespacedPersistentVolumeClaim' },
+  horizontalpodautoscalers: { api: 'autoscaling', list: 'listNamespacedHorizontalPodAutoscaler' },
 };
 
 const TAILLE_PAGE = 500;

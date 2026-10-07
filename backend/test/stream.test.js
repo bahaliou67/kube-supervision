@@ -224,3 +224,21 @@ test('flux /api/stream : cluster injoignable signalé aux abonnés', async () =>
     flux.fermer();
   }
 });
+
+test('flux /api/stream : un Service qui perd ses Pods est renvoyé avec son diagnostic', async () => {
+  const p = pod('web-1', { metadata: { labels: { app: 'web' } } });
+  const svc = { metadata: { name: 'web', uid: 's1' }, spec: { selector: { app: 'web' }, ports: [{ port: 80 }] } };
+  const kube = fakeGateway({ pods: { ns: [p] }, resources: { services: { ns: [svc] } }, defaultNs: 'ns' });
+  const flux = await ouvrirFlux(kube);
+  try {
+    await quand(() => flux.recus.some((e) => e.type === 'snapshot') && watchDe(kube, 'pods'));
+    const instantane = flux.recus.find((e) => e.type === 'snapshot').data;
+    assert.equal(instantane.resources.services[0].matchingPods, 1);
+    watchDe(kube, 'pods').cb('DELETED', p);
+    await quand(() => flux.recus.some((e) => e.type === 'changes' && e.data.resources));
+    const ch = flux.recus.find((e) => e.type === 'changes' && e.data.resources).data;
+    assert.equal(ch.resources.services[0].problem, 'AUCUN_POD');
+  } finally {
+    flux.fermer();
+  }
+});

@@ -6,6 +6,8 @@ import { Spinner } from './components/Icon.jsx';
 import { ErrorState } from './components/States.jsx';
 import Accueil from './pages/Accueil.jsx';
 import Charges from './pages/Charges.jsx';
+import Reseau from './pages/Reseau.jsx';
+import Configuration from './pages/Configuration.jsx';
 import Galerie from './pages/Galerie.jsx';
 import PodDetail from './pages/PodDetail.jsx';
 import Logs from './pages/Logs.jsx';
@@ -76,6 +78,8 @@ function EcranCourant() {
     return fiche[2] ? <Logs key={`${nom}|${route.query.ns}`} name={nom} /> : <PodDetail key={`${nom}|${route.query.ns}`} name={nom} />;
   }
   if (route.path.startsWith('/charges')) return <Charges />;
+  if (route.path.startsWith('/reseau')) return <Reseau />;
+  if (route.path.startsWith('/configuration')) return <Configuration />;
   return <Accueil />;
 }
 

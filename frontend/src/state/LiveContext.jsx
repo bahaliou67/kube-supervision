@@ -1,6 +1,6 @@
 // Données en temps réel du namespace actif.
 //
-// 1. Chargement initial par l'API REST (/api/pods, /api/workloads) : affichage
+// 1. Chargement initial par l'API REST (/api/pods, /api/workloads, /api/resources) : affichage
 //    rapide et erreurs précises (accès refusé, cluster injoignable…).
 // 2. Puis flux /api/stream (Server-Sent Events) : état complet à la connexion,
 //    puis différences au fil de l'eau. Le flux se reconnecte seul.
@@ -21,6 +21,7 @@ const INITIAL = {
   lastSync: null,
   pods: null, // Map uid → Pod, une fois le flux établi
   workloads: null,
+  resources: null, // Services, Ingress, ConfigMaps, PVC, HPA
   forbidden: [],
   unavailable: [],
   revisions: {}, // nom de Pod → compteur, incrémenté à chaque changement
@@ -38,6 +39,7 @@ export function LiveProvider({ children }) {
   const { ctx, ns, ready } = useScope();
   const podsRest = useApi('/pods', { ctx, ns }, { enabled: ready });
   const workloadsRest = useApi('/workloads', { ctx, ns }, { enabled: ready });
+  const resourcesRest = useApi('/resources', { ctx, ns }, { enabled: ready });
   const [live, setLive] = useState(INITIAL);
   const flux = useRef(null);
 
@@ -64,6 +66,7 @@ export function LiveProvider({ children }) {
                 ...e,
                 pods: new Map(d.pods.map((p) => [p.uid, p])),
                 workloads: d.workloads,
+                resources: d.resources,
                 forbidden: d.forbidden,
                 unavailable: d.unavailable,
                 // Tout a pu changer pendant la coupure : les fiches se rafraîchissent.
@@ -79,7 +82,7 @@ export function LiveProvider({ children }) {
             for (const uid of d.pods.remove) pods.delete(uid);
             const revisions = { ...e.revisions };
             for (const nom of d.touched) revisions[nom] = (revisions[nom] ?? 0) + 1;
-            return { ...e, pods, workloads: d.workloads ?? e.workloads, revisions, lastSync: e.status === 'live' ? Date.now() : e.lastSync };
+            return { ...e, pods, workloads: d.workloads ?? e.workloads, resources: d.resources ?? e.resources, revisions, lastSync: e.status === 'live' ? Date.now() : e.lastSync };
           }),
         health: (h) => setLive((e) => appliquerSante(e, h)),
         ping: (d) => setLive((e) => appliquerSante(e, d.health)),
@@ -94,13 +97,15 @@ export function LiveProvider({ children }) {
   // Chargement initial en échec passager : nouvelle tentative toutes les 5 s.
   useAutoRetry(podsRest);
   useAutoRetry(workloadsRest);
+  useAutoRetry(resourcesRest);
 
   // « Réessayer » : relance le flux et, si besoin, le chargement initial.
   const retry = useCallback(() => {
     if (podsRest.status === 'error') podsRest.reload();
     if (workloadsRest.status === 'error') workloadsRest.reload();
+    if (resourcesRest.status === 'error') resourcesRest.reload();
     flux.current?.retryNow();
-  }, [podsRest, workloadsRest]);
+  }, [podsRest, workloadsRest, resourcesRest]);
 
   const value = useMemo(() => {
     const items = live.pods ? [...live.pods.values()] : podsRest.data?.items;
@@ -120,17 +125,30 @@ export function LiveProvider({ children }) {
         }
       : { status: workloadsRest.status, data: null, error: workloadsRest.error, reload: workloadsRest.reload };
 
+    const rTypes = ['services', 'endpointslices', 'ingresses', 'configmaps', 'persistentvolumeclaims', 'horizontalpodautoscalers'];
+    const resources = live.resources
+      ? {
+          status: 'ok',
+          data: { ...live.resources, forbidden: live.forbidden.filter((t) => rTypes.includes(t)), unavailable: live.unavailable.filter((t) => rTypes.includes(t)) },
+          error: null,
+          reload: retry,
+        }
+      : resourcesRest.data
+        ? { status: 'ok', data: resourcesRest.data, error: null, reload: retry }
+        : { status: resourcesRest.status, data: null, error: resourcesRest.error, reload: resourcesRest.reload };
+
     // Avant le flux, la date du chargement REST fait foi.
     const lastSync = live.lastSync ?? podsRest.updatedAt;
     const status = live.status === 'connecting' && podsRest.data ? 'live' : live.status;
     return {
       pods,
       workloads,
+      resources,
       connection: { status, reason: live.reason, retryIn: live.retryIn, retryAt: live.retryAt, lastSync, retry },
       online: status === 'live',
       revision: (nom) => `${live.epoch}-${live.revisions[nom] ?? 0}`,
     };
-  }, [live, podsRest, workloadsRest, retry]);
+  }, [live, podsRest, workloadsRest, resourcesRest, retry]);
 
   return <LiveCtx.Provider value={value}>{children}</LiveCtx.Provider>;
 }

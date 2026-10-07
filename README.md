@@ -14,6 +14,10 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 - Charges de travail : Deployments, StatefulSets, DaemonSets, Jobs, CronJobs et Pods sans propriétaire, avec recherche, filtres et tri.
 - Fiche d'un Pod : raison du dernier arrêt, conteneurs, événements traduits.
 - Logs : conteneur actuel ou précédent, recherche, suivi en direct.
+- Réseau : Services (Pods prêts derrière chaque Service, charges ciblées) et Ingress (hôtes, routes, HTTPS), avec diagnostic : « aucun Pod ne porte les labels app=wbe », « le Service api n'existe pas »…
+- Configuration et stockage : volumes persistants (PVC) et ConfigMaps (noms des clés seulement), avec les charges de travail qui les utilisent et les ConfigMaps référencées mais absentes.
+- Mise à l'échelle automatique (HPA) : limites et mesures affichées sur la charge de travail, mesures indisponibles signalées.
+- Accueil : en plus des Pods, les Services, Ingress, volumes, ConfigMaps et autoscalers à vérifier.
 - Mises à jour en temps réel, reconnexion automatique.
 - Trois actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod.
 - Thèmes clair et sombre.
@@ -84,7 +88,9 @@ npm start
 
 - **Cluster et namespace** sont choisis dans le bloc noir de l'en-tête, et restent visibles en permanence. La liste des clusters reprend les contextes du kubeconfig ; un contexte ajouté au kubeconfig apparaît au rechargement de la page.
 - **Accueil** : les Pods à examiner d'abord, avec la cause et les boutons « Voir la fiche » et « Voir les logs ».
-- **Charges de travail** : cliquez sur une ligne pour voir ses Pods. La recherche trouve une charge de travail ou un Pod par son nom.
+- **Charges de travail** : cliquez sur une ligne pour voir ses Pods, et son autoscaler (HPA) s'il en a un. La recherche trouve une charge de travail ou un Pod par son nom.
+- **Réseau** : un Service en rouge n'envoie le trafic vers aucun Pod prêt ; la phrase sous son nom dit pourquoi. Un Ingress signale les routes vers un Service absent ou en panne.
+- **Configuration** : volumes persistants et ConfigMaps, avec qui les utilise. Le contenu des ConfigMaps n'est jamais affiché.
 - **Logs** : « Conteneur précédent » montre ce qui s'est passé juste avant un plantage. Le suivi en direct n'existe que pour le conteneur actuel.
 - **Actions** : chaque action ouvre une fenêtre qui rappelle le cluster, le namespace et la cible. Rien n'est fait sans confirmation.
 - **Thème** : bouton à droite de l'en-tête (automatique, clair, sombre).
@@ -107,6 +113,9 @@ une panne.
 | Voir la fiche d'un Pod | `get` · `pods` | — |
 | Voir les charges de travail | `list`, `watch` · `deployments`, `replicasets`, `statefulsets`, `daemonsets` (groupe `apps`), `jobs`, `cronjobs` (groupe `batch`) | Les types interdits sont masqués et signalés. |
 | Voir les événements | `list`, `watch` · `events` | La fiche s'affiche sans événements, avec une explication. |
+| Voir le réseau | `list`, `watch` · `services`, `endpointslices` (groupe `discovery.k8s.io`), `ingresses` (groupe `networking.k8s.io`) | Les types interdits sont masqués et signalés. Sans `endpointslices`, l'état des Pods ciblés est déduit des Pods. |
+| Voir la configuration et le stockage | `list`, `watch` · `configmaps`, `persistentvolumeclaims` | Les types interdits sont masqués et signalés. |
+| Voir les autoscalers | `list`, `watch` · `horizontalpodautoscalers` (groupe `autoscaling`, version v2) | Les HPA ne sont pas affichés. |
 | Lire les logs | `get` · `pods/log` | Message « logs interdits ». |
 | Lister les namespaces | `list` · `namespaces` (à l'échelle du cluster) | Saisie manuelle du namespace. |
 | Redémarrer | `patch` · `deployments`, `statefulsets`, `daemonsets` | Bouton grisé avec explication. |
@@ -114,7 +123,7 @@ une panne.
 | Supprimer un Pod | `delete` · `pods` | Bouton grisé avec explication. |
 | Vérifier ses propres droits | `create` · `selfsubjectaccessreviews` (accordé à tout utilisateur authentifié par défaut) | Les actions restent possibles ; le cluster tranche au moment de l'action. |
 
-L'outil **ne lit jamais les Secrets**.
+L'outil **ne lit jamais les Secrets**. Des ConfigMaps, il n'affiche que le nom et la taille des clés, jamais leur contenu (le serveur les lit pour les compter, mais ne transmet pas les valeurs au navigateur).
 
 Exemple de rôle pour un développeur, à adapter (lecture et diagnostic, plus
 les trois actions) dans un namespace :
@@ -138,6 +147,18 @@ rules:
   - apiGroups: [batch]
     resources: [jobs, cronjobs]
     verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [services, configmaps, persistentvolumeclaims]
+    verbs: [list, watch]
+  - apiGroups: [discovery.k8s.io]
+    resources: [endpointslices]
+    verbs: [list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    verbs: [list, watch]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [list, watch]
   # Actions (à retirer pour un accès en lecture seule)
   - apiGroups: [apps]
     resources: [deployments, statefulsets, daemonsets, deployments/scale, statefulsets/scale]
@@ -166,6 +187,7 @@ rules:
 - **Événements** : Kubernetes ne les conserve qu'environ une heure ; au-delà, la fiche n'en montre plus.
 - **« Prochain redémarrage »** d'un conteneur qui plante en boucle : c'est une estimation (Kubernetes ne publie pas cette valeur).
 - **Actions** : seulement redémarrer (Deployments, StatefulSets, DaemonSets), changer les réplicas (Deployments, StatefulSets, de 0 à 1000) et supprimer un Pod. Pas d'action sur les Jobs et CronJobs.
+- **Réseau, configuration, stockage** : lecture seule. Les volumes persistants (PersistentVolumes), classes de stockage, NetworkPolicies et ressources Gateway API ne sont pas affichés. Un volume en attente n'est pas relié à sa classe de stockage (qui est une ressource du cluster entier).
 - **Hors périmètre** : édition de YAML, terminal dans un conteneur, graphiques de consommation CPU/mémoire, lecture des Secrets, gestion d'utilisateurs.
 - **Liste des namespaces** : elle n'est pas mise à jour en direct ; un namespace créé apparaît au rechargement de la page.
 - **Machine partagée** : l'outil n'a pas de mot de passe. Sur une machine où d'autres personnes ont une session ouverte en même temps, un autre utilisateur local pourrait interroger l'outil avec vos droits Kubernetes pendant qu'il tourne. Utilisez-le sur votre poste personnel.
@@ -207,7 +229,7 @@ Structure :
 bin/kube-supervision.js   lanceur (npx), sert le front compilé sur le même port
 backend/src/              Express + @kubernetes/client-node
   kube/                   kubeconfig, lecture tolérante aux droits, watch, flux de logs
-  mappers/                Pods, charges de travail, événements → données d'écran
+  mappers/                Pods, charges de travail, événements, réseau, configuration → données d'écran
   routes/                 API REST, flux temps réel (SSE), actions
   messages.js             messages d'erreur (français)
 backend/test/             tests avec client Kubernetes simulé
@@ -224,6 +246,7 @@ API locale (toutes les routes acceptent `ctx` et `ns`) :
 | `GET /api/namespaces` | Namespaces accessibles |
 | `GET /api/permissions` | Droits de l'utilisateur dans le namespace |
 | `GET /api/workloads` | Charges de travail |
+| `GET /api/resources` | Services, Ingress, ConfigMaps, PVC et HPA, avec leur diagnostic |
 | `GET /api/pods`, `GET /api/pods/:nom` | Pods, détail d'un Pod avec conteneurs et événements |
 | `GET /api/pods/:nom/logs` | Logs (`container`, `previous`, `tailLines`, `follow`) |
 | `GET /api/stream` | Changements en direct (Server-Sent Events) |

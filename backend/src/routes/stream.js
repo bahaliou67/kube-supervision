@@ -1,14 +1,16 @@
 // GET /api/stream?ctx=…&ns=… : changements en direct (Server-Sent Events).
 //
 // Événements envoyés :
-//   snapshot  { pods, workloads, forbidden, unavailable, health }  état complet, à la connexion
-//   changes   { pods: { upsert, remove }, workloads?, touched }     différences depuis l'envoi précédent
+//   snapshot  { pods, workloads, resources, forbidden, unavailable, health }  état complet, à la connexion
+//   changes   { pods: { upsert, remove }, workloads?, resources?, touched }   différences depuis l'envoi précédent
+//             (workloads et resources : liste complète, seulement si elle a changé)
 //             (touched : noms des Pods modifiés ou ayant de nouveaux événements, pour rafraîchir une fiche)
 //   health    { ok, code?, message?, retryAt? }                    santé de la connexion au cluster
 //   ping      { health }                                           battement toutes les 15 s
 import { Router } from 'express';
 import { buildOwnerIndex, mapPod } from '../mappers/pod.js';
 import { mapWorkloads } from '../mappers/workload.js';
+import { TYPES_RESSOURCES, mapResources } from '../mappers/resources.js';
 import { scope } from './scope.js';
 
 const BATTEMENT_MS = 15000;
@@ -36,12 +38,20 @@ function vue(watcher) {
     jobs: watcher.list('jobs'),
     cronjobs: watcher.list('cronjobs'),
   });
+  const resources = mapResources({
+    ...Object.fromEntries(TYPES_RESSOURCES.map((t) => [t, watcher.list(t)])),
+    pods: watcher.list('pods'),
+    replicasets: watcher.list('replicasets'),
+    jobs: watcher.list('jobs'),
+  });
   const v = {
     version: watcher.version,
     pods,
     empreintes: new Map(pods.map((p) => [p.uid, empreinte(p)])),
     workloads,
     empreinteWorkloads: empreinte(workloads),
+    resources,
+    empreinteResources: empreinte(resources),
   };
   caches.set(watcher, v);
   return v;
@@ -64,6 +74,7 @@ export function streamRouter(kube, hub) {
     const { watcher, unsubscribe } = hub.subscribe(ctx, ns);
     const envoyes = new Map(); // uid → empreinte du dernier envoi
     let empreinteWorkloads = null;
+    let empreinteResources = null;
     let instantaneEnvoye = false;
     let touches = new Set();
     let minuteur = null;
@@ -73,6 +84,7 @@ export function streamRouter(kube, hub) {
       envoyes.clear();
       for (const [uid, e] of v.empreintes) envoyes.set(uid, e);
       empreinteWorkloads = v.empreinteWorkloads;
+      empreinteResources = v.empreinteResources;
       instantaneEnvoye = true;
       touches = new Set();
       envoyer('snapshot', {
@@ -80,6 +92,7 @@ export function streamRouter(kube, hub) {
         ns,
         pods: v.pods,
         workloads: v.workloads,
+        resources: v.resources,
         forbidden: watcher.forbidden(),
         unavailable: watcher.unavailable(),
         health: watcher.health(),
@@ -108,8 +121,12 @@ export function streamRouter(kube, hub) {
         changes.workloads = v.workloads;
         empreinteWorkloads = v.empreinteWorkloads;
       }
+      if (v.empreinteResources !== empreinteResources) {
+        changes.resources = v.resources;
+        empreinteResources = v.empreinteResources;
+      }
       touches = new Set();
-      if (upsert.length || remove.length || changes.workloads || changes.touched.length) envoyer('changes', changes);
+      if (upsert.length || remove.length || changes.workloads || changes.resources || changes.touched.length) envoyer('changes', changes);
     };
 
     const surChangement = (type, obj) => {

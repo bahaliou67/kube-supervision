@@ -15,6 +15,8 @@ import { useNamespaceData } from '../state/useNamespaceData.js';
 import { Mono, tpl } from '../lib/tpl.jsx';
 import { age, duree, depuis, ilYa } from '../lib/format.js';
 import { estIncident, libelleArret, proprietaire, tousConteneurs } from '../lib/diagnostic.js';
+import { pointsAVerifier } from '../lib/ressources.js';
+import { EtatBadge } from '../components/Ressources.jsx';
 import fr from '../i18n/fr.js';
 
 const A = fr.accueil;
@@ -140,6 +142,48 @@ function PodList({ titre, pods }) {
   );
 }
 
+// Services, Ingress, volumes, ConfigMaps et autoscalers en erreur ou en
+// attente : une ligne par point, avec un lien vers l'écran concerné.
+function AutresPoints({ resources }) {
+  const { link } = useScope();
+  const points = useMemo(() => pointsAVerifier(resources), [resources]);
+  if (points.length === 0) return null;
+  const P = fr.autresPoints;
+  return (
+    <section className="section">
+      <h2>{P.titre(points.length)}</h2>
+      <Card scroll>
+        <table className="table" style={{ minWidth: 640 }}>
+          <caption className="sr-only">{P.titre(points.length)}</caption>
+          <tbody>
+            {points.map((p) => (
+              <tr key={p.key}>
+                <td style={{ width: 150 }}>
+                  <EtatBadge label={p.category === 'erreur' ? fr.categories.erreur : fr.categories.attente} category={p.category} />
+                </td>
+                <td>
+                  <div className="res-name">
+                    <span>
+                      <span className="mut">{p.kind} </span>
+                      <span className="mono">{p.name}</span>
+                    </span>
+                    <div className="res-diag">{p.texte}</div>
+                  </div>
+                </td>
+                <td className="num">
+                  <a href={link(p.path, { q: p.q })} className="small-link">
+                    {P.voir}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </section>
+  );
+}
+
 // Dernier redémarrage et dernier incident résolu, pour le panneau « Tout fonctionne ».
 function historique(pods) {
   let dernierRedemarrage = null;
@@ -202,7 +246,7 @@ function ToutFonctionne({ pods, counts }) {
 
 export default function Accueil() {
   const { ns } = useScope();
-  const { pods, workloads } = useNamespaceData();
+  const { pods, workloads, resources } = useNamespaceData();
   const items = pods.data?.items;
 
   const groupes = useMemo(() => {
@@ -242,6 +286,7 @@ export default function Accueil() {
         )}
         <ExamineList titre={A.aExaminer(counts.erreur)} pods={groupes.erreur} workloads={wl} />
         <ExamineList titre={A.enAttente(counts.attente)} pods={groupes.attente} workloads={wl} />
+        <AutresPoints resources={resources.data} />
         <PodList titre={A.enBonEtat(counts.ok)} pods={groupes.ok} />
         <PodList titre={A.autres(groupes.autres.length)} pods={groupes.autres} />
       </>

@@ -47,7 +47,7 @@ export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs =
     if (e) throw e;
   };
 
-  const apis = { core: {}, apps: {}, batch: {}, authz: {} };
+  const apis = { core: {}, apps: {}, batch: {}, authz: {}, discovery: {}, networking: {}, autoscaling: {} };
   for (const [type, { api, list }] of Object.entries(RESSOURCES)) {
     apis[api][list] = async (params) => {
       leve(list, params);

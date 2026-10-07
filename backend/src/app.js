@@ -9,6 +9,7 @@ import { contextsRouter } from './routes/contexts.js';
 import { podsRouter } from './routes/pods.js';
 import { namespacesRouter } from './routes/namespaces.js';
 import { workloadsRouter } from './routes/workloads.js';
+import { resourcesRouter } from './routes/resources.js';
 import { logsRouter } from './routes/logs.js';
 import { streamRouter } from './routes/stream.js';
 import { WatchHub } from './kube/namespaceWatcher.js';
@@ -44,6 +45,7 @@ export function createApp({ kube, hub = new WatchHub(kube), staticDir = null } =
   api.use(logsRouter(kube));
   api.use(podsRouter(kube));
   api.use(workloadsRouter(kube));
+  api.use(resourcesRouter(kube));
   // Route d'API inconnue : erreur au format unique plutôt qu'une page HTML.
   api.use((req, _res, next) => next(new AppError(404, 'INTROUVABLE')));
   app.use('/api', api);

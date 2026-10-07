@@ -7,6 +7,7 @@ import Icon, { Spinner } from '../components/Icon.jsx';
 import { apiSend } from '../api.js';
 import { useApi } from '../lib/useApi.js';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
+import { hpaDe } from '../lib/ressources.js';
 import { useScope } from './ScopeContext.jsx';
 import { useLive } from './LiveContext.jsx';
 import fr from '../i18n/fr.js';
@@ -80,6 +81,8 @@ function DialogueRedemarrer({ cible, portee, executer, fermer, etat }) {
 
 function DialogueReplicas({ cible, portee, executer, fermer, etat }) {
   const R = A.replicas;
+  // Un HPA pilote déjà ce nombre : la modification sera vite annulée.
+  const hpa = hpaDe(useLive()?.resources?.data?.horizontalpodautoscalers, cible.kind, cible.name);
   const champ = useRef(null);
   const actuel = cible.desired ?? 0;
   const [valeur, setValeur] = useState(String(actuel));
@@ -93,6 +96,12 @@ function DialogueReplicas({ cible, portee, executer, fermer, etat }) {
   return (
     <Dialog title={tpl(R.titre, { name: <Mono>{cible.name}</Mono> })} onClose={fermer} busy={etat.busy} initialFocus={champ}>
       <ScopeBox rows={[...portee, [A.cible, `${cible.kind} ${cible.name}`]]} />
+      {hpa ? (
+        <div className="res-notice" role="note">
+          <Icon name="alerte" size={14} />
+          <span>{tpl(fr.hpa.alerteReplicas, { name: <Mono>{hpa.name}</Mono>, min: hpa.min, max: hpa.max ?? '?' })}</span>
+        </div>
+      ) : null}
       <div className="scale-row">
         <div>
           <div className="small-12 mut">{R.actuellement}</div>

@@ -79,6 +79,9 @@ export class KubeGateway {
         apps: kc.makeApiClient(k8s.AppsV1Api),
         batch: kc.makeApiClient(k8s.BatchV1Api),
         authz: kc.makeApiClient(k8s.AuthorizationV1Api),
+        discovery: kc.makeApiClient(k8s.DiscoveryV1Api),
+        networking: kc.makeApiClient(k8s.NetworkingV1Api),
+        autoscaling: kc.makeApiClient(k8s.AutoscalingV2Api),
         watch: Object.assign(new k8s.Watch(kc), {
           // Le client coupe sinon chaque watch au bout de 30 s ; le serveur le
           // ferme de lui-même après timeoutSeconds (voir namespaceWatcher.js).

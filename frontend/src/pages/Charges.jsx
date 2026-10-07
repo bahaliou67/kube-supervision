@@ -17,6 +17,7 @@ import { useActions } from '../state/ActionsContext.jsx';
 import { useTable } from '../lib/useTable.js';
 import { RANG_CATEGORIE, badgeReplicas, decouperImage, lignesCharges, resumeTypes } from '../lib/workloads.js';
 import { age, ilYa } from '../lib/format.js';
+import { diagHpa, hpaDe, resumeHpa } from '../lib/ressources.js';
 import { tplText } from '../lib/tpl.jsx';
 import fr from '../i18n/fr.js';
 
@@ -77,7 +78,13 @@ function PodLine({ pod }) {
 
 // Informations propres au type, affichées en tête du panneau déplié.
 function InfosType({ ligne }) {
+  const { resources } = useNamespaceData();
   const infos = [];
+  const hpa = ligne.kind ? hpaDe(resources.data?.horizontalpodautoscalers, ligne.kind, ligne.name) : null;
+  if (hpa) {
+    infos.push(resumeHpa(hpa));
+    if (hpa.problem) infos.push(<span className={hpa.category === 'erreur' ? 'subcard-alert' : 'tone-warn'}>{diagHpa(hpa)}</span>);
+  }
   if (ligne.kind === 'CronJob') {
     infos.push(tplText(C.cronInfo, { schedule: ligne.schedule }));
     if (ligne.lastScheduleTime) infos.push(tplText(C.cronDernier, { quand: ilYa(ligne.lastScheduleTime) }));

@@ -23,6 +23,12 @@ const CHEMINS = {
   daemonsets: (ns) => `/apis/apps/v1/namespaces/${ns}/daemonsets`,
   jobs: (ns) => `/apis/batch/v1/namespaces/${ns}/jobs`,
   cronjobs: (ns) => `/apis/batch/v1/namespaces/${ns}/cronjobs`,
+  services: (ns) => `/api/v1/namespaces/${ns}/services`,
+  endpointslices: (ns) => `/apis/discovery.k8s.io/v1/namespaces/${ns}/endpointslices`,
+  ingresses: (ns) => `/apis/networking.k8s.io/v1/namespaces/${ns}/ingresses`,
+  configmaps: (ns) => `/api/v1/namespaces/${ns}/configmaps`,
+  persistentvolumeclaims: (ns) => `/api/v1/namespaces/${ns}/persistentvolumeclaims`,
+  horizontalpodautoscalers: (ns) => `/apis/autoscaling/v2/namespaces/${ns}/horizontalpodautoscalers`,
 };
 export const TYPES_SURVEILLES = Object.keys(CHEMINS);
 

@@ -1,20 +1,49 @@
 // Tableau générique avec tri par colonne et pagination côté client.
-// Conçu pour rester fluide avec plusieurs centaines de lignes : seules les
-// lignes de la page courante sont rendues.
 //
 // columns : [{ key, label, sortValue?(row), render(row), className?, thClassName?, width? }]
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Icon from './Icon.jsx';
+import { useTable } from '../lib/useTable.js';
 import fr from '../i18n/fr.js';
 
-const collator = new Intl.Collator('fr', { numeric: true, sensitivity: 'base' });
+// En-tête de colonne triable (bouton + flèche indiquant le sens).
+export function SortHeader({ label, sortKey, table }) {
+  const actif = table.sort?.key === sortKey;
+  return (
+    <button
+      type="button"
+      className="th-sort"
+      aria-pressed={actif}
+      onClick={() => table.toggleSort(sortKey)}
+      title={fr.tableau.trierPar(label.toLowerCase())}
+    >
+      {label}
+      <Icon name={actif ? (table.sort.dir === 'asc' ? 'haut' : 'bas') : 'tri'} size={12} strokeWidth={2} />
+    </button>
+  );
+}
 
-function compare(a, b) {
-  if (a === b) return 0;
-  if (a === null || a === undefined) return 1;
-  if (b === null || b === undefined) return -1;
-  if (typeof a === 'number' && typeof b === 'number') return a - b;
-  return collator.compare(String(a), String(b));
+export function ariaSort(table, key) {
+  if (table.sort?.key !== key) return undefined;
+  return table.sort.dir === 'asc' ? 'ascending' : 'descending';
+}
+
+// Pied de tableau : « 1–100 sur 500 » et boutons page précédente / suivante.
+export function Pager({ table }) {
+  if (table.pages <= 1) return null;
+  const debut = table.page * table.pageSize + 1;
+  const fin = Math.min(table.total, (table.page + 1) * table.pageSize);
+  return (
+    <div className="table-foot">
+      <span>{fr.tableau.pagination(debut, fin, table.total)}</span>
+      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page - 1)} disabled={table.page === 0} aria-label={fr.tableau.pagePrecedente}>
+        <Icon name="gauche" size={12} strokeWidth={2} />
+      </button>
+      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page + 1)} disabled={table.page >= table.pages - 1} aria-label={fr.tableau.pageSuivante}>
+        <Icon name="droite" size={12} strokeWidth={2} />
+      </button>
+    </div>
+  );
 }
 
 export default function DataTable({
@@ -26,26 +55,10 @@ export default function DataTable({
   minWidth = 640,
   caption,
   showHeader = true,
-  rowClassName,
+  resetKey,
 }) {
-  const [sort, setSort] = useState(initialSort); // { key, dir: 'asc' | 'desc' }
-  const [page, setPage] = useState(0);
-
-  const tries = useMemo(() => {
-    const col = sort && columns.find((c) => c.key === sort.key);
-    if (!col?.sortValue) return rows;
-    const sens = sort.dir === 'desc' ? -1 : 1;
-    return [...rows].sort((a, b) => sens * compare(col.sortValue(a), col.sortValue(b)));
-  }, [rows, sort, columns]);
-
-  const pages = Math.max(1, Math.ceil(tries.length / pageSize));
-  const pageCourante = Math.min(page, pages - 1);
-  const visibles = tries.slice(pageCourante * pageSize, (pageCourante + 1) * pageSize);
-
-  const basculer = (key) => {
-    setPage(0);
-    setSort((s) => (s?.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }));
-  };
+  const sortValues = useMemo(() => Object.fromEntries(columns.filter((c) => c.sortValue).map((c) => [c.key, c.sortValue])), [columns]);
+  const table = useTable(rows, { sortValues, initialSort, pageSize, resetKey });
 
   return (
     <>
@@ -54,32 +67,17 @@ export default function DataTable({
         {showHeader ? (
           <thead>
             <tr>
-              {columns.map((c) => {
-                const actif = sort?.key === c.key;
-                return (
-                  <th
-                    key={c.key}
-                    className={c.thClassName ?? c.className}
-                    style={c.width ? { width: c.width } : undefined}
-                    aria-sort={actif ? (sort.dir === 'asc' ? 'ascending' : 'descending') : undefined}
-                  >
-                    {c.sortValue ? (
-                      <button type="button" className="th-sort" aria-pressed={actif} onClick={() => basculer(c.key)} title={fr.tableau.trierPar(c.label.toLowerCase())}>
-                        {c.label}
-                        <Icon name={actif ? (sort.dir === 'asc' ? 'haut' : 'bas') : 'tri'} size={12} strokeWidth={2} />
-                      </button>
-                    ) : (
-                      c.label
-                    )}
-                  </th>
-                );
-              })}
+              {columns.map((c) => (
+                <th key={c.key} className={c.thClassName ?? c.className} style={c.width ? { width: c.width } : undefined} aria-sort={ariaSort(table, c.key)}>
+                  {c.sortValue ? <SortHeader label={c.label} sortKey={c.key} table={table} /> : c.label}
+                </th>
+              ))}
             </tr>
           </thead>
         ) : null}
         <tbody>
-          {visibles.map((row) => (
-            <tr key={rowKey(row)} className={rowClassName?.(row)}>
+          {table.rows.map((row) => (
+            <tr key={rowKey(row)}>
               {columns.map((c) => (
                 <td key={c.key} className={c.className} style={!showHeader && c.width ? { width: c.width } : undefined}>
                   {c.render(row)}
@@ -89,17 +87,7 @@ export default function DataTable({
           ))}
         </tbody>
       </table>
-      {pages > 1 ? (
-        <div className="table-foot">
-          <span>{fr.tableau.pagination(pageCourante * pageSize + 1, Math.min(tries.length, (pageCourante + 1) * pageSize), tries.length)}</span>
-          <button type="button" className="btn btn-icon" onClick={() => setPage(pageCourante - 1)} disabled={pageCourante === 0} aria-label={fr.tableau.pagePrecedente}>
-            <Icon name="gauche" size={12} strokeWidth={2} />
-          </button>
-          <button type="button" className="btn btn-icon" onClick={() => setPage(pageCourante + 1)} disabled={pageCourante >= pages - 1} aria-label={fr.tableau.pageSuivante}>
-            <Icon name="droite" size={12} strokeWidth={2} />
-          </button>
-        </div>
-      ) : null}
+      <Pager table={table} />
     </>
   );
 }

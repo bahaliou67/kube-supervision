@@ -198,6 +198,16 @@ export default function ScopeSelector() {
   const menuCtx = useMenu();
   const menuNs = useMenu();
   const nomCtx = ctx ?? contexts.data?.current;
+  // Les écrans (liste vide, accès refusé) peuvent demander l'ouverture du menu des namespaces.
+  const { setOpen, declencheur } = menuNs;
+  useEffect(() => {
+    const ouvrir = () => {
+      declencheur.current?.scrollIntoView({ block: 'nearest' });
+      setOpen(true);
+    };
+    window.addEventListener('ks:ouvrir-namespace', ouvrir);
+    return () => window.removeEventListener('ks:ouvrir-namespace', ouvrir);
+  }, [setOpen, declencheur]);
   return (
     <div className="scope">
       <div className="scope-part" ref={menuCtx.zone}>

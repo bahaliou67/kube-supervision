@@ -558,3 +558,355 @@ a.btn-primary:hover {
     animation: none;
   }
 }
+
+/* ---------- États de page ---------- */
+.state-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.state-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--mut);
+}
+.state-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.state-title-mono {
+  font-weight: 500;
+}
+.notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: var(--mut);
+}
+.notice svg {
+  margin-top: 2px;
+  flex: none;
+}
+
+/* ---------- Barre d'outils (conçue) ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.toolbar .field {
+  flex: 1 1 280px;
+}
+.segmented {
+  display: flex;
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+  overflow: hidden;
+  background: var(--sf);
+}
+.segmented button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  background: none;
+  color: var(--mut);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.segmented button + button {
+  border-left: 1px solid var(--sub);
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--on-ink);
+  font-weight: 500;
+}
+.segmented button.seg-err:not([aria-pressed='true']) svg {
+  color: var(--err);
+}
+.segmented button.seg-warn:not([aria-pressed='true']) svg {
+  color: var(--warn);
+}
+.segmented button.seg-ok:not([aria-pressed='true']) svg {
+  color: var(--ok);
+}
+.seg-count {
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+.select-field {
+  position: relative;
+  flex: none !important;
+  padding: 0;
+}
+.select-field select {
+  appearance: none;
+  border: 0;
+  background: none;
+  height: 100%;
+  padding: 0 34px 0 12px;
+  cursor: pointer;
+  outline: 0;
+}
+.select-field select option {
+  background: var(--sf);
+  color: var(--ink);
+}
+.select-field svg {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+}
+
+/* ---------- Accueil ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.stat {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat.is-err {
+  border: 2px solid var(--err);
+  padding: 15px 17px;
+}
+.stat.is-warn {
+  border: 2px solid var(--warn);
+  padding: 15px 17px;
+}
+.stat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+.stat-value {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.stat-sub {
+  font-size: 12.5px;
+  color: var(--mut);
+}
+.tone-ok {
+  color: var(--ok);
+}
+.tone-err {
+  color: var(--err);
+}
+.tone-warn {
+  color: var(--warn);
+}
+.tone-mut {
+  color: var(--mut);
+}
+
+.examine {
+  padding: 18px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.examine-body {
+  flex: 1 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.examine-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.examine-name {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  max-width: 100%;
+}
+.examine-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+.examine-actions {
+  display: flex;
+  gap: 8px;
+}
+.kube-msg {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--mut);
+  overflow-wrap: anywhere;
+}
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.section-head .field {
+  flex: 0 1 300px;
+  height: 36px;
+}
+
+.allgood-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.allgood-counts {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  border-top: 1px solid var(--sub);
+  padding-top: 12px;
+}
+
+/* ---------- Charges de travail ---------- */
+.wl-table {
+  font-size: 14px;
+}
+.wl-table td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.wl-table tbody tr + tr {
+  border-top: 1px solid var(--bd);
+}
+.wl-table tr.is-open,
+.wl-table tr.wl-pods {
+  background: var(--sub);
+}
+.wl-table tr.wl-pods {
+  border-top: 0 !important;
+}
+.wl-table tr.wl-row {
+  cursor: pointer;
+}
+.wl-table td.wl-pods-cell {
+  padding: 0 18px 16px 38px;
+}
+.wl-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+.wl-name svg {
+  flex: none;
+}
+.wl-orphans-name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+}
+.badge-13 {
+  font-size: 13px;
+}
+.badge-nobg {
+  background: none;
+}
+.wl-image {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.wl-image strong {
+  font-weight: 500;
+}
+.wl-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+.wl-actions .btn + .btn {
+  margin-left: 4px;
+}
+.subcard {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-ctl);
+}
+.subcard-head {
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--mut);
+  border-bottom: 1px solid var(--sub);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.subcard-alert {
+  color: var(--err);
+  font-weight: 600;
+}
+.pod-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+}
+.pod-line + .pod-line {
+  border-top: 1px solid var(--sub);
+}
+.pod-line-status {
+  width: 170px;
+  flex: none;
+}
+.pod-line-name {
+  width: 210px;
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.pod-line-msg {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.pod-line-restarts {
+  font-size: 13px;
+  color: var(--mut);
+}
+.pod-line-restarts.is-err {
+  color: var(--err);
+  font-weight: 600;
+}
+.pod-line a.small-link {
+  font-size: 13px;
+}
+.subcard-more {
+  padding: 8px 14px;
+  border-top: 1px solid var(--sub);
+}

@@ -1,5 +1,6 @@
 // Client Kubernetes simulé pour les tests : même interface que KubeGateway.
 import { AppError } from '../src/errors.js';
+import { RESSOURCES } from '../src/kube/namespaceData.js';
 
 // Construit un Pod minimal « Running et prêt ».
 export function pod(name, extra = {}) {
@@ -22,25 +23,43 @@ export function apiException(code, message = '') {
   return e;
 }
 
-// options : pods { ns: [Pod] }, defaultNs, contexts, fail(nomMethode) → erreur à lever
-export function fakeGateway({ pods = {}, namespaces, defaultNs = 'default', contexts, fail } = {}) {
+// Erreur réseau telle que la lève undici quand le cluster ne répond pas.
+export function networkError(code = 'ECONNREFUSED') {
+  return Object.assign(new TypeError('fetch failed'), { cause: Object.assign(new Error(code), { code }) });
+}
+
+// options :
+//   pods        { ns: [Pod] }                     (raccourci pour resources.pods)
+//   resources   { type: { ns: [objet] } }         (types de RESSOURCES : deployments, jobs…)
+//   namespaces  [noms]                             (par défaut : namespaces présents dans pods)
+//   defaultNs, contexts
+//   fail(methode, params) → erreur à lever (ou rien)
+export function fakeGateway({ pods = {}, resources = {}, namespaces, defaultNs = 'default', contexts, fail } = {}) {
   const ctxs = contexts ?? [{ name: 'test', cluster: 'test', namespace: defaultNs }];
-  const leve = (methode) => {
-    const e = fail?.(methode);
+  const store = { ...resources, pods: { ...(resources.pods ?? {}), ...pods } };
+  const appels = [];
+  const leve = (methode, params) => {
+    appels.push({ methode, params });
+    const e = fail?.(methode, params);
     if (e) throw e;
   };
-  const core = {
-    async listNamespace() {
-      leve('listNamespace');
-      const noms = namespaces ?? Object.keys(pods);
-      return { items: noms.map((name) => ({ metadata: { name }, status: { phase: 'Active' } })) };
-    },
-    async listNamespacedPod({ namespace }) {
-      leve('listNamespacedPod');
-      return { items: pods[namespace] ?? [] };
-    },
+
+  const apis = { core: {}, apps: {}, batch: {}, authz: {} };
+  for (const [type, { api, list }] of Object.entries(RESSOURCES)) {
+    apis[api][list] = async (params) => {
+      leve(list, params);
+      return { metadata: { resourceVersion: '1' }, items: store[type]?.[params.namespace] ?? [] };
+    };
+  }
+  apis.core.listNamespace = async () => {
+    leve('listNamespace');
+    const noms = namespaces ?? Object.keys(store.pods);
+    return { items: noms.map((name) => ({ metadata: { name }, status: { phase: 'Active' } })) };
   };
+
   return {
+    appels,
+    store,
     listContexts: () => ({ contexts: ctxs, current: ctxs[0].name }),
     resolveContext(ctx) {
       const c = ctxs.find((x) => x.name === (ctx || ctxs[0].name));
@@ -50,6 +69,6 @@ export function fakeGateway({ pods = {}, namespaces, defaultNs = 'default', cont
     defaultNamespace(ctx) {
       return this.resolveContext(ctx).namespace || 'default';
     },
-    clients: () => ({ core }),
+    clients: () => apis,
   };
 }

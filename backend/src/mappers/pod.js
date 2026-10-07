@@ -28,6 +28,7 @@ const RAISONS_ERREUR = new Set([
   'UnexpectedAdmissionError',
   'OutOfmemory',
   'OutOfcpu',
+  'ContainerStatusUnknown',
 ]);
 
 // Âge en secondes depuis une date ISO.
@@ -58,10 +59,13 @@ function etat(state) {
   return null;
 }
 
-// Statut lisible d'un Pod, calculé comme kubectl.
-export function podReason(pod) {
+// Statut lisible d'un Pod, calculé comme kubectl, avec le conteneur en cause
+// et le message Kubernetes associé : { reason, container, init, message }.
+export function podStatus(pod) {
   const status = pod.status ?? {};
   let reason = status.reason || status.phase || 'Unknown';
+  let enCause = null;
+  let message = status.message ?? null;
 
   // Init containers : tant qu'ils ne sont pas terminés, ils priment.
   const initSpecs = pod.spec?.initContainers ?? [];
@@ -75,10 +79,13 @@ export function podReason(pod) {
     const sidecar = initSpecs[i]?.restartPolicy === 'Always';
     if (term && term.exitCode === 0) return;
     if (sidecar && cs.started) return;
+    enCause = { name: cs.name, init: true };
     if (term) {
       reason = term.reason ? `Init:${term.reason}` : term.signal ? `Init:Signal:${term.signal}` : `Init:ExitCode:${term.exitCode}`;
+      message = term.message ?? null;
     } else if (wait?.reason && wait.reason !== 'PodInitializing') {
       reason = `Init:${wait.reason}`;
+      message = wait.message ?? null;
     } else {
       reason = `Init:${i}/${initSpecs.length || initStatuses.length}`;
     }
@@ -93,10 +100,15 @@ export function podReason(pod) {
       const t = cs.state?.terminated;
       if (w?.reason) {
         reason = w.reason;
+        enCause = { name: cs.name, init: false };
+        message = w.message ?? null;
       } else if (t?.reason) {
         reason = t.reason;
+        enCause = { name: cs.name, init: false };
+        message = t.message ?? null;
       } else if (t) {
         reason = t.signal ? `Signal:${t.signal}` : `ExitCode:${t.exitCode}`;
+        enCause = { name: cs.name, init: false };
       } else if (cs.ready && cs.state?.running) {
         enCours = true;
       }
@@ -108,7 +120,21 @@ export function podReason(pod) {
   if (pod.metadata?.deletionTimestamp) {
     reason = status.reason === 'NodeLost' ? 'Unknown' : 'Terminating';
   }
-  return reason;
+
+  // Pod en attente de placement : la condition PodScheduled explique pourquoi
+  // (par exemple « 0/3 nodes are available: insufficient memory »).
+  if (reason === 'Pending') {
+    const cond = (status.conditions ?? []).find((c) => c.type === 'PodScheduled' && c.status === 'False');
+    if (cond) {
+      reason = cond.reason === 'Unschedulable' ? 'Unschedulable' : reason;
+      message = cond.message ?? message;
+    }
+  }
+  return { reason, container: enCause?.name ?? null, init: enCause?.init ?? false, message };
+}
+
+export function podReason(pod) {
+  return podStatus(pod).reason;
 }
 
 // Catégorie d'un statut : ok | attente | erreur | arret | termine.
@@ -167,9 +193,42 @@ export function directOwner(pod) {
   return ref ? { kind: ref.kind, name: ref.name } : null;
 }
 
+// Charge de travail de premier niveau qui gère le Pod.
+// Un ReplicaSet appartient en général à un Deployment, un Job à un CronJob.
+export function workloadOf(owner, owners, pod = null) {
+  if (!owner) return null;
+  const parent = owners?.[owner.kind]?.get(owner.name);
+  if (parent) return parent;
+  // ReplicaSets illisibles (droits) : on déduit le Deployment du suffixe
+  // pod-template-hash que Kubernetes ajoute au nom du ReplicaSet.
+  const hash = pod?.metadata?.labels?.['pod-template-hash'];
+  if (owner.kind === 'ReplicaSet' && hash && owner.name.endsWith(`-${hash}`) && !owners?.ReplicaSet?.has(owner.name)) {
+    return { kind: 'Deployment', name: owner.name.slice(0, -(hash.length + 1)) };
+  }
+  return owner;
+}
+
+// Index des propriétaires des ReplicaSets et des Jobs.
+export function buildOwnerIndex(replicaSets, jobs) {
+  const index = { ReplicaSet: new Map(), Job: new Map() };
+  for (const rs of replicaSets ?? []) {
+    const o = directOwner(rs);
+    if (o) index.ReplicaSet.set(rs.metadata.name, o);
+  }
+  for (const job of jobs ?? []) {
+    const o = directOwner(job);
+    if (o) index.Job.set(job.metadata.name, o);
+  }
+  return index;
+}
+
 // Résumé d'un Pod pour les listes.
-export function mapPod(pod, now = Date.now()) {
-  const reason = podReason(pod);
+//
+// owners : index facultatif { ReplicaSet: Map(nom → propriétaire), Job: Map(…) }
+// qui permet de remonter Pod → ReplicaSet → Deployment et Pod → Job → CronJob.
+export function mapPod(pod, now = Date.now(), owners = null) {
+  const st = podStatus(pod);
+  const reason = st.reason;
   const containers = conteneurs(pod.spec?.containers, pod.status?.containerStatuses, false);
   const initContainers = conteneurs(pod.spec?.initContainers, pod.status?.initContainerStatuses, true);
   const tous = [...initContainers, ...containers];
@@ -183,7 +242,11 @@ export function mapPod(pod, now = Date.now()) {
     ready: `${containers.filter((c) => c.ready).length}/${containers.length}`,
     restarts: tous.reduce((s, c) => s + c.restarts, 0),
     lastTermination: dernierArret(tous),
+    statusContainer: st.container,
+    statusContainerInit: st.init,
+    statusMessage: st.message,
     owner: directOwner(pod),
+    workload: workloadOf(directOwner(pod), owners, pod),
     node: pod.spec?.nodeName ?? null,
     createdAt: pod.metadata?.creationTimestamp ?? null,
     age: ageSeconds(pod.metadata?.creationTimestamp, now),

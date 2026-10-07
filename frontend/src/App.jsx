@@ -4,7 +4,8 @@ import Header from './components/Header.jsx';
 import Card from './components/Card.jsx';
 import Button from './components/Button.jsx';
 import { Spinner } from './components/Icon.jsx';
-import PodsProvisoire from './pages/PodsProvisoire.jsx';
+import Accueil from './pages/Accueil.jsx';
+import Charges from './pages/Charges.jsx';
 import Galerie from './pages/Galerie.jsx';
 import { ScopeProvider, useScope } from './state/ScopeContext.jsx';
 import { navigate } from './lib/router.js';
@@ -47,15 +48,8 @@ function Ecran({ onUpdate }) {
   }
   if (!ready) return null;
 
-  if (route.path.startsWith('/charges')) {
-    return (
-      <main className="page">
-        <h1>{fr.entete.charges}</h1>
-        <p className="mut">{fr.provisoire.charges}</p>
-      </main>
-    );
-  }
-  return <PodsProvisoire onUpdate={onUpdate} />;
+  if (route.path.startsWith('/charges')) return <Charges onUpdate={onUpdate} />;
+  return <Accueil onUpdate={onUpdate} />;
 }
 
 export default function App() {

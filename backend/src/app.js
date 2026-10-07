@@ -5,6 +5,7 @@ import { errorHandler, AppError } from './errors.js';
 import { contextsRouter } from './routes/contexts.js';
 import { podsRouter } from './routes/pods.js';
 import { namespacesRouter } from './routes/namespaces.js';
+import { workloadsRouter } from './routes/workloads.js';
 
 export function createApp({ kube, staticDir = null } = {}) {
   const app = express();
@@ -15,6 +16,7 @@ export function createApp({ kube, staticDir = null } = {}) {
   api.use(contextsRouter(kube));
   api.use(namespacesRouter(kube));
   api.use(podsRouter(kube));
+  api.use(workloadsRouter(kube));
   // Route d'API inconnue : erreur au format unique plutôt qu'une page HTML.
   api.use((req, _res, next) => next(new AppError(404, 'INTROUVABLE')));
   app.use('/api', api);

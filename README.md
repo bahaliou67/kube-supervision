@@ -79,7 +79,15 @@ chmod +x kube-supervision-linux-x64
 Pour l'avoir partout dans le terminal, renommez-le `kube-supervision` et placez-le
 dans un dossier du `PATH` (par exemple `~/.local/bin` ou `/usr/local/bin`).
 
-L'intégrité d'un fichier se vérifie avec `SHA256SUMS.txt`, publié avec chaque version.
+**Vérifier un fichier** : chaque exécutable a une attestation de provenance signée
+par GitHub (construit par ce dépôt, à partir du commit de la version). Avec la
+[CLI GitHub](https://cli.github.com) :
+
+```bash
+gh attestation verify kube-supervision-win-x64.exe --repo bahaliou67/kube-supervision
+```
+
+À défaut, comparez son empreinte SHA-256 avec `SHA256SUMS.txt`, publié avec chaque version.
 
 Les options ci-dessous s'utilisent de la même façon : `kube-supervision --port 8080`.
 
@@ -301,14 +309,37 @@ Exécutable autonome de la plateforme courante (Node 24 conseillé, c'est lui qu
 npm run build:exe      # → build-exe/kube-supervision-<os>-<arch>
 ```
 
-Publier une version : mettez à jour `version` dans `package.json`, puis poussez
-le tag correspondant. GitHub Actions construit les cinq exécutables et crée la
-Release (`.github/workflows/release.yml`).
+### Publier une version
+
+Numérotation [sémantique](https://semver.org/lang/fr/) `MAJEUR.MINEUR.CORRECTIF` :
+
+| Changement | Commande | Exemple |
+| --- | --- | --- |
+| Correction de bug | `npm version patch` | 0.1.0 → 0.1.1 |
+| Nouvelle fonctionnalité | `npm version minor` | 0.1.1 → 0.2.0 |
+| Changement incompatible (option retirée, comportement modifié) | `npm version major` | 0.2.0 → 1.0.0 |
+
+Depuis `main` à jour et sans modification en cours, la commande met à jour
+`package.json` et `package-lock.json`, crée le commit « Version x.y.z » et le
+tag `vx.y.z`. Il reste à pousser les deux :
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
-``` En développement, la
+npm version minor
+git push --follow-tags
+```
+
+GitHub Actions (`.github/workflows/release.yml`) vérifie que le tag correspond
+à `package.json`, lance les tests, construit les cinq exécutables, publie leur
+attestation de provenance et crée la Release, avec des notes générées à partir
+des commits. Un tag publié ne peut ni être déplacé ni supprimé (règles du dépôt).
+
+### Sécurité du dépôt
+
+- Les actions des workflows sont figées sur un commit (SHA) ; Dependabot propose
+  leurs mises à jour, comme celles des paquets npm, une fois par semaine et au
+  plus tôt 7 jours après leur publication (`.github/dependabot.yml`).
+- Les workflows sont en lecture seule, sauf le job qui crée la Release.
+- Faille de sécurité : voir [SECURITY.md](SECURITY.md). En développement, la
 galerie des composants est disponible sur `#/composants`.
 
 Structure :

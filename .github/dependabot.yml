@@ -1,0 +1,24 @@
+# Mises à jour automatiques des dépendances, regroupées en une pull request par semaine.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Une nouvelle version n'est proposée qu'après 7 jours : laisse le temps de repérer un paquet piégé.
+    cooldown:
+      default-days: 7
+    groups:
+      npm:
+        patterns: ['*']
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']

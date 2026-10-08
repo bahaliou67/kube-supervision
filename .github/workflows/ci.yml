@@ -6,12 +6,19 @@ on:
     branches: [main]
   pull_request:
 
+# Lecture seule : ce workflow n'écrit rien dans le dépôt.
+permissions:
+  contents: read
+
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Actions figées sur un commit (SHA) : une version modifiée après coup ne peut pas s'exécuter ici.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm

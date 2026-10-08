@@ -8,9 +8,9 @@ import StatusBadge from './StatusBadge.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useActions } from '../state/ActionsContext.jsx';
 import { tplText } from '../lib/tpl.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const R = fr.ressources;
+const R = textes.ressources;
 const TONS_DIAG = { erreur: 'err', attente: 'warn' };
 
 // Badge d'état : « inactif » (Service externe…) s'affiche en neutre.
@@ -76,9 +76,9 @@ export function BoutonSupprimer({ cible }) {
       icon="corbeille"
       disabledReason={raisonBlocage('remove', cible.kind)}
       onClick={() => demander('remove', cible)}
-      aria-label={tplText(fr.actions.supprimerLibelle, { name: cible.name })}
+      aria-label={tplText(textes.actions.supprimerLibelle, { name: cible.name })}
     >
-      {fr.actions.supprimerBouton}
+      {textes.actions.supprimerBouton}
     </Button>
   );
 }

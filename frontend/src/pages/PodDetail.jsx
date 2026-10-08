@@ -18,9 +18,9 @@ import { conteneur, dernierArret, estIncident, quantite, tousConteneurs } from '
 import { phraseEvenement } from '../lib/events.js';
 import { prochainRedemarrage } from '../lib/restart.js';
 import { SEGMENT_MODIFIABLE } from '../lib/conteneurs.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const F = fr.fiche;
+const F = textes.fiche;
 const MAX_EVENEMENTS = 30;
 
 // Fil d'Ariane : Charges de travail / api / api-7d9f8b6c5-m8ztw
@@ -29,13 +29,13 @@ export function Breadcrumb({ pod, name, extra }) {
   const w = pod?.workload;
   return (
     <nav className="crumbs" aria-label={F.filAriane}>
-      <a href={link('/charges')}>{fr.charges.titre}</a>
+      <a href={link('/charges')}>{textes.charges.titre}</a>
       {' / '}
       {pod ? (
         w ? (
           <a href={link('/charges', { q: w.name })}>{w.name}</a>
         ) : (
-          <a href={link('/charges', { q: name })}>{fr.charges.sansProprietaire}</a>
+          <a href={link('/charges', { q: name })}>{textes.charges.sansProprietaire}</a>
         )
       ) : null}
       {pod ? ' / ' : null}
@@ -98,17 +98,17 @@ function EnTete({ pod }) {
                 </a>
               </>
             ) : (
-              fr.pods.sansProprietaire
+              textes.pods.sansProprietaire
             )}
           </Fait>
           <Fait label={images.length > 1 ? F.images : F.image} className="mono">
-            {images.length ? images.join(', ') : fr.commun.aucun}
+            {images.length ? images.join(', ') : textes.commun.aucun}
           </Fait>
         </dl>
       </div>
       <div className="examine-actions">
         <Button variant="primary" href={link(`/pods/${pod.name}/logs`)}>
-          {fr.pods.voirLogs}
+          {textes.pods.voirLogs}
         </Button>
         <Button
           variant="danger-outline"
@@ -138,13 +138,13 @@ function Corriger({ pod, base, conteneur, limite }) {
   if (base === 'OOMKilled') {
     bouton = (
       <Button size="sm" icon="memoire" disabledReason={raisonBlocage('resources', w.kind)} onClick={() => demander('resources', { ...cible, oomLimite: limite })}>
-        {fr.actions.depuisDiagnostic.memoire}
+        {textes.actions.depuisDiagnostic.memoire}
       </Button>
     );
   } else if (IMAGE_EN_CAUSE.has(base)) {
     bouton = (
       <Button size="sm" icon="crayon" disabledReason={raisonBlocage('image', w.kind)} onClick={() => demander('image', cible)}>
-        {fr.actions.depuisDiagnostic.image}
+        {textes.actions.depuisDiagnostic.image}
       </Button>
     );
   }
@@ -187,7 +187,7 @@ function Panneau({ pod, workload }) {
           <div>
             {tpl(P.resolu, { c: <Mono>{incident.container}</Mono>, quand: ilYa(incident.finishedAt) })}{' '}
             <span className="mut">
-              ({fr.arrets[incident.reason]?.libelle ?? incident.reason} <Mono>{incident.reason}</Mono>
+              ({textes.arrets[incident.reason]?.libelle ?? incident.reason} <Mono>{incident.reason}</Mono>
               {incident.exitCode !== null ? `, ${P.codeSortie.toLowerCase()} ${incident.exitCode}` : ''})
             </span>
           </div>
@@ -201,7 +201,7 @@ function Panneau({ pod, workload }) {
   const sansInit = raison?.startsWith('Init:') ? raison.slice(5) : raison;
   let base = sansInit?.startsWith('ExitCode:') ? 'ExitCode' : sansInit?.startsWith('Signal:') ? 'Signal' : sansInit;
   if (nonPret) base = 'RunningNonPret';
-  const libelle = mode === 'arret' ? fr.arrets[base]?.libelle ?? raison : null;
+  const libelle = mode === 'arret' ? textes.arrets[base]?.libelle ?? raison : null;
   const explication = F.explications[base] ?? F.explications.defaut;
   const piste = F.pistes[base];
   const cNom = cEnCause?.name ?? incident?.container ?? pod.containers[0]?.name;
@@ -271,7 +271,7 @@ function Panneau({ pod, workload }) {
         <Corriger pod={pod} base={base} conteneur={cNom} limite={incident?.limite} />
         {workload && typeof workload.desired === 'number' && workload.desired > 0 && workload.ready < workload.desired ? (
           <div className="panel-hint">
-            {tpl(fr.diagnostic.consequence(workload.ready, workload.desired), { kind: workload.kind, name: <Mono>{workload.name}</Mono> })}
+            {tpl(textes.diagnostic.consequence(workload.ready, workload.desired), { kind: workload.kind, name: <Mono>{workload.name}</Mono> })}
           </div>
         ) : null}
       </div>
@@ -325,7 +325,7 @@ function Conteneurs({ pod }) {
                 </div>
                 {c.state?.message && enCause ? <div className="kube-msg">{c.state.message}</div> : null}
               </div>
-              <div className={`ctr-restarts${c.restarts > 0 && c.category === 'erreur' ? ' tone-err' : ' mut'}`}>{fr.pods.redemarrages(c.restarts)}</div>
+              <div className={`ctr-restarts${c.restarts > 0 && c.category === 'erreur' ? ' tone-err' : ' mut'}`}>{textes.pods.redemarrages(c.restarts)}</div>
               <a href={link(`/pods/${pod.name}/logs`, { c: c.name })} className="small-link">
                 {C.logs}
               </a>
@@ -383,7 +383,7 @@ function Evenements({ events, forbidden }) {
       {events.length > MAX_EVENEMENTS ? (
         <div>
           <Button size="sm" onClick={() => setTout(!tout)}>
-            {tout ? fr.accueil.masquerAutres : E.afficherTout(events.length)}
+            {tout ? textes.accueil.masquerAutres : E.afficherTout(events.length)}
           </Button>
         </div>
       ) : null}

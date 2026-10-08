@@ -2,8 +2,9 @@
 // Seule la page courante est rendue : les listes de plusieurs centaines de
 // lignes restent fluides.
 import { useEffect, useMemo, useState } from 'react';
+import { locale } from '../i18n/index.js';
 
-const collator = new Intl.Collator('fr', { numeric: true, sensitivity: 'base' });
+const collator = new Intl.Collator(locale, { numeric: true, sensitivity: 'base' });
 
 export function compare(a, b) {
   if (a === b) return 0;

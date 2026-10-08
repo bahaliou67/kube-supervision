@@ -11,6 +11,7 @@ import { Router } from 'express';
 import { buildOwnerIndex, mapPod } from '../mappers/pod.js';
 import { mapWorkloads } from '../mappers/workload.js';
 import { TYPES_RESSOURCES, mapResources } from '../mappers/resources.js';
+import { langueDe } from '../messages.js';
 import { scope } from './scope.js';
 
 const BATTEMENT_MS = 15000;
@@ -62,6 +63,7 @@ export function streamRouter(kube, hub) {
 
   r.get('/stream', (req, res) => {
     const { ctx, ns } = scope(kube, req);
+    const langue = langueDe(req);
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
@@ -95,7 +97,7 @@ export function streamRouter(kube, hub) {
         resources: v.resources,
         forbidden: watcher.forbidden(),
         unavailable: watcher.unavailable(),
-        health: watcher.health(),
+        health: watcher.health(langue),
       });
     };
 
@@ -137,16 +139,17 @@ export function streamRouter(kube, hub) {
     const surPret = () => {
       if (!instantaneEnvoye) instantane();
     };
-    const surSante = (h) => envoyer('health', h);
+    // L'événement porte la santé en français : on la reformule dans la langue de l'abonné.
+    const surSante = () => envoyer('health', watcher.health(langue));
 
     watcher.on('change', surChangement);
     watcher.on('ready', surPret);
     watcher.on('health', surSante);
     if (watcher.ready) instantane();
     // Le cluster ne répond pas encore : on le signale tout de suite.
-    else if (!watcher.health().ok) surSante(watcher.health());
+    else if (!watcher.health().ok) surSante();
 
-    const battement = setInterval(() => envoyer('ping', { health: watcher.health() }), BATTEMENT_MS);
+    const battement = setInterval(() => envoyer('ping', { health: watcher.health(langue) }), BATTEMENT_MS);
 
     res.on('close', () => {
       clearInterval(battement);

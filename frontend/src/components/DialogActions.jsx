@@ -1,8 +1,8 @@
 // Pied et message d'erreur communs aux fenêtres de confirmation des actions.
 import Icon, { Spinner } from './Icon.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const A = fr.actions;
+const A = textes.actions;
 
 export function Boutons({ onCancel, onConfirm, busy, label, danger, disabled, annulerRef }) {
   return (

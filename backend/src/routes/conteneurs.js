@@ -11,6 +11,7 @@ import { Router } from 'express';
 import * as k8s from '@kubernetes/client-node';
 import { AppError, withTimeout } from '../errors.js';
 import { sameOrigin } from '../security.js';
+import { bilingue } from '../messages.js';
 import { fusion, journal } from './actions.js';
 import { scope, validName } from './scope.js';
 
@@ -87,7 +88,12 @@ function ressources(brut) {
       const v = g?.[cle];
       if (v === undefined) continue;
       if (v !== null && (typeof v !== 'string' || !QUANTITE.test(v))) {
-        throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `${groupe}.${cle} « ${String(v).slice(0, 40)} » n'est pas une quantité Kubernetes` });
+        throw new AppError(400, 'PARAMETRE_INVALIDE', {
+          detail: bilingue(
+            `${groupe}.${cle} « ${String(v).slice(0, 40)} » n'est pas une quantité Kubernetes`,
+            `${groupe}.${cle} "${String(v).slice(0, 40)}" is not a Kubernetes quantity`,
+          ),
+        });
       }
       sortie[groupe][cle] = v;
     }
@@ -100,14 +106,14 @@ function variables(brut) {
   const set = Object.entries(brut?.set ?? {});
   const remove = brut?.remove ?? [];
   if (!Array.isArray(remove) || set.length + remove.length > ENV_MAX) {
-    throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `au plus ${ENV_MAX} variables à la fois` });
+    throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue(`au plus ${ENV_MAX} variables à la fois`, `at most ${ENV_MAX} variables at a time`) });
   }
   for (const [nom, valeur] of set) {
-    if (!NOM_ENV.test(nom)) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `nom de variable « ${nom.slice(0, 60)} »` });
-    if (typeof valeur !== 'string') throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `valeur de ${nom}` });
+    if (!NOM_ENV.test(nom)) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue(`nom de variable « ${nom.slice(0, 60)} »`, `variable name "${nom.slice(0, 60)}"`) });
+    if (typeof valeur !== 'string') throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue(`valeur de ${nom}`, `value of ${nom}`) });
   }
   for (const nom of remove) {
-    if (typeof nom !== 'string' || !NOM_ENV.test(nom)) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `nom de variable « ${String(nom).slice(0, 60)} »` });
+    if (typeof nom !== 'string' || !NOM_ENV.test(nom)) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue(`nom de variable « ${String(nom).slice(0, 60)} »`, `variable name "${String(nom).slice(0, 60)}"`) });
   }
   // valueFrom: null retire une éventuelle référence (ConfigMap, Secret) remplacée par une valeur.
   return [...set.map(([name, value]) => ({ name, value, valueFrom: null })), ...remove.map((name) => ({ name, $patch: 'delete' }))];
@@ -140,7 +146,7 @@ export function conteneursRouter(kube) {
     const conteneur = validName(req.params.container, 'nom de conteneur');
     const { image, env, resources } = req.body ?? {};
     if (image === undefined && env === undefined && resources === undefined) {
-      throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: 'aucune modification demandée' });
+      throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue('aucune modification demandée', 'no change requested') });
     }
 
     const patchC = { name: conteneur };

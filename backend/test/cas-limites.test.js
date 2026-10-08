@@ -194,3 +194,15 @@ test('route inconnue : 404 au format unique', async () => {
 });
 
 after(() => setDefaultTimeout(15000));
+
+test('messages d’erreur en anglais avec X-Langue: en, en français par défaut', async () => {
+  const app = createApp({ kube: fakeGateway({ defaultNs: 'ns' }) });
+  const en = await request(app).get('/api/pods/Nom_Invalide').set('X-Langue', 'en');
+  assert.equal(en.status, 400);
+  assert.equal(en.body.error.code, 'PARAMETRE_INVALIDE');
+  assert.equal(en.body.error.message, 'Invalid parameter: Pod name "Nom_Invalide"');
+  const fr = await request(app).get('/api/pods/Nom_Invalide');
+  assert.equal(fr.body.error.message, 'Paramètre invalide : nom de Pod « Nom_Invalide »');
+  const inconnue = await request(app).get('/api/pods/Nom_Invalide').set('X-Langue', 'de');
+  assert.match(inconnue.body.error.message, /^Paramètre invalide/);
+});

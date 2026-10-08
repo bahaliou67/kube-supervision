@@ -1,5 +1,6 @@
-// Tous les textes de l'interface, regroupés pour une traduction ultérieure.
-// Les fonctions gèrent les pluriels et les valeurs variables.
+// Tous les textes de l'interface en français. La version anglaise (en.js) a
+// exactement la même structure. Les fonctions gèrent les pluriels et les
+// valeurs variables.
 
 // Accord simple : « 1 Pod », « 2 Pods », « 0 redémarrage ».
 export const pluriel = (n, singulier, plurielForme = `${singulier}s`) =>
@@ -25,6 +26,8 @@ const fr = {
     themeClair: 'Thème : clair',
     themeSombre: 'Thème : sombre',
     themeBascule: 'Changer de thème',
+    langue: 'EN',
+    langueAide: 'Switch to English',
   },
 
   selecteur: {

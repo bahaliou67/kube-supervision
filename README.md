@@ -21,6 +21,7 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 - Mises à jour en temps réel, reconnexion automatique.
 - Actions, toujours confirmées : redémarrer, changer le nombre de réplicas, supprimer un Pod ; et dans le menu « … » : changer l'image, les variables d'environnement, le CPU et la mémoire d'un conteneur, modifier les limites de l'autoscaler, mettre en pause ou reprendre un déploiement, revenir à une version précédente, suspendre ou lancer tout de suite un CronJob, supprimer une ressource (Deployment, StatefulSet, DaemonSet, Job, CronJob, Service, Ingress, ConfigMap, volume, autoscaler).
 - Thèmes clair et sombre.
+- Interface en français ou en anglais (English).
 
 ---
 
@@ -97,6 +98,7 @@ npm start
 - **Image, variables, CPU et mémoire** (menu « … » d'un Deployment, StatefulSet, DaemonSet ou CronJob) : seule la valeur modifiée est envoyée, le reste du modèle n'est pas touché. Les variables lues dans une ConfigMap ou un Secret sont affichées avec leur origine (jamais la valeur d'un Secret) ; elles peuvent être retirées, pas modifiées.
 - **Revenir à une version précédente** (menu « … » d'un Deployment) : la fenêtre liste les versions que Kubernetes a gardées, avec leurs images. Comme `kubectl rollout undo`, les Pods sont remplacés progressivement.
 - **Thème** : bouton à droite de l'en-tête (automatique, clair, sombre).
+- **Langue** : bouton « EN » / « FR » à droite de l'en-tête. Au premier lancement, l'outil suit la langue du navigateur (français si elle est le français, anglais sinon) ; le choix est ensuite mémorisé dans le navigateur. Les messages d'erreur du cluster et de l'outil suivent la même langue.
 - **L'adresse de la page** contient le cluster, le namespace et l'écran : un rechargement, un favori ou un lien partagé (sur la même machine) rouvre le même écran.
 
 Le statut Kubernetes est toujours affiché tel quel (`CrashLoopBackOff`,
@@ -218,7 +220,7 @@ rules:
 - **Machine partagée** : l'outil n'a pas de mot de passe. Sur une machine où d'autres personnes ont une session ouverte en même temps, un autre utilisateur local pourrait interroger l'outil avec vos droits Kubernetes pendant qu'il tourne. Utilisez-le sur votre poste personnel.
 - **Écran** : prévu pour une largeur d'au moins 1024 px.
 - **Heures** : affichées dans le fuseau horaire du navigateur.
-- **Langue** : interface en français (textes regroupés dans `frontend/src/i18n/fr.js` en vue d'une traduction).
+- **Langue** : interface en français et en anglais (textes dans `frontend/src/i18n/fr.js` et `en.js`). Les messages affichés dans le terminal restent en français. Les messages renvoyés par Kubernetes lui-même (détail d'une erreur, événements non traduits) sont en anglais.
 
 ---
 
@@ -259,7 +261,7 @@ backend/src/              Express + @kubernetes/client-node
   messages.js             messages d'erreur (français)
 backend/test/             tests avec client Kubernetes simulé
 frontend/src/             React + Vite, CSS avec variables (tokens du design)
-  i18n/fr.js              tous les textes de l'interface
+  i18n/                   textes de l'interface (fr.js, en.js) et choix de la langue (index.js)
 design/                   maquettes de référence (ne pas modifier)
 ```
 
@@ -288,7 +290,7 @@ API locale (toutes les routes acceptent `ctx` et `ns`) :
 | `POST /api/workloads/:type/:nom/containers/:conteneur` | Modifier `image`, `env` (`{ set, remove }`) ou `resources` |
 | `POST /api/resources/horizontalpodautoscalers/:nom/limits` | Limites d'un autoscaler (`{ "min": 1, "max": 5 }`) |
 
-Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "message": "…" } }`.
+Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "message": "…" } }`. Le message est en anglais si la requête porte l'en-tête `X-Langue: en` (ou, pour les flux temps réel, le paramètre `lang=en`), en français sinon.
 
 ---
 

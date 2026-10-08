@@ -21,9 +21,9 @@ import { age, ilYa } from '../lib/format.js';
 import { diagHpa, hpaDe, resumeHpa } from '../lib/ressources.js';
 import { SEGMENT_MODIFIABLE } from '../lib/conteneurs.js';
 import { tplText } from '../lib/tpl.jsx';
-import fr from '../i18n/fr.js';
+import textes, { locale } from '../i18n/index.js';
 
-const C = fr.charges;
+const C = textes.charges;
 const MAX_PODS_DEPLIES = 20;
 const COLONNES = 6;
 
@@ -42,7 +42,7 @@ function BadgeReplicas({ ligne }) {
 }
 
 function Image({ images }) {
-  if (!images?.length) return <span className="mut">{fr.commun.aucun}</span>;
+  if (!images?.length) return <span className="mut">{textes.commun.aucun}</span>;
   const { nom, version } = decouperImage(images[0]);
   return (
     <span className="wl-image trunc" title={images.join('\n')} style={{ maxWidth: 280 }}>
@@ -67,12 +67,12 @@ function PodLine({ pod }) {
       <span className="pod-line-msg">
         <ShortReason pod={pod} />
       </span>
-      <span className={`pod-line-restarts${enErreur ? ' is-err' : ''}`}>{fr.pods.redemarrages(pod.restarts)}</span>
+      <span className={`pod-line-restarts${enErreur ? ' is-err' : ''}`}>{textes.pods.redemarrages(pod.restarts)}</span>
       <a href={link(`/pods/${pod.name}`)} className="small-link">
-        {fr.pods.fiche}
+        {textes.pods.fiche}
       </a>
       <a href={link(`/pods/${pod.name}/logs`)} className="small-link">
-        {fr.pods.logs}
+        {textes.pods.logs}
       </a>
     </div>
   );
@@ -113,7 +113,7 @@ function PanneauPods({ ligne, pods }) {
       {pods.length > MAX_PODS_DEPLIES ? (
         <div className="subcard-more">
           <Button size="sm" onClick={() => setTout(!tout)}>
-            {tout ? fr.accueil.masquerAutres : fr.tableau.afficherTout(pods.length)}
+            {tout ? textes.accueil.masquerAutres : textes.tableau.afficherTout(pods.length)}
           </Button>
         </div>
       ) : null}
@@ -123,7 +123,7 @@ function PanneauPods({ ligne, pods }) {
 
 // Actions moins fréquentes, regroupées dans le menu « Plus d'actions ».
 function elementsMenu(ligne, hpa, demander, raisonBlocage) {
-  const A = fr.actions;
+  const A = textes.actions;
   const item = (type, label, icon, cible = ligne, extra = {}) => ({
     key: `${type}-${cible.kind}`,
     label,
@@ -172,13 +172,13 @@ function Actions({ ligne }) {
           {C.changerReplicas}
         </Button>
       ) : null}
-      <ActionMenu label={tplText(fr.actions.plusActions, { name: ligne.name })} items={elementsMenu(ligne, hpa, demander, raisonBlocage)} />
+      <ActionMenu label={tplText(textes.actions.plusActions, { name: ligne.name })} items={elementsMenu(ligne, hpa, demander, raisonBlocage)} />
     </>
   );
 }
 
 // Tri des Pods dans un panneau : les plus problématiques d'abord.
-const triPods = (a, b) => RANG_CATEGORIE[a.category] - RANG_CATEGORIE[b.category] || a.name.localeCompare(b.name, 'fr', { numeric: true });
+const triPods = (a, b) => RANG_CATEGORIE[a.category] - RANG_CATEGORIE[b.category] || a.name.localeCompare(b.name, locale, { numeric: true });
 
 export default function Charges() {
   const { ctx, ns, route } = useScope();
@@ -203,7 +203,7 @@ export default function Charges() {
     if (!pret) return [];
     const l = lignesCharges(workloads.data.items, pods.data.items);
     l.forEach((x) => x.pods.sort(triPods));
-    return l.sort((a, b) => (a.orphans ? 1 : 0) - (b.orphans ? 1 : 0) || a.name.localeCompare(b.name, 'fr', { numeric: true }));
+    return l.sort((a, b) => (a.orphans ? 1 : 0) - (b.orphans ? 1 : 0) || a.name.localeCompare(b.name, locale, { numeric: true }));
   }, [pret, workloads.data, pods.data]);
 
   // Au premier affichage, les charges en erreur sont dépliées (3 au plus).
@@ -348,7 +348,7 @@ export default function Charges() {
                         <td>
                           <Image images={l.images} />
                         </td>
-                        <td className="mut">{l.createdAt ? age(l.createdAt) : fr.commun.aucun}</td>
+                        <td className="mut">{l.createdAt ? age(l.createdAt) : textes.commun.aucun}</td>
                         <td className="wl-actions">
                           <Actions ligne={l} />
                         </td>

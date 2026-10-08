@@ -1,6 +1,6 @@
 // Remplit un gabarit de texte « Les {n} Pods de {ns} » avec des valeurs qui
 // peuvent être des éléments React (par exemple un nom en police mono).
-// Les textes restent ainsi entiers dans fr.js, ce qui facilite la traduction.
+// Les textes restent ainsi entiers dans fr.js et en.js, ce qui facilite la traduction.
 import { Fragment } from 'react';
 
 export function tpl(modele, valeurs = {}) {

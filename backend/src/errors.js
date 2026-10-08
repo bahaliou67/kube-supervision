@@ -1,13 +1,20 @@
 // Format d'erreur unique de l'API :
 //   HTTP <statut>  { "error": { "code": "ACCES_REFUSE", "message": "…" } }
-// Le code est stable ; le message est en français et destiné à l'utilisateur.
-import { format } from './messages.js';
+// Le code est stable ; le message est destiné à l'utilisateur, dans la langue
+// de l'interface (français par défaut, pour les journaux).
+import { format, langueDe } from './messages.js';
 
 export class AppError extends Error {
   constructor(status, code, vars = {}) {
     super(format(code, vars));
     this.status = status;
     this.code = code;
+    // Gardées pour reformuler le message dans une autre langue.
+    this.vars = vars;
+  }
+
+  messageDans(langue) {
+    return format(this.code, this.vars, langue);
   }
 }
 
@@ -133,5 +140,5 @@ export function errorHandler(err, req, res, _next) {
     console.warn(`[api] ${req.method} ${req.path} → ${e.status} ${e.code}`);
   }
   if (res.headersSent) return res.end();
-  res.status(e.status).json({ error: { code: e.code, message: e.message } });
+  res.status(e.status).json({ error: { code: e.code, message: e.messageDans(langueDe(req)) } });
 }

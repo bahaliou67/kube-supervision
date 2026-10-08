@@ -10,9 +10,9 @@ import { useApi } from '../lib/useApi.js';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
 import { SEGMENT_MODIFIABLE, diffEnv, imageValide, verifierRessources } from '../lib/conteneurs.js';
 import { useScope } from './ScopeContext.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const A = fr.actions;
+const A = textes.actions;
 const HPA_MAX = 1000;
 
 // Modèle de Pod de la cible et conteneur choisi (celui demandé, sinon le

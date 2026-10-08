@@ -1,9 +1,9 @@
 // Traduction des événements Kubernetes en phrases simples.
 // Le texte technique (raison · message) reste toujours affiché en dessous ;
 // une raison inconnue n'a pas de traduction inventée.
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const E = fr.evenements;
+const E = textes.evenements;
 
 // Phrase simple d'un événement, ou null si la raison n'est pas connue.
 export function phraseEvenement(ev) {

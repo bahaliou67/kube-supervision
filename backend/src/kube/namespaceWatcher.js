@@ -97,11 +97,12 @@ export class NamespaceWatcher extends EventEmitter {
     return TYPES_SURVEILLES.filter((t) => this.types[t].status === 'unavailable');
   }
 
-  // Santé : ok, ou la première erreur rencontrée et le délai avant la prochaine tentative.
-  health() {
+  // Santé : ok, ou la première erreur rencontrée (message dans la langue
+  // demandée) et le délai avant la prochaine tentative.
+  health(langue = 'fr') {
     const enErreur = Object.values(this.types).find((s) => s.status === 'error');
     if (!enErreur) return { ok: true };
-    return { ok: false, code: enErreur.error.code, message: enErreur.error.message, retryAt: enErreur.retryAt ?? null };
+    return { ok: false, code: enErreur.error.code, message: enErreur.error.messageDans(langue), retryAt: enErreur.retryAt ?? null };
   }
 
   // Relance immédiate des types en erreur (bouton « Réessayer »).
@@ -146,7 +147,7 @@ export class NamespaceWatcher extends EventEmitter {
     const s = this.types[type];
     if (this.arrete) return;
     s.status = 'error';
-    s.error = { code: e.code, message: e.message };
+    s.error = e;
     s.retryAt = Date.now() + s.delai * 1000;
     s.timer = setTimeout(() => this.lister(type), s.delai * 1000);
     s.delai = Math.min(this.delaiMax, s.delai * 2);

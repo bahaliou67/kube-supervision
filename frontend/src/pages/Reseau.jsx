@@ -10,10 +10,10 @@ import { useNamespaceData } from '../state/useNamespaceData.js';
 import { RANG, diagIngress, diagService, etatIngress, etatService, selecteurTexte } from '../lib/ressources.js';
 import { age } from '../lib/format.js';
 import { tplText } from '../lib/tpl.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const N = fr.reseau;
-const R = fr.ressources;
+const N = textes.reseau;
+const R = textes.ressources;
 
 // « ClusterIP 10.96.0.12 », « LoadBalancer 1.2.3.4 », « ExternalName → exemple.org ».
 function TypeAdresse({ s }) {
@@ -31,7 +31,7 @@ function TypeAdresse({ s }) {
 
 // « 80 → 8080/TCP », avec le port de nœud éventuel.
 function Ports({ ports }) {
-  if (!ports.length) return <span className="mut">{fr.commun.aucun}</span>;
+  if (!ports.length) return <span className="mut">{textes.commun.aucun}</span>;
   return (
     <div className="res-lines mono">
       {ports.map((p, i) => (
@@ -47,7 +47,7 @@ function Ports({ ports }) {
 }
 
 function Cible({ s }) {
-  if (s.type === 'ExternalName') return <span className="mut">{fr.commun.aucun}</span>;
+  if (s.type === 'ExternalName') return <span className="mut">{textes.commun.aucun}</span>;
   if (!s.selector) return <span className="mut">{N.sansSelecteur}</span>;
   return (
     <div className="res-lines">
@@ -99,7 +99,7 @@ function Routes({ i }) {
   );
 }
 
-const contient = (terme, ...textes) => !terme || textes.some((t) => t?.toLowerCase().includes(terme));
+const contient = (terme, ...valeurs) => !terme || valeurs.some((t) => t?.toLowerCase().includes(terme));
 
 export default function Reseau() {
   const { ctx, ns, route } = useScope();
@@ -131,7 +131,7 @@ export default function Reseau() {
       { key: 'ports', label: N.colPorts, render: (s) => <Ports ports={s.ports} /> },
       { key: 'cible', label: N.colCible, render: (s) => <Cible s={s} /> },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (s) => s.age, render: (s) => <span className="mut">{age(s.createdAt)}</span> },
-      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
+      { key: 'actions', label: textes.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );
@@ -161,7 +161,7 @@ export default function Reseau() {
         render: (i) => (i.addresses.length ? <span className="mono">{i.addresses.join(', ')}</span> : <span className="mut">{N.enAttenteAdresse}</span>),
       },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (i) => i.age, render: (i) => <span className="mut">{age(i.createdAt)}</span> },
-      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
+      { key: 'actions', label: textes.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );

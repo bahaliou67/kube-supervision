@@ -9,6 +9,7 @@
 //
 // url() est appelée à chaque (re)connexion : elle peut changer de paramètres
 // (par exemple reprendre à partir de la dernière ligne reçue).
+import { langue } from '../i18n/index.js';
 const DELAI_MIN_S = 2;
 const DELAI_MAX_S = 30;
 const SILENCE_MAX_MS = 35000;
@@ -47,7 +48,9 @@ export function openEventStream({ url, events, onStatus, endEvents = ['end', 'fa
     clearTimeout(minuteur);
     if (arrete) return;
     statut({ status: 'connecting' });
-    source = new EventSource(url());
+    // La langue des messages du serveur (EventSource n'envoie pas d'en-tête personnalisé).
+    const adresse = url();
+    source = new EventSource(`${adresse}${adresse.includes('?') ? '&' : '?'}lang=${langue}`);
     vuA = Date.now();
     const vu = () => {
       vuA = Date.now();

@@ -1,6 +1,6 @@
 // Correspondance statut Kubernetes → ton (couleur), icône et explication.
 // La couleur n'est jamais seule : chaque statut a une icône et son libellé.
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 const TONS = { ok: 'ok', attente: 'warn', erreur: 'err', arret: 'neutral', termine: 'neutral' };
 
@@ -17,8 +17,8 @@ function icone(status, category) {
 
 // Explication en langage simple d'un statut (ou d'une raison d'arrêt).
 export function explication(status, category) {
-  if (!status) return fr.statuts.inconnu;
-  const s = fr.statuts;
+  if (!status) return textes.statuts.inconnu;
+  const s = textes.statuts;
   if (status === 'Running' && category === 'attente') return s.RunningNonPret;
   if (typeof s[status] === 'string') return s[status];
   if (status.startsWith('ExitCode:')) return s.ExitCode(status.slice(9));
@@ -36,7 +36,7 @@ export function statusInfo(status, category) {
   return {
     tone: TONS[category] ?? 'neutral',
     icon: icone(status, category),
-    label: status ?? fr.commun.aucun,
+    label: status ?? textes.commun.aucun,
     explication: explication(status, category),
   };
 }

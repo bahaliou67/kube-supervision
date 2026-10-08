@@ -6,7 +6,7 @@ import Icon, { Spinner } from './Icon.jsx';
 import Truncate from './Truncate.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { flechesListe, useMenu } from '../lib/useMenu.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 const NOM_NS = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
 
@@ -34,9 +34,9 @@ function ContextMenu({ menu }) {
   const actif = useRef(null);
   useEffect(() => actif.current?.focus(), []);
   return (
-    <div className="menu" role="dialog" aria-label={fr.selecteur.contextes} onKeyDown={flechesListe}>
-      <div className="menu-title">{fr.selecteur.contextes}</div>
-      <ul className="menu-list" role="listbox" aria-label={fr.selecteur.contextes}>
+    <div className="menu" role="dialog" aria-label={textes.selecteur.contextes} onKeyDown={flechesListe}>
+      <div className="menu-title">{textes.selecteur.contextes}</div>
+      <ul className="menu-list" role="listbox" aria-label={textes.selecteur.contextes}>
         {liste.map((c) => (
           <li key={c.name}>
             <button
@@ -53,7 +53,7 @@ function ContextMenu({ menu }) {
             >
               <span className="menu-check">{c.name === ctx ? <Icon name="coche" size={14} strokeWidth={2} /> : null}</span>
               <Truncate className="menu-name">{c.name}</Truncate>
-              {c.name === contexts.data.current ? <span className="menu-meta">{fr.selecteur.contexteCourant}</span> : null}
+              {c.name === contexts.data.current ? <span className="menu-meta">{textes.selecteur.contexteCourant}</span> : null}
             </button>
           </li>
         ))}
@@ -99,39 +99,39 @@ function NamespaceMenu({ menu }) {
   };
 
   return (
-    <div className="menu" role="dialog" aria-label={fr.entete.choisirNamespace} onKeyDown={flechesListe}>
+    <div className="menu" role="dialog" aria-label={textes.entete.choisirNamespace} onKeyDown={flechesListe}>
       {namespaces.status === 'loading' ? (
         <div className="menu-note" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Spinner size={14} /> {fr.selecteur.chargement}
+          <Spinner size={14} /> {textes.selecteur.chargement}
         </div>
       ) : null}
       {namespaces.status === 'error' ? (
         <div className="menu-note">
-          {fr.selecteur.erreurChargement} {namespaces.error.message}{' '}
+          {textes.selecteur.erreurChargement} {namespaces.error.message}{' '}
           <button type="button" className="btn-link" onClick={namespaces.reload}>
-            {fr.selecteur.reessayer}
+            {textes.selecteur.reessayer}
           </button>
         </div>
       ) : null}
       {n && !n.listable ? (
         <div className="menu-note" style={{ display: 'flex', gap: 8 }}>
           <Icon name="cadenas" size={14} />
-          <span>{fr.selecteur.listeInterdite}</span>
+          <span>{textes.selecteur.listeInterdite}</span>
         </div>
       ) : null}
       {n?.listable ? (
         <>
-          <div className="menu-title">{fr.selecteur.namespacesAccessibles(items.length)}</div>
+          <div className="menu-title">{textes.selecteur.namespacesAccessibles(items.length)}</div>
           {avecFiltre ? (
             <div style={{ padding: '0 4px' }}>
               <label className="field field-sm">
                 <Icon name="recherche" size={14} />
-                <span className="sr-only">{fr.selecteur.filtrerNamespaces}</span>
-                <input ref={champFiltre} type="search" value={filtre} placeholder={fr.selecteur.filtrer} onChange={(e) => setFiltre(e.target.value)} />
+                <span className="sr-only">{textes.selecteur.filtrerNamespaces}</span>
+                <input ref={champFiltre} type="search" value={filtre} placeholder={textes.selecteur.filtrer} onChange={(e) => setFiltre(e.target.value)} />
               </label>
             </div>
           ) : null}
-          <ul className="menu-list" role="listbox" aria-label={fr.entete.namespace}>
+          <ul className="menu-list" role="listbox" aria-label={textes.entete.namespace}>
             {visibles.map((i) => (
               <li key={i.name}>
                 <button
@@ -150,13 +150,13 @@ function NamespaceMenu({ menu }) {
               </li>
             ))}
           </ul>
-          {visibles.length === 0 ? <div className="menu-note">{fr.selecteur.aucunResultat}</div> : null}
+          {visibles.length === 0 ? <div className="menu-note">{textes.selecteur.aucunResultat}</div> : null}
           <div className="menu-sep" />
         </>
       ) : null}
       <form className="menu-form" onSubmit={valider} noValidate>
         <label htmlFor="ns-saisie" className="small mut">
-          {fr.selecteur.saisieManuelle}
+          {textes.selecteur.saisieManuelle}
         </label>
         <div className="menu-form-row">
           <div className={`field field-sm field-mono${invalide ? ' is-invalid' : ''}`} style={{ flex: 1 }}>
@@ -175,17 +175,17 @@ function NamespaceMenu({ menu }) {
             />
           </div>
           <button type="submit" className="btn btn-sm">
-            {fr.selecteur.afficher}
+            {textes.selecteur.afficher}
           </button>
         </div>
         <div id="ns-saisie-aide" className={invalide ? 'field-error' : 'small mut'}>
           {invalide ? (
             <>
               <Icon name="alerte" size={14} />
-              {fr.selecteur.saisieInvalide}
+              {textes.selecteur.saisieInvalide}
             </>
           ) : (
-            fr.selecteur.saisieAide
+            textes.selecteur.saisieAide
           )}
         </div>
       </form>
@@ -211,12 +211,12 @@ export default function ScopeSelector() {
   return (
     <div className="scope">
       <div className="scope-part" ref={menuCtx.zone}>
-        <ScopeButton menu={menuCtx} label={fr.entete.cluster} value={nomCtx} title={`${fr.entete.choisirCluster} (${nomCtx ?? ''})`} />
+        <ScopeButton menu={menuCtx} label={textes.entete.cluster} value={nomCtx} title={`${textes.entete.choisirCluster} (${nomCtx ?? ''})`} />
         {menuCtx.open && contexts.data ? <ContextMenu menu={menuCtx} /> : null}
       </div>
       <div className="scope-sep" />
       <div className="scope-part" ref={menuNs.zone}>
-        <ScopeButton menu={menuNs} label={fr.entete.namespace} value={ns} title={`${fr.entete.choisirNamespace} (${ns ?? ''})`} />
+        <ScopeButton menu={menuNs} label={textes.entete.namespace} value={ns} title={`${textes.entete.choisirNamespace} (${ns ?? ''})`} />
         {menuNs.open && ctx ? <NamespaceMenu menu={menuNs} /> : null}
       </div>
     </div>

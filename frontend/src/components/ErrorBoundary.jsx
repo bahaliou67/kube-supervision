@@ -3,7 +3,7 @@
 import { Component } from 'react';
 import Card from './Card.jsx';
 import Icon from './Icon.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component {
   render() {
     const { erreur } = this.state;
     if (!erreur) return this.props.children;
-    const A = fr.erreurs.affichage;
+    const A = textes.erreurs.affichage;
     return (
       <main className="page">
         <Card className="state-card" role="alert">

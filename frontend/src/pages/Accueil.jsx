@@ -17,9 +17,9 @@ import { age, duree, depuis, ilYa } from '../lib/format.js';
 import { estIncident, libelleArret, proprietaire, tousConteneurs } from '../lib/diagnostic.js';
 import { pointsAVerifier } from '../lib/ressources.js';
 import { EtatBadge } from '../components/Ressources.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const A = fr.accueil;
+const A = textes.accueil;
 const MAX_CARTES = 5;
 
 // Carte de compteur : « En bon état · 4 · Pods démarrés et prêts ».
@@ -54,7 +54,7 @@ function ExamineCard({ pod, workloads }) {
             <MiddleName name={pod.name} max={56} />
           </a>
           <span className="small mut">
-            {tpl(A.meta, { owner: proprietaire(pod), restarts: fr.pods.redemarrages(pod.restarts), age: age(pod.createdAt) })}
+            {tpl(A.meta, { owner: proprietaire(pod), restarts: textes.pods.redemarrages(pod.restarts), age: age(pod.createdAt) })}
           </span>
         </div>
         <Headline pod={pod} />
@@ -64,9 +64,9 @@ function ExamineCard({ pod, workloads }) {
       </div>
       <div className="examine-actions">
         <Button variant="primary" href={link(`/pods/${pod.name}`)}>
-          {fr.pods.voirFiche}
+          {textes.pods.voirFiche}
         </Button>
-        <Button href={link(`/pods/${pod.name}/logs`)}>{fr.pods.voirLogs}</Button>
+        <Button href={link(`/pods/${pod.name}/logs`)}>{textes.pods.voirLogs}</Button>
       </div>
     </Card>
   );
@@ -119,7 +119,7 @@ function PodList({ titre, pods }) {
         ),
       },
       { key: 'owner', label: '', render: (p) => <Truncate className="mut">{proprietaire(p)}</Truncate> },
-      { key: 'restarts', label: '', render: (p) => <span className="mut">{fr.pods.redemarrages(p.restarts)}</span> },
+      { key: 'restarts', label: '', render: (p) => <span className="mut">{textes.pods.redemarrages(p.restarts)}</span> },
       { key: 'age', label: '', className: 'num', render: (p) => <span className="mut">{age(p.createdAt)}</span> },
     ],
     [link],
@@ -129,11 +129,11 @@ function PodList({ titre, pods }) {
     <section className="section">
       <div className="section-head">
         <h2>{titre}</h2>
-        {pods.length > 10 ? <SearchField value={q} onChange={setQ} label={fr.pods.rechercher} count={fr.pods.nb(filtres.length)} /> : null}
+        {pods.length > 10 ? <SearchField value={q} onChange={setQ} label={textes.pods.rechercher} count={textes.pods.nb(filtres.length)} /> : null}
       </div>
       <Card scroll>
         {filtres.length === 0 ? (
-          <div className="card-pad mut">{fr.pods.aucunResultat.replace('{q}', q)}</div>
+          <div className="card-pad mut">{textes.pods.aucunResultat.replace('{q}', q)}</div>
         ) : (
           <DataTable columns={colonnes} rows={filtres} rowKey={(p) => p.uid} initialSort={{ key: 'name', dir: 'asc' }} showHeader={false} pageSize={50} resetKey={terme} caption={titre} />
         )}
@@ -148,7 +148,7 @@ function AutresPoints({ resources }) {
   const { link } = useScope();
   const points = useMemo(() => pointsAVerifier(resources), [resources]);
   if (points.length === 0) return null;
-  const P = fr.autresPoints;
+  const P = textes.autresPoints;
   return (
     <section className="section">
       <h2>{P.titre(points.length)}</h2>
@@ -159,7 +159,7 @@ function AutresPoints({ resources }) {
             {points.map((p) => (
               <tr key={p.key}>
                 <td style={{ width: 150 }}>
-                  <EtatBadge label={p.category === 'erreur' ? fr.categories.erreur : fr.categories.attente} category={p.category} />
+                  <EtatBadge label={p.category === 'erreur' ? textes.categories.erreur : textes.categories.attente} category={p.category} />
                 </td>
                 <td>
                   <div className="res-name">

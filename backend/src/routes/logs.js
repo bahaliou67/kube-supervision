@@ -8,7 +8,7 @@
 //     de la dernière ligne reçue (ce qui permet aussi de reprendre après une coupure).
 import { Router } from 'express';
 import { AppError, kubeBody, toAppError, withTimeout } from '../errors.js';
-import { format } from '../messages.js';
+import { bilingue, format, langueDe } from '../messages.js';
 import { scope, validName } from './scope.js';
 
 export const LIGNES_PAR_DEFAUT = 500;
@@ -63,7 +63,9 @@ export function logsRouter(kube) {
     const follow = req.query.follow === '1' || req.query.follow === 'true';
 
     if (follow) {
-      if (previous) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: 'le suivi en direct est impossible sur le conteneur précédent' });
+      if (previous) throw new AppError(400, 'PARAMETRE_INVALIDE', {
+        detail: bilingue('le suivi en direct est impossible sur le conteneur précédent', 'live following is not possible on the previous container'),
+      });
       return suivre({ k, ns, name, container, sinceTime: req.query.sinceTime, req, res });
     }
 
@@ -139,7 +141,7 @@ async function suivre({ k, ns, name, container, sinceTime, req, res }) {
     flux = ouvert.stream;
   } catch (err) {
     const e = erreurLogs(err);
-    terminer('failure', { code: e.code, message: e.message });
+    terminer('failure', { code: e.code, message: e.messageDans(langueDe(req)) });
     return;
   }
 
@@ -156,6 +158,6 @@ async function suivre({ k, ns, name, container, sinceTime, req, res }) {
   flux.on('error', (err) => {
     // Une interruption volontaire (AbortError) n'est pas une erreur à signaler.
     if (fini || err?.name === 'AbortError') return;
-    terminer('failure', { code: 'SUIVI_INTERROMPU', message: format('SUIVI_INTERROMPU') });
+    terminer('failure', { code: 'SUIVI_INTERROMPU', message: format('SUIVI_INTERROMPU', {}, langueDe(req)) });
   });
 }

@@ -10,23 +10,23 @@ import { useNamespaceData } from '../state/useNamespaceData.js';
 import { RANG, abregerAcces, diagConfiguration } from '../lib/ressources.js';
 import { age } from '../lib/format.js';
 import { tplText } from '../lib/tpl.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const C = fr.configuration;
-const R = fr.ressources;
+const C = textes.configuration;
+const R = textes.ressources;
 const MAX_CLES = 4;
 
 function Capacite({ v }) {
   return (
     <div className="res-lines">
-      <span className="mono">{v.capacity ?? v.requested ?? fr.commun.aucun}</span>
+      <span className="mono">{v.capacity ?? v.requested ?? textes.commun.aucun}</span>
       {v.requested && v.capacity && v.requested !== v.capacity ? <span className="mut">{tplText(C.demande, { taille: v.requested })}</span> : null}
     </div>
   );
 }
 
 function Acces({ modes }) {
-  if (!modes.length) return <span className="mut">{fr.commun.aucun}</span>;
+  if (!modes.length) return <span className="mut">{textes.commun.aucun}</span>;
   return (
     <span className="mono" title={modes.map((m) => C.acces[m] ?? m).join('\n')}>
       {modes.map(abregerAcces).join(', ')}
@@ -36,12 +36,12 @@ function Acces({ modes }) {
 
 // « app.yaml, MODE, logo +3 » ; la liste complète est au survol.
 function Cles({ c }) {
-  if (c.missing) return <span className="mut">{fr.commun.aucun}</span>;
+  if (c.missing) return <span className="mut">{textes.commun.aucun}</span>;
   if (!c.keys.length) return <span className="mut">{C.aucuneCle}</span>;
   const noms = c.keys.map((k) => k.name);
   return (
     <div className="res-lines">
-      <span className="mono res-list" title={c.keys.map((k) => `${k.name} · ${fr.commun.octets(k.size)}`).join('\n')}>
+      <span className="mono res-list" title={c.keys.map((k) => `${k.name} · ${textes.commun.octets(k.size)}`).join('\n')}>
         {noms.slice(0, MAX_CLES).join(', ')}
         {noms.length > MAX_CLES ? <span className="mut"> {R.afficherTout(noms.length - MAX_CLES)}</span> : null}
       </span>
@@ -86,7 +86,7 @@ export default function Configuration() {
       { key: 'classe', label: C.colClasse, render: (v) => (v.storageClass ? <span className="mono">{v.storageClass}</span> : <span className="mut">{C.classeDefaut}</span>) },
       { key: 'usage', label: R.colUtilisePar, render: (v) => <UtilisePar cibles={v.usedBy} /> },
       { key: 'age', label: R.colAge, className: 'num', sortValue: (v) => v.age, render: (v) => <span className="mut">{age(v.createdAt)}</span> },
-      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
+      { key: 'actions', label: textes.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );
@@ -114,10 +114,10 @@ export default function Configuration() {
         render: (c) => <NomEtDiagnostic name={c.name} diagnostic={diagConfiguration(c)} category={c.category} />,
       },
       { key: 'cles', label: C.colCles, render: (c) => <Cles c={c} /> },
-      { key: 'taille', label: C.colTaille, sortValue: (c) => c.size, render: (c) => (c.missing ? <span className="mut">{fr.commun.aucun}</span> : <span className="mut">{fr.commun.octets(c.size)}</span>) },
+      { key: 'taille', label: C.colTaille, sortValue: (c) => c.size, render: (c) => (c.missing ? <span className="mut">{textes.commun.aucun}</span> : <span className="mut">{textes.commun.octets(c.size)}</span>) },
       { key: 'usage', label: R.colUtilisePar, render: (c) => <UtilisePar cibles={c.usedBy} vide={C.nonUtilisee} /> },
-      { key: 'age', label: R.colAge, className: 'num', sortValue: (c) => c.age, render: (c) => <span className="mut">{c.createdAt ? age(c.createdAt) : fr.commun.aucun}</span> },
-      { key: 'actions', label: fr.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
+      { key: 'age', label: R.colAge, className: 'num', sortValue: (c) => c.age, render: (c) => <span className="mut">{c.createdAt ? age(c.createdAt) : textes.commun.aucun}</span> },
+      { key: 'actions', label: textes.charges.colActions, className: 'num', render: (x) => <BoutonSupprimer cible={x} /> },
     ],
     [],
   );

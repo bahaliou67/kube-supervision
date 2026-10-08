@@ -1,4 +1,4 @@
-import fr from './i18n/fr.js';
+import textes, { langue } from './i18n/index.js';
 
 // Client de l'API du backend. Toute erreur est convertie en ApiError
 // portant le code stable renvoyé par le serveur (ACCES_REFUSE, INTROUVABLE…).
@@ -26,10 +26,10 @@ export const ERREURS_PASSAGERES = new Set(['SERVEUR_INJOIGNABLE', 'CLUSTER_INJOI
 export async function apiGet(path, params) {
   let res;
   try {
-    res = await fetch(`/api${path}${qs(params)}`, { headers: { Accept: 'application/json' } });
+    res = await fetch(`/api${path}${qs(params)}`, { headers: { Accept: 'application/json', 'X-Langue': langue } });
   } catch {
     // Le backend lui-même ne répond pas (outil arrêté).
-    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', textes.erreurs.SERVEUR_INJOIGNABLE);
   }
   const corps = await res.json().catch(() => null);
   if (!res.ok) {
@@ -37,7 +37,7 @@ export async function apiGet(path, params) {
     // Pas de réponse au format de l'API : c'est un intermédiaire (proxy de
     // développement) qui répond à la place de l'outil arrêté.
     if (!e && [502, 503, 504].includes(res.status)) {
-      throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+      throw new ApiError(0, 'SERVEUR_INJOIGNABLE', textes.erreurs.SERVEUR_INJOIGNABLE);
     }
     throw new ApiError(res.status, e?.code ?? 'ERREUR_INTERNE', e?.message ?? `Erreur HTTP ${res.status}`);
   }
@@ -51,16 +51,16 @@ export async function apiSend(method, path, params, body) {
   try {
     res = await fetch(`/api${path}${qs(params)}`, {
       method,
-      headers: { Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) },
+      headers: { Accept: 'application/json', 'X-Langue': langue, ...(body ? { 'Content-Type': 'application/json' } : {}) },
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+    throw new ApiError(0, 'SERVEUR_INJOIGNABLE', textes.erreurs.SERVEUR_INJOIGNABLE);
   }
   const corps = await res.json().catch(() => null);
   if (!res.ok) {
     const e = corps?.error;
-    if (!e && [502, 503, 504].includes(res.status)) throw new ApiError(0, 'SERVEUR_INJOIGNABLE', fr.erreurs.SERVEUR_INJOIGNABLE);
+    if (!e && [502, 503, 504].includes(res.status)) throw new ApiError(0, 'SERVEUR_INJOIGNABLE', textes.erreurs.SERVEUR_INJOIGNABLE);
     throw new ApiError(res.status, e?.code ?? 'ERREUR_INTERNE', e?.message ?? `Erreur HTTP ${res.status}`);
   }
   return corps;

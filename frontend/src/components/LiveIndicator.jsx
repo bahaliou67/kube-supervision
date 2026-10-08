@@ -3,7 +3,7 @@
 // Il se rafraîchit chaque seconde pour que la durée reste juste.
 import { useEffect, useState } from 'react';
 import { ilYa } from '../lib/format.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 export default function LiveIndicator({ connection }) {
   const [, tic] = useState(0);
@@ -13,8 +13,8 @@ export default function LiveIndicator({ connection }) {
   }, []);
   const quand = connection?.lastSync ? ilYa(connection.lastSync) : null;
   const enLigne = connection?.status === 'live';
-  let texte = fr.direct.connexion;
-  if (quand) texte = enLigne ? fr.direct.enDirect(quand) : fr.direct.horsLigne(quand);
+  let texte = textes.direct.connexion;
+  if (quand) texte = enLigne ? textes.direct.enDirect(quand) : textes.direct.horsLigne(quand);
   return (
     <div className="live" role="status">
       <span className={`live-dot${enLigne ? '' : ' is-off'}`} />

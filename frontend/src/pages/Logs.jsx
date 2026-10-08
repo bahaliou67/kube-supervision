@@ -16,16 +16,16 @@ import { cleTs, useLogFollow } from '../lib/useLogFollow.js';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
 import { ilYa } from '../lib/format.js';
 import { libelleArret, quantite, tousConteneurs } from '../lib/diagnostic.js';
-import fr from '../i18n/fr.js';
+import textes, { locale } from '../i18n/index.js';
 
-const L = fr.logs;
+const L = textes.logs;
 const CHOIX_LIGNES = [100, 500, 1000, 5000];
 const LIGNES_MAX_EN_MEMOIRE = 5000;
 
 // Heure locale « 14:31:02.118 », précédée de la date si ce n'est pas aujourd'hui.
-const fmtHeure = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
-const fmtHeureCourte = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-const fmtDate = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit' });
+const fmtHeure = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+const fmtHeureCourte = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const fmtDate = new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit' });
 function heure(ts) {
   if (!ts) return '';
   const d = new Date(ts);
@@ -252,7 +252,7 @@ export default function Logs({ name }) {
           </Button>
         ) : (
           <Button size="sm" onClick={logs.reload}>
-            {fr.commun.reessayer}
+            {textes.commun.reessayer}
           </Button>
         )}
       </div>
@@ -393,7 +393,7 @@ export default function Logs({ name }) {
         <FinDesLogs arret={arret} limite={quantite(c?.limits?.memory)} />
       </Card>
       <div className="small">
-        <a href={link(`/pods/${name}`)}>{fr.pods.voirFiche}</a>
+        <a href={link(`/pods/${name}`)}>{textes.pods.voirFiche}</a>
       </div>
     </main>
   );

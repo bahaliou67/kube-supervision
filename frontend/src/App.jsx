@@ -17,7 +17,7 @@ import { ActionsProvider } from './state/ActionsContext.jsx';
 import ConnectionBanner from './components/ConnectionBanner.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { navigate } from './lib/router.js';
-import fr from './i18n/fr.js';
+import textes from './i18n/index.js';
 
 // Nom présent dans l'adresse ; un encodage invalide (lien abîmé) est lu tel quel.
 function decoderNom(brut) {
@@ -47,7 +47,7 @@ function EcranCourant() {
     return (
       <main className="page">
         <div className="mut" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Spinner /> {fr.demarrage.chargement}
+          <Spinner /> {textes.demarrage.chargement}
         </div>
       </main>
     );
@@ -63,8 +63,8 @@ function EcranCourant() {
     return (
       <main className="page">
         <Card padded style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
-          <div>{fr.demarrage.contexteInconnu(route.query.ctx)}</div>
-          <Button onClick={() => navigate('/', {})}>{fr.demarrage.revenirContexteCourant}</Button>
+          <div>{textes.demarrage.contexteInconnu(route.query.ctx)}</div>
+          <Button onClick={() => navigate('/', {})}>{textes.demarrage.revenirContexteCourant}</Button>
         </Card>
       </main>
     );

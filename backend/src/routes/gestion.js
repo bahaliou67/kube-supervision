@@ -14,6 +14,7 @@ import * as k8s from '@kubernetes/client-node';
 import { AppError, withTimeout } from '../errors.js';
 import { sameOrigin } from '../security.js';
 import { listAll } from '../kube/namespaceData.js';
+import { bilingue } from '../messages.js';
 import { fusion, journal } from './actions.js';
 import { scope, validName } from './scope.js';
 
@@ -36,7 +37,7 @@ const CAUSE = 'kubernetes.io/change-cause';
 
 // Booléen obligatoire dans le corps de la requête.
 function booleen(valeur, nom) {
-  if (typeof valeur !== 'boolean') throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: `${nom} doit valoir true ou false` });
+  if (typeof valeur !== 'boolean') throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue(`${nom} doit valoir true ou false`, `${nom} must be true or false`) });
   return valeur;
 }
 
@@ -113,7 +114,7 @@ export function gestionRouter(kube) {
     const { ctx, ns, k } = scope(kube, req);
     const name = validName(req.params.name, 'nom');
     const revision = req.body?.revision;
-    if (!Number.isInteger(revision) || revision < 1) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: 'revision doit être un entier positif' });
+    if (!Number.isInteger(revision) || revision < 1) throw new AppError(400, 'PARAMETRE_INVALIDE', { detail: bilingue('revision doit être un entier positif', 'revision must be a positive integer') });
     const d = await withTimeout(k.apps.readNamespacedDeployment({ name, namespace: ns }));
     if (d.spec?.paused) throw new AppError(409, 'ROLLBACK_EN_PAUSE');
     if (Number(d.metadata?.annotations?.[REVISION]) === revision) throw new AppError(409, 'REVISION_ACTUELLE', { revision });

@@ -1,11 +1,12 @@
 // En-tête permanent : nom de l'outil, cluster et namespace actifs,
-// navigation, indicateur temps réel et bascule de thème.
+// navigation, indicateur temps réel, bascules de langue et de thème.
 import ScopeSelector from './ScopeSelector.jsx';
 import LiveIndicator from './LiveIndicator.jsx';
 import ThemeToggle from './ThemeToggle.jsx';
+import LanguageToggle from './LanguageToggle.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { useLive } from '../state/LiveContext.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 export default function Header() {
   const { route, link } = useScope();
@@ -15,24 +16,25 @@ export default function Header() {
   const surAccueil = !['/charges', '/pods', '/reseau', '/configuration'].some((p) => route.path.startsWith(p));
   return (
     <header className="hdr">
-      <div className="hdr-brand">{fr.app.nom}</div>
+      <div className="hdr-brand">{textes.app.nom}</div>
       <ScopeSelector />
-      <nav className="hdr-nav" aria-label={fr.entete.navPrincipale}>
+      <nav className="hdr-nav" aria-label={textes.entete.navPrincipale}>
         <a href={link('/')} aria-current={surAccueil ? 'page' : undefined}>
-          {fr.entete.accueil}
+          {textes.entete.accueil}
         </a>
         <a href={link('/charges')} aria-current={actif('/charges', '/pods')}>
-          {fr.entete.charges}
+          {textes.entete.charges}
         </a>
         <a href={link('/reseau')} aria-current={actif('/reseau')}>
-          {fr.entete.reseau}
+          {textes.entete.reseau}
         </a>
         <a href={link('/configuration')} aria-current={actif('/configuration')}>
-          {fr.entete.configuration}
+          {textes.entete.configuration}
         </a>
       </nav>
       <div className="hdr-end">
         <LiveIndicator connection={live?.connection} />
+        <LanguageToggle />
         <ThemeToggle />
       </div>
     </header>

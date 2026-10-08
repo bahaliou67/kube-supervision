@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import Icon from './Icon.jsx';
 import { useTable } from '../lib/useTable.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 // En-tête de colonne triable (bouton + flèche indiquant le sens).
 export function SortHeader({ label, sortKey, table }) {
@@ -15,7 +15,7 @@ export function SortHeader({ label, sortKey, table }) {
       className="th-sort"
       aria-pressed={actif}
       onClick={() => table.toggleSort(sortKey)}
-      title={fr.tableau.trierPar(label.toLowerCase())}
+      title={textes.tableau.trierPar(label.toLowerCase())}
     >
       {label}
       <Icon name={actif ? (table.sort.dir === 'asc' ? 'haut' : 'bas') : 'tri'} size={12} strokeWidth={2} />
@@ -35,11 +35,11 @@ export function Pager({ table }) {
   const fin = Math.min(table.total, (table.page + 1) * table.pageSize);
   return (
     <div className="table-foot">
-      <span>{fr.tableau.pagination(debut, fin, table.total)}</span>
-      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page - 1)} disabled={table.page === 0} aria-label={fr.tableau.pagePrecedente}>
+      <span>{textes.tableau.pagination(debut, fin, table.total)}</span>
+      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page - 1)} disabled={table.page === 0} aria-label={textes.tableau.pagePrecedente}>
         <Icon name="gauche" size={12} strokeWidth={2} />
       </button>
-      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page + 1)} disabled={table.page >= table.pages - 1} aria-label={fr.tableau.pageSuivante}>
+      <button type="button" className="btn btn-icon" onClick={() => table.setPage(table.page + 1)} disabled={table.page >= table.pages - 1} aria-label={textes.tableau.pageSuivante}>
         <Icon name="droite" size={12} strokeWidth={2} />
       </button>
     </div>

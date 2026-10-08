@@ -2,7 +2,7 @@
 // message de Kubernetes et conséquence sur la charge de travail.
 import { Mono, tpl } from '../lib/tpl.jsx';
 import { dernierArret, detailArret, estIncident, libelleArret, phrase } from '../lib/diagnostic.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 export function Headline({ pod }) {
   const p = phrase(pod);
@@ -16,11 +16,11 @@ export function LastStop({ pod }) {
   const detail = detailArret(t, t.limite);
   return (
     <div>
-      {fr.diagnostic.dernierArret}
+      {textes.diagnostic.dernierArret}
       <strong>{libelleArret(t)}</strong>{' '}
       {t.reason ? <span className="mono" style={{ fontSize: 13 }}>({t.reason})</span> : null}
       {detail ? ` — ${detail}` : ''}
-      {t.exitCode !== null && t.exitCode !== undefined ? ` ${fr.diagnostic.codeSortie.replace('{code}', t.exitCode)}` : ''}
+      {t.exitCode !== null && t.exitCode !== undefined ? ` ${textes.diagnostic.codeSortie.replace('{code}', t.exitCode)}` : ''}
     </div>
   );
 }
@@ -41,14 +41,14 @@ export function Consequence({ pod, workloads }) {
   if (!w || typeof w.desired !== 'number' || w.desired === 0 || w.ready >= w.desired) return null;
   return (
     <div className="small mut">
-      {tpl(fr.diagnostic.consequence(w.ready, w.desired), { kind: w.kind, name: <Mono>{w.name}</Mono> })}
+      {tpl(textes.diagnostic.consequence(w.ready, w.desired), { kind: w.kind, name: <Mono>{w.name}</Mono> })}
     </div>
   );
 }
 
 // Résumé court pour une ligne de liste (écran Charges de travail).
 export function ShortReason({ pod }) {
-  const d = fr.diagnostic;
+  const d = textes.diagnostic;
   if (pod.category === 'ok') return <span className="mut">{pod.status === 'Running' ? d.pretTrafic : d.pret}</span>;
   if (pod.category === 'termine') return <span className="mut">{d.termine}</span>;
   if (pod.category === 'arret') return <span className="mut">{d.arretEnCours}</span>;

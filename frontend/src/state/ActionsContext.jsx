@@ -17,9 +17,9 @@ import { ilYa } from '../lib/format.js';
 import { useScope } from './ScopeContext.jsx';
 import { useLive } from './LiveContext.jsx';
 import { DialogueEnv, DialogueHpa, DialogueImage, DialogueRessources } from './DialoguesConteneur.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const A = fr.actions;
+const A = textes.actions;
 const REPLICAS_MAX = 1000;
 const ActionsCtx = createContext(null);
 
@@ -97,7 +97,7 @@ function DialogueReplicas({ cible, portee, executer, fermer, etat, demander }) {
         <div className="res-notice" role="note">
           <Icon name="alerte" size={14} />
           <span>
-            {tpl(fr.hpa.alerteReplicas, { name: <Mono>{hpa.name}</Mono>, min: hpa.min, max: hpa.max ?? '?' })}{' '}
+            {tpl(textes.hpa.alerteReplicas, { name: <Mono>{hpa.name}</Mono>, min: hpa.min, max: hpa.max ?? '?' })}{' '}
             <button type="button" className="btn-link" disabled={etat.busy} onClick={() => demander('hpa', hpa)}>
               {A.hpa.modifierLimites}
             </button>

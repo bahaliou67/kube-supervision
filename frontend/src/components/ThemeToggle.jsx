@@ -2,7 +2,7 @@
 // « Automatique » suit la préférence du système ; le choix est mémorisé.
 import { useEffect, useState } from 'react';
 import Icon from './Icon.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 const CLE = 'ks-theme';
 const ORDRE = ['auto', 'light', 'dark'];
@@ -29,15 +29,15 @@ export default function ThemeToggle() {
     }
   }, [theme]);
 
-  const libelle = { auto: fr.entete.themeAuto, light: fr.entete.themeClair, dark: fr.entete.themeSombre }[theme];
+  const libelle = { auto: textes.entete.themeAuto, light: textes.entete.themeClair, dark: textes.entete.themeSombre }[theme];
   const icone = { auto: 'auto', light: 'soleil', dark: 'lune' }[theme];
   return (
     <button
       type="button"
       className="btn btn-icon"
       onClick={() => setTheme(ORDRE[(ORDRE.indexOf(theme) + 1) % ORDRE.length])}
-      title={`${libelle} — ${fr.entete.themeBascule}`}
-      aria-label={`${libelle}. ${fr.entete.themeBascule}`}
+      title={`${libelle} — ${textes.entete.themeBascule}`}
+      aria-label={`${libelle}. ${textes.entete.themeBascule}`}
     >
       <Icon name={icone} size={16} />
     </button>

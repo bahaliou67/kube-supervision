@@ -4,7 +4,7 @@ import Card from './Card.jsx';
 import Icon, { Spinner } from './Icon.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { Mono, tpl, tplText } from '../lib/tpl.jsx';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 const LARGEURS = [190, 150, 170];
 
@@ -30,7 +30,7 @@ export function LoadingState({ rows = 3 }) {
     <Card padded className="state-card" aria-busy="true">
       <div className="state-loading" role="status">
         <Spinner />
-        <span>{tpl(fr.etats.chargement, { ns: <Mono>{ns}</Mono>, ctx: <Mono>{ctx}</Mono> })}</span>
+        <span>{tpl(textes.etats.chargement, { ns: <Mono>{ns}</Mono>, ctx: <Mono>{ctx}</Mono> })}</span>
       </div>
       <Skeleton rows={rows} />
     </Card>
@@ -48,8 +48,8 @@ export function EmptyState({ titre, texte }) {
   // Namespace saisi à la main mais absent de la liste : on le dit plutôt que « vide ».
   const liste = namespaces.data;
   if (liste?.listable && !liste.items.some((i) => i.name === ns)) {
-    titre = fr.etats.nsInexistant.titre;
-    texte = fr.etats.nsInexistant.texte;
+    titre = textes.etats.nsInexistant.titre;
+    texte = textes.etats.nsInexistant.texte;
   }
   const v = { ns: <Mono className="state-title-mono">{ns}</Mono>, ctx: <Mono>{ctx}</Mono> };
   return (
@@ -57,7 +57,7 @@ export function EmptyState({ titre, texte }) {
       <h2 className="state-title">{tpl(titre, v)}</h2>
       <div className="mut">{tpl(texte, v)}</div>
       <div>
-        <Button onClick={ouvrirMenuNamespace}>{fr.charges.changerNamespace}</Button>
+        <Button onClick={ouvrirMenuNamespace}>{textes.charges.changerNamespace}</Button>
       </div>
     </Card>
   );
@@ -83,7 +83,7 @@ const PASSAGERES = new Set(['injoignable', 'delai', 'outil']);
 // cluster injoignable, identifiants refusés…), jamais un écran blanc.
 export function ErrorState({ error, onRetry }) {
   const { ctx, ns } = useScope();
-  const E = fr.erreurs;
+  const E = textes.erreurs;
   const famille = FAMILLES[error?.code] ?? 'inconnu';
   const v = { ctx: <Mono className="state-title-mono">{ctx}</Mono>, ns: <Mono className="state-title-mono">{ns}</Mono> };
   const titre = tpl(E.titres[famille], v);
@@ -91,7 +91,7 @@ export function ErrorState({ error, onRetry }) {
   const passagere = PASSAGERES.has(famille);
   const reessayer = onRetry ? (
     <Button variant={passagere ? 'warn-outline' : 'secondary'} onClick={onRetry}>
-      {fr.commun.reessayer}
+      {textes.commun.reessayer}
     </Button>
   ) : null;
 
@@ -135,14 +135,14 @@ export function ErrorState({ error, onRetry }) {
 
 // Bandeau discret pour les ressources masquées par les droits ou absentes du cluster.
 export function PartialNotice({ forbidden = [], unavailable = [] }) {
-  const noms = (types) => types.map((t) => fr.types[t]?.[1] ?? t).join(', ');
+  const noms = (types) => types.map((t) => textes.types[t]?.[1] ?? t).join(', ');
   if (forbidden.length === 0 && unavailable.length === 0) return null;
   return (
     <div className="notice" role="note">
       <Icon name="cadenas" size={14} />
       <div>
-        {forbidden.length ? <div>{fr.charges.interdits.replace('{types}', noms(forbidden))}</div> : null}
-        {unavailable.length ? <div>{fr.charges.indisponibles.replace('{types}', noms(unavailable))}</div> : null}
+        {forbidden.length ? <div>{textes.charges.interdits.replace('{types}', noms(forbidden))}</div> : null}
+        {unavailable.length ? <div>{textes.charges.indisponibles.replace('{types}', noms(unavailable))}</div> : null}
       </div>
     </div>
   );

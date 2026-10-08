@@ -8,9 +8,9 @@ import { useLive } from '../state/LiveContext.jsx';
 import { useScope } from '../state/ScopeContext.jsx';
 import { Mono, tpl } from '../lib/tpl.jsx';
 import { ilYa } from '../lib/format.js';
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
-const C = fr.connexion;
+const C = textes.connexion;
 const IDENTIFIANTS = new Set(['NON_AUTHENTIFIE', 'AUTH_EXTERNE_ECHEC']);
 
 export default function ConnectionBanner() {

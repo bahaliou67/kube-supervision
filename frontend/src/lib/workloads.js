@@ -1,5 +1,5 @@
 // Regroupement des Pods par charge de travail et état de chaque charge.
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 export const RANG_CATEGORIE = { erreur: 0, attente: 1, arret: 2, ok: 3, termine: 4, inactif: 5 };
 
@@ -28,7 +28,7 @@ export function lignesCharges(workloads, pods) {
   }
   const lignes = [...parCle.values()];
   if (orphelins.length > 0) {
-    lignes.push({ kind: null, name: fr.charges.sansProprietaire, orphans: true, pods: orphelins, images: [] });
+    lignes.push({ kind: null, name: textes.charges.sansProprietaire, orphans: true, pods: orphelins, images: [] });
   }
   for (const l of lignes) {
     l.counts = compter(l.pods);
@@ -59,7 +59,7 @@ export function categorie(l) {
 
 // Badge « Réplicas prêts » : { tone, icon, texte, plain }.
 export function badgeReplicas(l) {
-  const r = fr.charges.replicas;
+  const r = textes.charges.replicas;
   if (l.kind === 'Job') {
     if (l.state === 'failed') return { tone: 'err', icon: 'alerte', texte: r.jobEchec };
     if (l.state === 'complete') return { tone: 'ok', icon: 'ok', texte: r.jobTermine(l.succeeded, l.completions), plain: true };
@@ -104,8 +104,8 @@ const ORDRE_TYPES = ['Deployment', 'StatefulSet', 'DaemonSet', 'CronJob', 'Job']
 export function resumeTypes(lignes) {
   const n = {};
   for (const l of lignes) if (l.kind && !l.synthetic) n[l.kind] = (n[l.kind] ?? 0) + 1;
-  const morceaux = ORDRE_TYPES.filter((t) => n[t]).map((t) => `${n[t]} ${fr.types[t][n[t] > 1 ? 1 : 0]}`);
+  const morceaux = ORDRE_TYPES.filter((t) => n[t]).map((t) => `${n[t]} ${textes.types[t][n[t] > 1 ? 1 : 0]}`);
   const orph = lignes.find((l) => l.orphans);
-  if (orph) morceaux.push(fr.charges.resumeOrphelins(orph.pods.length));
+  if (orph) morceaux.push(textes.charges.resumeOrphelins(orph.pods.length));
   return morceaux.join(' · ');
 }

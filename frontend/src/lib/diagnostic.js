@@ -1,6 +1,6 @@
 // Diagnostic d'un Pod en langage simple, à partir des données du backend :
 // phrase principale, raison du dernier arrêt, message Kubernetes.
-import fr from '../i18n/fr.js';
+import textes from '../i18n/index.js';
 
 // « 192Mi » → « 192 Mi » ; « 1Gi » → « 1 Gi ».
 export function quantite(q) {
@@ -20,7 +20,7 @@ export function conteneur(pod, nom) {
 // Phrase principale : « Le conteneur api plante puis redémarre en boucle. »
 // Renvoie { modele, valeurs } à remplir avec tpl() (le conteneur en mono).
 export function phrase(pod) {
-  const d = fr.diagnostic;
+  const d = textes.diagnostic;
   const s = pod.status ?? '';
   const c = pod.statusContainer;
   if (pod.category === 'attente') {
@@ -39,17 +39,17 @@ export function phrase(pod) {
 // Libellé simple d'une raison d'arrêt (« mémoire dépassée »).
 export function libelleArret(t) {
   if (!t) return null;
-  const a = fr.arrets[t.reason];
+  const a = textes.arrets[t.reason];
   if (a) return a.libelle;
-  if (t.exitCode === 137) return fr.arrets.code137;
-  if (t.exitCode === 143) return fr.arrets.code143;
-  return t.reason ?? fr.arrets.defaut.libelle;
+  if (t.exitCode === 137) return textes.arrets.code137;
+  if (t.exitCode === 143) return textes.arrets.code143;
+  return t.reason ?? textes.arrets.defaut.libelle;
 }
 
 // Précision d'une raison d'arrêt (« le conteneur a utilisé plus que sa limite de 192 Mi. »).
 export function detailArret(t, limite) {
   if (!t) return '';
-  const a = fr.arrets[t.reason];
+  const a = textes.arrets[t.reason];
   if (!a) return '';
   if (t.reason === 'OOMKilled') return limite ? a.detail.replace('{limite}', limite) : a.detailSansLimite;
   return a.detail;
@@ -76,5 +76,5 @@ export function estIncident(t) {
 
 // Libellé du propriétaire : « Deployment api », ou « Pod sans propriétaire ».
 export function proprietaire(pod) {
-  return pod.workload ? `${pod.workload.kind} ${pod.workload.name}` : fr.pods.sansProprietaire;
+  return pod.workload ? `${pod.workload.kind} ${pod.workload.name}` : textes.pods.sansProprietaire;
 }

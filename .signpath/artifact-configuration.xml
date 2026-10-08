@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Configuration de l'artefact SignPath (copie de référence) : à coller dans
+  SignPath → projet kube-supervision → Artifact configurations → « default ».
+
+  L'artefact GitHub envoyé par release.yml est une archive zip contenant
+  l'exécutable Windows. Le nom et la version du produit sont vérifiés
+  (métadonnées écrites par packaging/construire-executable.mjs).
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="kube-supervision-win-x64.exe" product-name="kube-supervision" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

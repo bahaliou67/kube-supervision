@@ -13,6 +13,7 @@ jobs:
   executables:
     permissions:
       contents: read
+      actions: read  # SignPath lit les détails du job et télécharge l'artefact à signer
     strategy:
       fail-fast: true
       matrix:
@@ -38,6 +39,7 @@ jobs:
           node-version: 24
           cache: npm
       - name: Le tag correspond à la version du package
+        id: version
         shell: bash
         run: |
           version=$(node -p "require('./package.json').version")
@@ -45,17 +47,53 @@ jobs:
             echo "Le tag $GITHUB_REF_NAME ne correspond pas à la version $version de package.json"
             exit 1
           fi
+          echo "valeur=$version" >> "$GITHUB_OUTPUT"
       - run: npm ci
       - run: npm test
       - run: npm run build:exe
       - name: Fumée — l'exécutable démarre
         shell: bash
         run: ./build-exe/${{ matrix.fichier }} --version
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - id: televersement
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.fichier }}
           path: build-exe/${{ matrix.fichier }}
           if-no-files-found: error
+
+      # Signature de l'exécutable Windows par SignPath Foundation, active une fois le projet
+      # accepté et configuré (variable SIGNPATH_ORGANIZATION_ID, secret SIGNPATH_API_TOKEN).
+      # Chaque demande doit être approuvée à la main dans SignPath : le job attend au plus 2 h.
+      - name: Signature Windows (SignPath)
+        if: matrix.runner == 'windows-latest' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: kube-supervision
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: default
+          github-artifact-id: ${{ steps.televersement.outputs.artifact-id }}
+          parameters: |
+            version: "${{ steps.version.outputs.valeur }}"
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: signe
+      - name: Vérification de la signature
+        if: matrix.runner == 'windows-latest' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        shell: pwsh
+        run: |
+          $signature = Get-AuthenticodeSignature signe/${{ matrix.fichier }}
+          if ($signature.Status -ne 'Valid') { throw "Signature invalide : $($signature.Status)" }
+          $signature.SignerCertificate.Subject
+          ./signe/${{ matrix.fichier }} --version
+      - name: Remplacement par l'exécutable signé
+        if: matrix.runner == 'windows-latest' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ matrix.fichier }}
+          path: signe/${{ matrix.fichier }}
+          if-no-files-found: error
+          overwrite: true
 
   release:
     needs: executables

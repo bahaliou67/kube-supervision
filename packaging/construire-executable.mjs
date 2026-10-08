@@ -79,6 +79,24 @@ executer(process.execPath, ['--experimental-sea-config', join(sortie, 'sea-confi
 // 4. Copie du binaire Node et injection du blob.
 copyFileSync(process.execPath, executable);
 if (macos) executer('codesign', ['--remove-signature', executable]);
+// Windows : métadonnées du fichier (Propriétés → Détails, SmartScreen, Gestionnaire des tâches)
+// au nom de l'outil plutôt que de Node.js. La signature de code exige aussi que le nom et la
+// version du produit correspondent au projet. Avant l'injection du blob.
+if (windows) {
+  const { rcedit } = await import('rcedit');
+  await rcedit(executable, {
+    'version-string': {
+      ProductName: 'kube-supervision',
+      FileDescription: 'kube-supervision - Kubernetes troubleshooting from the browser',
+      CompanyName: 'Mamadou Aliou BAH',
+      LegalCopyright: 'Copyright (c) 2026 Mamadou Aliou BAH. MIT License.',
+      OriginalFilename: nomFichier,
+      InternalFilename: 'kube-supervision',
+    },
+    'product-version': pkg.version,
+    'file-version': pkg.version,
+  });
+}
 // Sous Windows, postject signale une signature corrompue : attendu, l'exécutable n'est pas signé.
 await postject.inject(executable, 'NODE_SEA_BLOB', readFileSync(join(sortie, 'sea-prep.blob')), {
   sentinelFuse: 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2',

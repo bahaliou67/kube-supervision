@@ -343,6 +343,25 @@ GitHub Actions (`.github/workflows/release.yml`) vérifie que le tag correspond
 attestation de provenance et crée la Release, avec des notes générées à partir
 des commits. Un tag publié ne peut ni être déplacé ni supprimé (règles du dépôt).
 
+### Signature Windows (SignPath)
+
+Le job Windows de `release.yml` envoie l'exécutable à SignPath dès que la
+variable de dépôt `SIGNPATH_ORGANIZATION_ID` existe ; sans elle, il est publié
+non signé. Mise en place, une fois le projet accepté par SignPath Foundation :
+
+1. Dans SignPath : projet `kube-supervision` ; connecteur *GitHub.com* comme
+   système de build de confiance ; configuration d'artefact `default` copiée de
+   [`.signpath/artifact-configuration.xml`](.signpath/artifact-configuration.xml) ;
+   politique de signature `release-signing` avec approbation manuelle.
+2. Dans GitHub (Settings → Secrets and variables → Actions) : secret
+   `SIGNPATH_API_TOKEN` (jeton d'un utilisateur CI SignPath) et variable
+   `SIGNPATH_ORGANIZATION_ID`.
+3. À chaque version, approuver la demande de signature dans SignPath dans les
+   2 heures : le job l'attend, vérifie la signature, puis publie le fichier signé.
+
+L'exécutable Windows porte le nom et la version du projet dans ses
+métadonnées (`packaging/construire-executable.mjs`), ce que SignPath vérifie.
+
 ### Sécurité du dépôt
 
 - Les actions des workflows sont figées sur un commit (SHA) ; Dependabot propose
@@ -404,6 +423,10 @@ Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "m
 Les exécutables publiés sont construits uniquement par le workflow public
 [`release.yml`](.github/workflows/release.yml), à partir du code de ce dépôt,
 et chaque version est approuvée manuellement avant publication.
+
+Les exécutables Windows seront signés gratuitement par [SignPath.io](https://signpath.io),
+avec un certificat de [SignPath Foundation](https://signpath.org) (candidature en
+cours ; la signature sera active dès son acceptation).
 
 | Rôle | Personne |
 | --- | --- |

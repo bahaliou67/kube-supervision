@@ -12,6 +12,14 @@
     "dashboard"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahaliou67/kube-supervision.git"
+  },
+  "homepage": "https://github.com/bahaliou67/kube-supervision#readme",
+  "bugs": {
+    "url": "https://github.com/bahaliou67/kube-supervision/issues"
+  },
   "type": "module",
   "bin": {
     "kube-supervision": "bin/kube-supervision.js"
@@ -33,6 +41,7 @@
     "dev:backend": "npm run dev --workspace backend",
     "dev:frontend": "npm run dev --workspace frontend",
     "build": "npm run build --workspace frontend",
+    "build:exe": "node packaging/construire-executable.mjs",
     "test": "npm test --workspace backend && npm test --workspace frontend",
     "prepack": "npm run build"
   },
@@ -43,5 +52,9 @@
   },
   "engines": {
     "node": ">=22.19.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "postject": "^1.0.0-alpha.6"
   }
 }

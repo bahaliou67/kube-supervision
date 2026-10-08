@@ -29,7 +29,7 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 
 | Élément | Détail |
 | --- | --- |
-| **Node.js 22.19 ou plus récent** | `node --version` pour vérifier. Téléchargement : <https://nodejs.org> (version LTS). |
+| **Node.js 22.19 ou plus récent**, seulement pour `npx` ou les sources | Inutile avec l'exécutable autonome. `node --version` pour vérifier. Téléchargement : <https://nodejs.org> (version LTS). |
 | **Un kubeconfig** | Celui que vous utilisez déjà avec `kubectl` : variable `KUBECONFIG` (plusieurs fichiers possibles), sinon `~/.kube/config`. |
 | **L'accès réseau au cluster** | VPN éventuel compris : si `kubectl get pods` fonctionne, l'outil fonctionne. |
 | **Le plugin d'authentification de votre fournisseur**, s'il y en a un | Par exemple `gke-gcloud-auth-plugin` (GKE), `aws` (EKS), `kubelogin` (AKS, OIDC). L'outil l'utilise exactement comme `kubectl`. |
@@ -39,9 +39,55 @@ minikube) ou managé (EKS, GKE, AKS, OpenShift…).
 
 ---
 
+## Installation
+
+### Exécutable autonome (recommandé)
+
+Un seul fichier, **sans Node.js à installer**. Téléchargez celui de votre
+système sur la [page des versions](../../releases/latest) :
+
+| Système | Fichier |
+| --- | --- |
+| Windows (64 bits) | `kube-supervision-win-x64.exe` |
+| macOS, puce Apple (M1 et suivantes) | `kube-supervision-macos-arm64` |
+| macOS, processeur Intel | `kube-supervision-macos-x64` |
+| Linux (x86-64) | `kube-supervision-linux-x64` |
+| Linux (ARM 64 bits) | `kube-supervision-linux-arm64` |
+
+**Windows** : double-cliquez sur le fichier. Le fichier n'étant pas signé,
+Windows peut afficher « Windows a protégé votre ordinateur » : cliquez sur
+**Informations complémentaires**, puis **Exécuter quand même**. Une fenêtre de
+console s'ouvre avec le navigateur : la fermer arrête l'outil.
+
+**macOS** : dans le Terminal, depuis le dossier de téléchargement :
+
+```bash
+xattr -d com.apple.quarantine kube-supervision-macos-arm64
+chmod +x kube-supervision-macos-arm64
+./kube-supervision-macos-arm64
+```
+
+(La première commande retire le blocage de macOS pour les fichiers téléchargés non signés.)
+
+**Linux** :
+
+```bash
+chmod +x kube-supervision-linux-x64
+./kube-supervision-linux-x64
+```
+
+Pour l'avoir partout dans le terminal, renommez-le `kube-supervision` et placez-le
+dans un dossier du `PATH` (par exemple `~/.local/bin` ou `/usr/local/bin`).
+
+L'intégrité d'un fichier se vérifie avec `SHA256SUMS.txt`, publié avec chaque version.
+
+Les options ci-dessous s'utilisent de la même façon : `kube-supervision --port 8080`.
+
+---
+
 ## Lancer l'outil
 
-### En une commande
+### En une commande (avec Node.js)
 
 ```bash
 npx kube-supervision
@@ -247,13 +293,30 @@ npm run dev:frontend   # interface sur http://127.0.0.1:5173 (redirige /api vers
 npm test               # tests du backend (client Kubernetes simulé) et de la logique du front
 ```
 
-Ouvrez les deux commandes `dev:` dans deux terminaux. En développement, la
+Ouvrez les deux commandes `dev:` dans deux terminaux.
+
+Exécutable autonome de la plateforme courante (Node 24 conseillé, c'est lui qui est embarqué) :
+
+```bash
+npm run build:exe      # → build-exe/kube-supervision-<os>-<arch>
+```
+
+Publier une version : mettez à jour `version` dans `package.json`, puis poussez
+le tag correspondant. GitHub Actions construit les cinq exécutables et crée la
+Release (`.github/workflows/release.yml`).
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+``` En développement, la
 galerie des composants est disponible sur `#/composants`.
 
 Structure :
 
 ```
 bin/kube-supervision.js   lanceur (npx), sert le front compilé sur le même port
+bin/lanceur.js            logique commune au lanceur npx et à l'exécutable autonome
+packaging/                construction de l'exécutable autonome (Node SEA)
 backend/src/              Express + @kubernetes/client-node
   kube/                   kubeconfig, lecture tolérante aux droits, watch, flux de logs
   mappers/                Pods, charges de travail, événements, réseau, configuration → données d'écran
@@ -297,4 +360,5 @@ Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "m
 ## Licences
 
 - Code : licence MIT (fichier `LICENSE`).
+- Exécutables autonomes : ils embarquent Node.js (licence MIT, <https://github.com/nodejs/node/blob/main/LICENSE>) et les dépendances npm de l'outil, chacune sous sa propre licence.
 - Polices IBM Plex Sans et IBM Plex Mono (fournies avec l'outil) : © IBM Corp., licence SIL Open Font License 1.1 (<https://openfontlicense.org>).

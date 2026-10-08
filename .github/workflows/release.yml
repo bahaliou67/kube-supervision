@@ -1,0 +1,69 @@
+# Publie une version : `git tag v0.2.0 && git push origin v0.2.0`.
+# Construit un exécutable autonome par plateforme et crée la Release GitHub.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  executables:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - runner: windows-latest
+            fichier: kube-supervision-win-x64.exe
+          - runner: macos-latest
+            fichier: kube-supervision-macos-arm64
+          - runner: macos-15-intel
+            fichier: kube-supervision-macos-x64
+          - runner: ubuntu-latest
+            fichier: kube-supervision-linux-x64
+          - runner: ubuntu-24.04-arm
+            fichier: kube-supervision-linux-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Le tag correspond à la version du package
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Le tag $GITHUB_REF_NAME ne correspond pas à la version $version de package.json"
+            exit 1
+          fi
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:exe
+      - name: Fumée — l'exécutable démarre
+        shell: bash
+        run: ./build-exe/${{ matrix.fichier }} --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.fichier }}
+          path: build-exe/${{ matrix.fichier }}
+          if-no-files-found: error
+
+  release:
+    needs: executables
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: fichiers
+          merge-multiple: true
+      - name: Sommes de contrôle
+        working-directory: fichiers
+        run: sha256sum kube-supervision-* > SHA256SUMS.txt
+      - name: Création de la Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" fichiers/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes

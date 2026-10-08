@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Ressources du site uniquement : aucun script, style, police ni traceur externe. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://api.github.com; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>kube-supervision — diagnostic Kubernetes sans terminal</title>
+    <meta
+      name="description"
+      content="Voir l'état d'un cluster Kubernetes et diagnostiquer un problème depuis le navigateur, sans terminal. Exécutable gratuit et open source pour Windows, macOS et Linux."
+    />
+    <meta property="og:title" content="kube-supervision" />
+    <meta
+      property="og:description"
+      content="Diagnostic Kubernetes sans terminal — Kubernetes troubleshooting without a terminal. Windows, macOS, Linux. Open source (MIT)."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bahaliou67.github.io/kube-supervision/" />
+    <meta property="og:image" content="https://bahaliou67.github.io/kube-supervision/images/accueil-fr.png" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="fonts/IBMPlexSans-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="style.css" />
+    <script src="init.js"></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="lien-evitement" href="#contenu"><span lang="fr">Aller au contenu</span><span lang="en">Skip to content</span></a>
+
+    <header class="entete">
+      <div class="conteneur">
+        <a class="marque" href="#">
+          <img src="favicon.svg" alt="" width="26" height="26" />
+          kube-supervision
+        </a>
+        <nav class="nav" aria-label="Navigation">
+          <a href="#fonctionnalites"><span lang="fr">Fonctionnalités</span><span lang="en">Features</span></a>
+          <a href="#securite"><span lang="fr">Sécurité</span><span lang="en">Security</span></a>
+          <a href="#installation">Installation</a>
+          <a href="https://github.com/bahaliou67/kube-supervision">GitHub</a>
+        </nav>
+        <div class="outils">
+          <button class="bouton-icone" type="button" id="bouton-langue">
+            <span lang="fr" aria-label="Switch to English">EN</span><span lang="en" aria-label="Passer en français">FR</span>
+          </button>
+          <button class="bouton-icone" type="button" id="bouton-theme">
+            <span class="sr-only"><span lang="fr">Changer de thème</span><span lang="en">Change theme</span></span>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <circle cx="8" cy="8" r="6" />
+              <path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="contenu">
+      <!-- ================= Héros ================= -->
+      <section class="heros">
+        <div class="conteneur">
+          <div>
+            <span class="etiquette"><span class="point" aria-hidden="true"></span>
+              <span lang="fr">Gratuit et open source · Windows, macOS, Linux</span>
+              <span lang="en">Free and open source · Windows, macOS, Linux</span>
+            </span>
+            <h1>
+              <span lang="fr">Votre cluster Kubernetes, expliqué en langage simple.</span>
+              <span lang="en">Your Kubernetes cluster, explained in plain language.</span>
+            </h1>
+            <p class="accroche">
+              <span lang="fr">Voyez l'état de vos applications et trouvez la cause d'une panne en quelques secondes, depuis le navigateur, sans terminal ni <code>kubectl</code>.</span>
+              <span lang="en">See the state of your applications and find the cause of an outage in seconds, from your browser, without a terminal or <code>kubectl</code>.</span>
+            </p>
+            <p class="diagnostic">
+              <span class="badge err">OOMKilled</span>
+              <span>
+                <span lang="fr">« Le conteneur <code>api</code> plante puis redémarre en boucle. Dernier arrêt : mémoire dépassée, limite 192 Mi. »</span>
+                <span lang="en">“Container <code>api</code> keeps crashing and restarting. Last stop: out of memory, limit 192 Mi.”</span>
+              </span>
+            </p>
+            <div class="actions-heros">
+              <a class="bouton" id="telecharger" href="https://github.com/bahaliou67/kube-supervision/releases/latest">
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" />
+                </svg>
+                <span>
+                  <span lang="fr">Télécharger<span class="systeme"></span></span>
+                  <span lang="en">Download<span class="systeme"></span></span>
+                  <small class="mono" id="telecharger-fichier"></small>
+                </span>
+              </a>
+              <a class="bouton secondaire" href="#installation">
+                <span lang="fr">Autres systèmes et installation</span><span lang="en">Other systems and setup</span>
+              </a>
+            </div>
+            <p class="note-version">
+              <span lang="fr">Un seul fichier, rien à installer. </span><span lang="en">A single file, nothing to install. </span>
+              <a href="https://github.com/bahaliou67/kube-supervision/releases/latest" id="version-courante"><span lang="fr">Dernière version</span><span lang="en">Latest release</span></a>
+            </p>
+          </div>
+          <figure class="capture">
+            <div class="barre" aria-hidden="true"><span></span><span></span><span></span></div>
+            <img lang="fr" src="images/accueil-fr.png" width="1440" height="900" alt="Écran d'accueil : trois applications en erreur avec leur cause, les autres en bon état" fetchpriority="high" />
+            <img lang="en" src="images/accueil-en.png" width="1440" height="900" alt="Home screen: three failing applications with their cause, the others healthy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= Fonctionnalités ================= -->
+      <section class="section" id="fonctionnalites">
+        <div class="conteneur">
+          <span class="surtitre"><span lang="fr">Fonctionnalités</span><span lang="en">Features</span></span>
+          <h2>
+            <span lang="fr">Du « ça ne marche plus » à la cause, sans chercher.</span>
+            <span lang="en">From “it's broken” to the cause, without digging.</span>
+          </h2>
+          <p class="intro">
+            <span lang="fr">Les statuts Kubernetes restent affichés tels quels (<code>CrashLoopBackOff</code>, <code>ImagePullBackOff</code>…), toujours accompagnés d'une explication et de la marche à suivre.</span>
+            <span lang="en">Kubernetes statuses are shown as is (<code>CrashLoopBackOff</code>, <code>ImagePullBackOff</code>…), always with an explanation and what to do next.</span>
+          </p>
+
+          <div class="vitrine">
+            <div class="vitrine-ligne">
+              <div>
+                <h3><span lang="fr">La fiche d'un Pod dit pourquoi il s'est arrêté</span><span lang="en">A Pod's page tells you why it stopped</span></h3>
+                <p>
+                  <span lang="fr">Raison du dernier arrêt, état de chaque conteneur, événements traduits. Et quand la correction est évidente, le bon formulaire est à un clic.</span>
+                  <span lang="en">Last termination reason, state of each container, translated events. And when the fix is obvious, the right form is one click away.</span>
+                </p>
+                <ul>
+                  <li><span lang="fr">Mémoire dépassée → « Modifier la limite mémoire »</span><span lang="en">Out of memory → “Change memory limit”</span></li>
+                  <li><span lang="fr">Image introuvable → « Changer l'image »</span><span lang="en">Image not found → “Change image”</span></li>
+                </ul>
+              </div>
+              <figure class="capture">
+                <img lang="fr" src="images/pod-fr.png" width="1440" height="900" loading="lazy" alt="Fiche d'un Pod arrêté pour mémoire dépassée" />
+                <img lang="en" src="images/pod-en.png" width="1440" height="900" loading="lazy" alt="Page of a Pod stopped for running out of memory" />
+              </figure>
+            </div>
+
+            <div class="vitrine-ligne inverse">
+              <div>
+                <h3><span lang="fr">Les logs, en direct ou juste avant le plantage</span><span lang="en">Logs, live or right before the crash</span></h3>
+                <p>
+                  <span lang="fr">Suivi en temps réel, recherche, et « conteneur précédent » pour voir ce qui s'est passé avant un redémarrage.</span>
+                  <span lang="en">Live follow, search, and “previous container” to see what happened before a restart.</span>
+                </p>
+              </div>
+              <figure class="capture">
+                <img lang="fr" src="images/logs-fr.png" width="1440" height="900" loading="lazy" alt="Logs d'un conteneur suivis en direct" />
+                <img lang="en" src="images/logs-en.png" width="1440" height="900" loading="lazy" alt="Container logs followed live" />
+              </figure>
+            </div>
+
+            <div class="vitrine-ligne">
+              <div>
+                <h3><span lang="fr">Le réseau, avec un diagnostic</span><span lang="en">Networking, with a diagnosis</span></h3>
+                <p>
+                  <span lang="fr">Services et Ingress, Pods prêts derrière chaque Service. Un Service qui n'envoie le trafic vers aucun Pod est signalé, avec la raison.</span>
+                  <span lang="en">Services and Ingresses, ready Pods behind each Service. A Service that routes traffic to no Pod is flagged, with the reason.</span>
+                </p>
+              </div>
+              <figure class="capture">
+                <img lang="fr" src="images/reseau-fr.png" width="1440" height="900" loading="lazy" alt="Écran Réseau : un Service sans Pod et un Ingress vers ce Service signalés" />
+                <img lang="en" src="images/reseau-en.png" width="1440" height="900" loading="lazy" alt="Networking screen: a Service without Pods and an Ingress routing to it are flagged" />
+              </figure>
+            </div>
+
+            <div class="vitrine-ligne inverse">
+              <div>
+                <h3><span lang="fr">Agir, toujours avec confirmation</span><span lang="en">Take action, always with confirmation</span></h3>
+                <p>
+                  <span lang="fr">Redémarrer, changer le nombre de réplicas, l'image, les variables, le CPU et la mémoire, revenir à une version précédente… Chaque action rappelle le cluster, le namespace et la conséquence avant d'agir.</span>
+                  <span lang="en">Restart, scale, change the image, variables, CPU and memory, roll back… Every action shows the cluster, the namespace and the consequence before anything happens.</span>
+                </p>
+              </div>
+              <figure class="capture">
+                <img lang="fr" src="images/charges-fr.png" width="1440" height="900" loading="lazy" alt="Charges de travail avec leurs Pods et le menu des actions" />
+                <img lang="en" src="images/charges-en.png" width="1440" height="900" loading="lazy" alt="Workloads with their Pods and the actions menu" />
+              </figure>
+            </div>
+          </div>
+
+          <div class="grille">
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 8h3l2-5 2 10 2-5h3" /></svg></span>
+              <h3><span lang="fr">Temps réel</span><span lang="en">Real time</span></h3>
+              <p><span lang="fr">Les écrans se mettent à jour seuls et se reconnectent après une coupure.</span><span lang="en">Screens update by themselves and reconnect after a network drop.</span></p>
+            </div>
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="10" rx="2" /><path d="M2 7h12" /></svg></span>
+              <h3><span lang="fr">Tous les clusters</span><span lang="en">Any cluster</span></h3>
+              <p><span lang="fr">Docker Desktop, kind, minikube, EKS, GKE, AKS, OpenShift… si <code>kubectl</code> marche, l'outil marche.</span><span lang="en">Docker Desktop, kind, minikube, EKS, GKE, AKS, OpenShift… if <code>kubectl</code> works, it works.</span></p>
+            </div>
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4h10M3 8h10M3 12h6" /></svg></span>
+              <h3><span lang="fr">Charges de travail complètes</span><span lang="en">All workloads</span></h3>
+              <p><span lang="fr">Deployments, StatefulSets, DaemonSets, Jobs, CronJobs, autoscalers (HPA), volumes et ConfigMaps.</span><span lang="en">Deployments, StatefulSets, DaemonSets, Jobs, CronJobs, autoscalers (HPA), volumes and ConfigMaps.</span></p>
+            </div>
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6" r="3" /><path d="M2.5 14c1-2.5 3-3.5 5.5-3.5s4.5 1 5.5 3.5" /></svg></span>
+              <h3><span lang="fr">Vos droits, rien de plus</span><span lang="en">Your permissions, nothing more</span></h3>
+              <p><span lang="fr">Un droit manquant est expliqué à l'écran (action grisée avec sa raison), ce n'est pas une panne.</span><span lang="en">A missing permission is explained on screen (greyed-out action with its reason), not shown as a failure.</span></p>
+            </div>
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6" /><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor" /></svg></span>
+              <h3><span lang="fr">Clair ou sombre</span><span lang="en">Light or dark</span></h3>
+              <p><span lang="fr">Suit le thème du système, ou celui que vous choisissez.</span><span lang="en">Follows your system theme, or the one you choose.</span></p>
+            </div>
+            <div class="carte">
+              <span class="icone" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h7M5.5 2v2M3.5 4c.5 3 2.5 5 5 6M7.5 4c-.5 3-2.5 5-5 6M9 14l2.5-6 2.5 6M9.8 12h3.4" /></svg></span>
+              <h3><span lang="fr">Français ou anglais</span><span lang="en">French or English</span></h3>
+              <p><span lang="fr">L'interface et les messages d'erreur suivent la langue choisie.</span><span lang="en">The interface and error messages follow the chosen language.</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Sécurité et confidentialité ================= -->
+      <section class="section" id="securite">
+        <div class="conteneur">
+          <span class="surtitre"><span lang="fr">Sécurité et confidentialité</span><span lang="en">Security and privacy</span></span>
+          <h2>
+            <span lang="fr">Tout reste sur votre poste.</span>
+            <span lang="en">Everything stays on your machine.</span>
+          </h2>
+          <p class="intro" id="confidentialite">
+            <span lang="fr">kube-supervision ne transmet aucune information à un autre système que votre propre cluster Kubernetes, et seulement quand vous le demandez. Pas de compte, pas de télémétrie, pas de serveur distant.</span>
+            <span lang="en">kube-supervision does not transfer any information to any networked system other than your own Kubernetes cluster, and only when you ask for it. No account, no telemetry, no remote server.</span>
+          </p>
+          <div class="grille">
+            <div class="carte">
+              <h3><span lang="fr">Votre kubeconfig, vos droits</span><span lang="en">Your kubeconfig, your rights</span></h3>
+              <p><span lang="fr">L'outil utilise le kubeconfig et le plugin d'authentification de votre fournisseur, exactement comme <code>kubectl</code>. Aucun identifiant n'est envoyé au navigateur ni écrit dans les journaux.</span><span lang="en">The tool uses your kubeconfig and your provider's authentication plugin, exactly like <code>kubectl</code>. No credential is sent to the browser or written to logs.</span></p>
+            </div>
+            <div class="carte">
+              <h3><span lang="fr">Accessible depuis votre poste seulement</span><span lang="en">Reachable from your machine only</span></h3>
+              <p><span lang="fr">Le serveur n'écoute que sur <code>127.0.0.1</code>, refuse les requêtes d'un autre site et protège contre le « DNS rebinding ».</span><span lang="en">The server only listens on <code>127.0.0.1</code>, rejects requests from other sites and protects against DNS rebinding.</span></p>
+            </div>
+            <div class="carte">
+              <h3><span lang="fr">Jamais vos Secrets</span><span lang="en">Never your Secrets</span></h3>
+              <p><span lang="fr">Les Secrets ne sont jamais lus. Des ConfigMaps, seuls les noms des clés sont affichés, jamais leur contenu.</span><span lang="en">Secrets are never read. For ConfigMaps, only key names are shown, never their content.</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Installation ================= -->
+      <section class="section" id="installation">
+        <div class="conteneur">
+          <span class="surtitre">Installation</span>
+          <h2>
+            <span lang="fr">Un fichier à télécharger, c'est tout.</span>
+            <span lang="en">One file to download, that's it.</span>
+          </h2>
+          <p class="intro">
+            <span lang="fr">Pas de Node.js, pas d'installateur. L'outil s'ouvre dans votre navigateur sur <code>http://127.0.0.1:7420</code>, sur le contexte courant de votre kubeconfig.</span>
+            <span lang="en">No Node.js, no installer. The tool opens in your browser at <code>http://127.0.0.1:7420</code>, on the current context of your kubeconfig.</span>
+          </p>
+
+          <div class="onglets" role="tablist" aria-label="Système">
+            <button type="button" role="tab" id="onglet-windows" aria-controls="panneau-windows" aria-selected="true">Windows</button>
+            <button type="button" role="tab" id="onglet-macos" aria-controls="panneau-macos" aria-selected="false" tabindex="-1">macOS</button>
+            <button type="button" role="tab" id="onglet-linux" aria-controls="panneau-linux" aria-selected="false" tabindex="-1">Linux</button>
+          </div>
+
+          <div class="panneau" role="tabpanel" id="panneau-windows" aria-labelledby="onglet-windows">
+            <ol class="etapes">
+              <li>
+                <div>
+                  <p><span lang="fr">Téléchargez le fichier :</span><span lang="en">Download the file:</span></p>
+                  <div class="fichiers">
+                    <a href="https://github.com/bahaliou67/kube-supervision/releases/latest/download/kube-supervision-win-x64.exe">kube-supervision-win-x64.exe</a>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <p><span lang="fr">Double-cliquez dessus. Une fenêtre de console s'ouvre avec le navigateur ; la fermer arrête l'outil.</span><span lang="en">Double-click it. A console window opens along with the browser; closing it stops the tool.</span></p>
+                  <p class="encadre">
+                    <span lang="fr"><strong>« Windows a protégé votre ordinateur » ?</strong> Le fichier n'est pas encore signé. Cliquez sur <strong>Informations complémentaires</strong>, puis <strong>Exécuter quand même</strong>. Ou, une fois pour toutes, en PowerShell :</span>
+                    <span lang="en"><strong>“Windows protected your PC”?</strong> The file is not signed yet. Click <strong>More info</strong>, then <strong>Run anyway</strong>. Or, once and for all, in PowerShell:</span>
+                  </p>
+                  <pre><code>Unblock-File .\kube-supervision-win-x64.exe</code></pre>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="panneau" role="tabpanel" id="panneau-macos" aria-labelledby="onglet-macos" hidden>
+            <ol class="etapes">
+              <li>
+                <div>
+                  <p><span lang="fr">Téléchargez le fichier de votre Mac :</span><span lang="en">Download the file for your Mac:</span></p>
+                  <div class="fichiers">
+                    <a href="https://github.com/bahaliou67/kube-supervision/releases/latest/download/kube-supervision-macos-arm64"><span lang="fr">Puce Apple (M1 et +)</span><span lang="en">Apple silicon (M1+)</span> · arm64</a>
+                    <a href="https://github.com/bahaliou67/kube-supervision/releases/latest/download/kube-supervision-macos-x64">Intel · x64</a>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <p><span lang="fr">Dans le Terminal, depuis le dossier de téléchargement, autorisez puis lancez le fichier (le fichier n'est pas encore signé par Apple) :</span><span lang="en">In Terminal, from your downloads folder, allow then run the file (it is not signed by Apple yet):</span></p>
+                  <pre><code>xattr -d com.apple.quarantine kube-supervision-macos-arm64
+chmod +x kube-supervision-macos-arm64
+./kube-supervision-macos-arm64</code></pre>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="panneau" role="tabpanel" id="panneau-linux" aria-labelledby="onglet-linux" hidden>
+            <ol class="etapes">
+              <li>
+                <div>
+                  <p><span lang="fr">Téléchargez le fichier :</span><span lang="en">Download the file:</span></p>
+                  <div class="fichiers">
+                    <a href="https://github.com/bahaliou67/kube-supervision/releases/latest/download/kube-supervision-linux-x64">x64</a>
+                    <a href="https://github.com/bahaliou67/kube-supervision/releases/latest/download/kube-supervision-linux-arm64">ARM64</a>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <p><span lang="fr">Rendez-le exécutable et lancez-le :</span><span lang="en">Make it executable and run it:</span></p>
+                  <pre><code>chmod +x kube-supervision-linux-x64
+./kube-supervision-linux-x64</code></pre>
+                  <p class="mut"><span lang="fr">Pour l'avoir partout : renommez-le <code>kube-supervision</code> et placez-le dans <code>~/.local/bin</code>.</span><span lang="en">To use it anywhere: rename it <code>kube-supervision</code> and move it to <code>~/.local/bin</code>.</span></p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="grille prerequis">
+            <div class="carte">
+              <h3><span lang="fr">Prérequis</span><span lang="en">Requirements</span></h3>
+              <p><span lang="fr">Un kubeconfig (celui de <code>kubectl</code>), l'accès réseau au cluster (VPN compris) et, si votre fournisseur en utilise un, son plugin d'authentification (<code>gke-gcloud-auth-plugin</code>, <code>aws</code>, <code>kubelogin</code>…).</span><span lang="en">A kubeconfig (the one <code>kubectl</code> uses), network access to the cluster (VPN included) and, if your provider uses one, its authentication plugin (<code>gke-gcloud-auth-plugin</code>, <code>aws</code>, <code>kubelogin</code>…).</span></p>
+            </div>
+            <div class="carte">
+              <h3><span lang="fr">Options</span><span lang="en">Options</span></h3>
+              <p><span lang="fr"><code>--port 8080</code> pour changer de port, <code>--no-open</code> pour ne pas ouvrir le navigateur. Avec Node.js 22.19+ : <code>npx kube-supervision</code> depuis les sources.</span><span lang="en"><code>--port 8080</code> to change the port, <code>--no-open</code> to skip opening the browser. With Node.js 22.19+: <code>npx kube-supervision</code> from source.</span></p>
+            </div>
+            <div class="carte" id="verifier">
+              <h3><span lang="fr">Vérifier un téléchargement</span><span lang="en">Verify a download</span></h3>
+              <p><span lang="fr">Chaque fichier a une attestation signée par GitHub prouvant qu'il a été construit depuis ce dépôt :</span><span lang="en">Each file has a GitHub-signed attestation proving it was built from this repository:</span></p>
+              <pre><code>gh attestation verify &lt;fichier&gt; --repo bahaliou67/kube-supervision</code></pre>
+              <p><span lang="fr">Ou comparez son empreinte avec <code>SHA256SUMS.txt</code>.</span><span lang="en">Or compare its hash with <code>SHA256SUMS.txt</code>.</span></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Désinstallation ================= -->
+      <section class="section" id="desinstallation">
+        <div class="conteneur">
+          <span class="surtitre"><span lang="fr">Désinstallation</span><span lang="en">Uninstall</span></span>
+          <h2><span lang="fr">Rien à désinstaller, ou presque.</span><span lang="en">Almost nothing to uninstall.</span></h2>
+          <p class="intro">
+            <span lang="fr">L'outil ne modifie pas votre système. Pour le retirer : arrêtez-le (Ctrl+C ou fermez sa fenêtre), supprimez le fichier téléchargé, puis le dossier <code>kube-supervision-&lt;version&gt;</code> qu'il crée dans le dossier temporaire (<code>%TEMP%</code> sous Windows, <code>$TMPDIR</code> sous macOS, <code>/tmp</code> sous Linux). Vos préférences de langue et de thème sont gardées par le navigateur seulement.</span>
+            <span lang="en">The tool does not change your system. To remove it: stop it (Ctrl+C or close its window), delete the downloaded file, then the <code>kube-supervision-&lt;version&gt;</code> folder it creates in the temporary folder (<code>%TEMP%</code> on Windows, <code>$TMPDIR</code> on macOS, <code>/tmp</code> on Linux). Your language and theme preferences are only kept by the browser.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= Code signing policy ================= -->
+      <section class="section" id="code-signing-policy">
+        <div class="conteneur">
+          <span class="surtitre"><span lang="fr">Signature du code</span><span lang="en">Code signing</span></span>
+          <h2>Code signing policy</h2>
+          <p class="intro">
+            <span lang="fr">Les exécutables publiés sont construits uniquement par le workflow public <a href="https://github.com/bahaliou67/kube-supervision/blob/main/.github/workflows/release.yml">release.yml</a>, à partir du code source de ce dépôt, et chaque version est approuvée manuellement avant publication.</span>
+            <span lang="en">Published executables are built only by the public <a href="https://github.com/bahaliou67/kube-supervision/blob/main/.github/workflows/release.yml">release.yml</a> workflow, from this repository's source code, and every release is manually approved before publication.</span>
+          </p>
+          <table class="tableau">
+            <tbody>
+              <tr>
+                <th scope="row"><span lang="fr">Fichiers concernés</span><span lang="en">Signed files</span></th>
+                <td><span lang="fr">Exécutables publiés dans les <a href="https://github.com/bahaliou67/kube-supervision/releases">Releases GitHub</a>.</span><span lang="en">Executables published in <a href="https://github.com/bahaliou67/kube-supervision/releases">GitHub Releases</a>.</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Authors · Committers</th>
+                <td><a href="https://github.com/bahaliou67">@bahaliou67</a> (Mamadou Aliou BAH)</td>
+              </tr>
+              <tr>
+                <th scope="row">Reviewers</th>
+                <td><a href="https://github.com/bahaliou67">@bahaliou67</a> — <span lang="fr">relit toute contribution extérieure (pull request) ; voir <a href="https://github.com/bahaliou67/kube-supervision/blob/main/.github/CODEOWNERS">CODEOWNERS</a>.</span><span lang="en">reviews every outside contribution (pull request); see <a href="https://github.com/bahaliou67/kube-supervision/blob/main/.github/CODEOWNERS">CODEOWNERS</a>.</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Approvers</th>
+                <td><a href="https://github.com/bahaliou67">@bahaliou67</a> — <span lang="fr">approuve chaque version avant signature.</span><span lang="en">approves each release before signing.</span></td>
+              </tr>
+              <tr>
+                <th scope="row"><span lang="fr">Confidentialité</span><span lang="en">Privacy</span></th>
+                <td><span lang="fr">Ce programme ne transmet aucune information à un autre système en réseau, sauf si l'utilisateur ou la personne qui l'installe ou l'utilise le demande expressément (ici : son propre cluster Kubernetes). <a href="#confidentialite">Détails</a>.</span><span lang="en">This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it (here: their own Kubernetes cluster). <a href="#confidentialite">Details</a>.</span></td>
+              </tr>
+              <tr>
+                <th scope="row"><span lang="fr">Signaler un problème</span><span lang="en">Report an issue</span></th>
+                <td><span lang="fr">Faille de sécurité : <a href="https://github.com/bahaliou67/kube-supervision/security/advisories/new">signalement privé</a> (voir <a href="https://github.com/bahaliou67/kube-supervision/blob/main/SECURITY.md">SECURITY.md</a>).</span><span lang="en">Security issue: <a href="https://github.com/bahaliou67/kube-supervision/security/advisories/new">private report</a> (see <a href="https://github.com/bahaliou67/kube-supervision/blob/main/SECURITY.md">SECURITY.md</a>).</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pied">
+      <div class="conteneur">
+        <p>
+          kube-supervision · <span lang="fr">licence</span><span lang="en">license</span> MIT · © 2026 Mamadou Aliou BAH
+        </p>
+        <nav aria-label="Liens">
+          <a href="https://github.com/bahaliou67/kube-supervision">GitHub</a>
+          <a href="https://github.com/bahaliou67/kube-supervision/releases">Releases</a>
+          <a href="https://github.com/bahaliou67/kube-supervision/issues"><span lang="fr">Signaler un bug</span><span lang="en">Report a bug</span></a>
+          <a href="https://github.com/bahaliou67/kube-supervision/blob/main/SECURITY.md"><span lang="fr">Sécurité</span><span lang="en">Security</span></a>
+          <a href="#code-signing-policy">Code signing policy</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,5 +1,7 @@
 # Supervision Kubernetes
 
+**Site et téléchargement : <https://bahaliou67.github.io/kube-supervision/>**
+
 Un outil web pour **voir l'état d'un cluster Kubernetes et diagnostiquer un
 problème sans terminal**. Quand une application tombe, l'écran d'accueil dit
 en quelques secondes laquelle, et pourquoi : « Le conteneur `api` plante puis
@@ -90,6 +92,14 @@ gh attestation verify kube-supervision-win-x64.exe --repo bahaliou67/kube-superv
 À défaut, comparez son empreinte SHA-256 avec `SHA256SUMS.txt`, publié avec chaque version.
 
 Les options ci-dessous s'utilisent de la même façon : `kube-supervision --port 8080`.
+
+### Désinstallation
+
+L'outil ne modifie pas le système. Pour le retirer : arrêtez-le (Ctrl+C ou
+fermeture de sa fenêtre), supprimez le fichier téléchargé, puis le dossier
+`kube-supervision-<version>` qu'il crée dans le dossier temporaire (`%TEMP%`
+sous Windows, `$TMPDIR` sous macOS, `/tmp` sous Linux). Les préférences de
+langue et de thème sont gardées par le navigateur seulement.
 
 ---
 
@@ -346,6 +356,7 @@ Structure :
 
 ```
 bin/kube-supervision.js   lanceur (npx), sert le front compilé sur le même port
+site/                     page d'accueil publique (GitHub Pages, workflow pages.yml)
 bin/lanceur.js            logique commune au lanceur npx et à l'exécutable autonome
 packaging/                construction de l'exécutable autonome (Node SEA)
 backend/src/              Express + @kubernetes/client-node
@@ -385,6 +396,26 @@ API locale (toutes les routes acceptent `ctx` et `ns`) :
 | `POST /api/resources/horizontalpodautoscalers/:nom/limits` | Limites d'un autoscaler (`{ "min": 1, "max": 5 }`) |
 
 Les erreurs ont toutes la même forme : `{ "error": { "code": "ACCES_REFUSE", "message": "…" } }`. Le message est en anglais si la requête porte l'en-tête `X-Langue: en` (ou, pour les flux temps réel, le paramètre `lang=en`), en français sinon.
+
+---
+
+## Code signing policy
+
+Les exécutables publiés sont construits uniquement par le workflow public
+[`release.yml`](.github/workflows/release.yml), à partir du code de ce dépôt,
+et chaque version est approuvée manuellement avant publication.
+
+| Rôle | Personne |
+| --- | --- |
+| Authors, Committers | [@bahaliou67](https://github.com/bahaliou67) |
+| Reviewers (toute contribution extérieure) | [@bahaliou67](https://github.com/bahaliou67), voir [CODEOWNERS](.github/CODEOWNERS) |
+| Approvers (chaque version) | [@bahaliou67](https://github.com/bahaliou67) |
+
+**Confidentialité** : ce programme ne transmet aucune information à un autre
+système en réseau, sauf si l'utilisateur ou la personne qui l'installe ou
+l'utilise le demande expressément (ici : son propre cluster Kubernetes).
+
+Détails : <https://bahaliou67.github.io/kube-supervision/#code-signing-policy>.
 
 ---
 
